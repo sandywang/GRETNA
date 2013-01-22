@@ -1,0 +1,1259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  <title>MRIcron Statistics Page</title>
+</head>
+
+
+<body bgcolor="#ffffff">
+
+
+
+
+
+
+ 
+<table bgcolor="#000000" border="0" cellpadding="0" cellspacing="0" width="100%">
+
+
+
+
+
+
+ <tbody>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+ <td bgcolor="#ffffff">
+      
+      
+      
+      
+      
+      
+      <table bgcolor="#000050" border="0" width="100%">
+
+
+
+
+
+
+ <tbody>
+
+
+
+
+
+
+          <tr>
+
+
+
+
+
+
+ <td><a href="../index.html"><img src="images/icon.png" border="0" height="86" width="128"></a></td>
+
+
+
+
+
+
+ <td width="100%"><font color="#ffffff" size="5">MRIcron Statistical Analysis Tutorial</font></td>
+
+
+
+
+
+
+          </tr>
+
+
+
+
+
+
+ 
+        
+        
+        
+        
+        
+        
+        </tbody>
+      
+      
+      
+      
+      
+      
+      </table>
+
+
+
+
+
+
+ </td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+ 
+  
+  
+  
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+
+ 
+<table border="0" width="100%">
+
+
+
+
+
+
+ <tbody>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+ <td width="40">&nbsp;</td>
+
+
+
+
+
+
+ <td valign="top" width="100%"><b>Introduction</b>
+      
+      
+      
+      
+      
+      <p><b>Important note: By
+default, MRIcron has the lesion drawing tools switched off. To turn on the lesion
+drawing features of MRIcron, select Help/Preferences and make sure the "Show drawing menu and tools" checkbox is selected.</b></p>
+
+     <p>MRIcron is designed to relate lesion location to behavioral
+performance. For example, it can help identify brain regions that are
+crucial to language production. To conduct an analysis, we will need to
+conduct four steps:</p>
+      <ol>
+ <li>Lesion Mapping: For each individual, we need to map the extent of brain injury.</li>
+ <li>Specify design: We need to design our experiment, creating a
+spreadsheet that links each individual's lesion map to their performance</li>
+ <li>Compute results: We need to conduct a voxelwise statistical analysis.</li>
+ <li>Viewing results: We need to interpret the results.</li>
+      </ol>
+
+
+
+This tutorial guides you through a lesion data analysis. <br>
+
+      <ol>
+        <li>A copy of <a href="http://www.mricro.com/mricron/">MRIcron</a>: the  version will include a folder named 'example\lesions' with the sample dataset described here.</li> 
+        <li>A copy of  <a href="http://www.mricro.com/npm/">NPM</a> (installed when you install MRIcron)</li>
+      </ol>
+In this tutorial, I assume the lesion maps and design file are in the folder c:\dataset, but you can extract the files
+anywhere. Note that by default these are usually installed to c:\program files\mricron\example\lesions. The sample dataset includes simulated lesion maps for 23
+patients. This folder also includes .val files that report the
+performance
+of these patients on a letter cancellation task.&nbsp; In this task,
+patients are asked to mark each occurence of the letter 'A' on a piece
+of paper that was cluttered with letters. A perfect score on this task
+is 60 (when all the A's are detected). The file continuous.val lists
+each patient's
+performance on this task (a score of 2..60), while the file
+binomial.val lists performance on this task as binary: patients missing
+more than 4 items are listed as having failed this task (0), while
+patients who missed 4 or fewer items are listed as having passed this
+task (1). <b>Note that for both the continuous and binomial measures, a higher score indicates BETTER performance. If lower scores indicate better performance (e.g. response times) you need to either look at the negative Z-values in the statistical maps or invert the magnitude of your behavioral data. </b>We have included both binomial and continuous values to
+illustrate the statistical analyses available with MRIcron.<br>
+      <br>
+      <table style="text-align: left; background-color: rgb(204, 204, 204); width: 100%;" border="0" cellpadding="2" cellspacing="1">
+
+
+
+        <tbody>
+
+
+
+          
+
+
+          <tr>
+
+
+
+            <td>Right: A sample lesion map (9.voi) overlayed ontop
+of the ch2 template showing injury to the left temporal lobe. To view
+this map, launch MRIcron and choose File/Template/Ch2, then choose
+Overlay/Add... and choose the image 9.voi included with the sample
+dataset. </td>
+
+
+
+            <td><img style="width: 181px; height: 217px;" alt="patient 9 lesion" src="images/patient9.jpg"><br>
+            </td>
+
+
+
+            <td></td>
+
+
+
+          </tr>
+
+
+
+        
+        
+        
+        </tbody>
+      
+      
+      
+      </table>
+      
+      
+
+      <p><b>Lesion Mapping</b></p>
+
+
+
+
+
+ 
+      
+      
+      
+      
+      
+      <p>MRIcron provides simple tools for drawing a region of brain
+injury. However, it is crucial that all of our lesion maps are drawn
+with the same image dimensions and orientation. Therefore, we should
+either draw all the lesions on a standard template (e.g.
+File/OpenTemplates/CH2), or we need to first normalize all the scans so
+they are coregistered and then open each scan using File/Open.</p>
+
+
+
+
+
+      
+      
+      
+      
+      
+      <ol>
+
+
+
+
+
+ <li>Launch MRIcron and open your scan (File/Open or File/OpenTemplate)</li>
+
+
+
+
+
+ <li>Select your drawing tool (these are listed at the bottom of the Draw menu, e.g. the 'Pen' tool).</li>
+
+
+
+
+
+ <li>Draw your region - for example if you use the 'Autoclose Pen'
+tool, simply click and draw the border of the brain injury. To fill in
+an enclosed region, simply shift+click in the center of the region. To
+erase part of your drawing, hold down the Shift key.</li>
+
+
+
+
+
+ <li>Repeat step 3 for all slices where a lesion is present (e.g. you
+can adjust the X,Y,Z numbers that appear on the top left to select the
+desired slice. Note you can also use a mouse scroll-wheel to select
+slices.</li>
+
+
+
+
+
+ <li>When you are done drawing the region of brain injury, choose Draw/SaveVOI to save a copy of the lesion map.</li>
+
+
+
+
+
+ <li>Repeat steps 1-5 for each individual, save the lesion maps from all the individuals in a single folder.</li>
+
+
+
+
+
+      
+      
+      
+      
+      
+      </ol>
+
+
+
+
+      <br>
+
+
+
+
+
+ 
+      
+      
+      
+      
+      <table style="text-align: left; background-color: rgb(212, 208, 200); width: 100%;" border="0" cellpadding="2" cellspacing="0">
+
+
+
+
+        <tbody>
+
+
+
+
+          <tr>
+
+
+
+
+            <td></td>
+
+
+
+
+            <td><img style="width: 31px; height: 31px;" alt="pen tool" src="images/draw/pen.png"></td>
+
+
+
+
+            <td><img style="width: 31px; height: 31px;" alt="closed pen tool" src="images/draw/closedpen.png"></td>
+
+
+
+
+            <td><img style="width: 31px; height: 31px;" alt="fill tool" src="images/draw/fill.png"></td>
+
+
+
+
+            <td><img style="width: 31px; height: 31px;" alt="circle tool" src="images/draw/circle.png"></td>
+
+
+
+
+            <td><img style="width: 31px; height: 31px;" alt="3D fill tool" src="images/draw/3dfill.png"></td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td style="font-weight: bold;"></td>
+
+
+
+
+            <td style="font-weight: bold; text-decoration: underline;">Pen Tool</td>
+
+
+
+
+            <td style="font-weight: bold; text-decoration: underline;">Closed Pen Tool</td>
+
+
+
+
+            <td style="font-weight: bold; text-decoration: underline;">Fill Tool</td>
+
+
+
+
+            <td style="font-weight: bold; text-decoration: underline;">Circle Tool</td>
+
+
+
+
+            <td style="font-weight: bold; text-decoration: underline;">3D Fill Tool</td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Left click</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Draw line</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Draw closed line</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Fill region</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Draw ellipse</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);"><a href="http://www.mricro.com/3droi.html"> see web page</a></td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Shift+ left click</td>
+
+
+
+
+            <td>Erase line</td>
+
+
+
+
+            <td>Erase closed line</td>
+
+
+
+
+            <td>Erase region</td>
+
+
+
+
+            <td>Erase ellipse</td>
+
+
+
+
+            <td></td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Ctrl+ left click</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Draw thick line</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Draw thick closed line</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);"><span style="color: rgb(204, 0, 0);">3D Bubble Fill</span></td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Draw rectangle</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);"></td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Ctrl+shift+ left click</td>
+
+
+
+
+            <td>Erase thick line</td>
+
+
+
+
+            <td>Erase thick closed line</td>
+
+
+
+
+            <td><span style="color: rgb(204, 0, 0);">Erase 3D region</span></td>
+
+
+
+
+            <td>Erase rectangle</td>
+
+
+
+
+            <td></td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">right click</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Fill region</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Fill region</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Fill region</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">-</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);"></td>
+
+
+
+
+          </tr>
+
+
+
+
+          <tr>
+
+
+
+
+            <td>Shift+ right click</td>
+
+
+
+
+            <td>Erase region</td>
+
+
+
+
+            <td>Erase region</td>
+
+
+
+
+            <td>Erase region</td>
+
+
+
+
+            <td>-</td>
+
+
+
+
+            <td></td>
+
+
+
+
+          </tr>
+
+
+
+
+          
+          <tr>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Alt+ left click</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Change view</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Change view</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Change view</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Change view</td>
+
+
+
+
+            <td style="background-color: rgb(255, 255, 255);">Change view</td>
+
+
+
+
+          </tr>
+
+
+
+          
+        
+        
+        
+        
+        </tbody>
+      
+      
+      
+      
+      </table>
+
+
+
+      
+      
+      
+
+
+
+
+
+      
+      
+      
+      
+      
+      <p><span style="font-weight: bold;">Specify the Design</span></p>
+
+
+
+Lets famialize ourselves with the dataset we will analyze.
+      
+      
+      
+      <ol>
+
+
+
+        <li>Launch NPM and open the design window
+(VLSM/Design...). A speadsheet will appear. Select File/Open
+and view the file continuous.val. Each row shows
+the performance of each patient, for example the patient&nbsp;1
+identified 2 items, while patient 2 detected 44 items. Note that with
+this software higher scores reflect better
+performance. If you have binomial data (where performance falls into
+two discrete categoris), you should denote the presence of a deficit
+with a 0 and healthy performance with a one. Note that the filename
+listed in the left column and the performance in the right column
+always correspond to the same patient.<br>
+
+
+
+
+          <img style="width: 253px; height: 200px;" alt="Design" src="images/val.gif"><br>
+        </li>
+
+
+
+
+
+
+ <li>We need to first describe the lesion maps and name the behavioral
+performance measures. Select View/Design to bring up the description
+window.<br>
+
+
+
+
+          <img style="width: 387px; height:165px;" alt="design" src="images/design.gif">&nbsp;<br>
+
+
+
+
+
+
+ 
+          
+          
+          
+          
+          
+          
+          <ol>
+
+
+
+
+
+
+ <li>Predictors: shows the number of behavioral measures - here we are only examining the letter cancelation performance..</li>
+
+
+
+
+
+
+ <li>Predictor names: for each predictor, insert an easy to remember name, e.g. 'cancel' for our letter finding task.</li>
+
+
+
+
+
+
+
+
+
+ <li>You can select the file names of your lesion maps by
+pressing the 'Select Images' button to select the lesion maps from
+all your participants. You should select all the images simultaneously,
+and all the images should be placed in a single folder (e.g. your
+lesion maps might be C:\dataset\1.voi, C:\dataset\2.voi, etc). The lesion
+images can be in MRIcron VOI, NIfTI .nii, compressed NIfTI .nii.gz or
+Analyze (.hdr/.img) format. If you do select images, make sure the
+filenames match the patient performance, as noted in step 1.&nbsp;</li>
+
+
+
+
+
+
+ <li>You can also set an a priori minimum lesion density threshold. For
+example, setting a value of 10% when you analyze 22 people means that
+statistics will only be computed for voxels damaged in more than 2
+people. A large number for this threshold can increase your statistical
+power, as you will only compute statistics for voxels that are commonly
+injured. However, larger values will fail to detect rarely damaged
+regions that are reliable predictors of deficit. Note that this value
+is based on the total incidence of lesions in a voxel, regardless of
+behavioral performance.</li>
+
+
+
+          
+          
+          
+          </ol>
+
+
+
+        </li>
+
+
+
+      
+      
+      
+      </ol>
+
+
+
+
+
+
+ 
+      
+      
+      
+      
+      
+      
+      <p><b>Compute results</b></p>
+
+
+
+
+
+
+ 
+      
+      
+      
+      
+      
+      
+      <p>Next, we we compute our statistical results. You can conduct
+some statistics by choosing items in the Draw/Statistics menu of
+MRIcron. However, here we describe using some of the new features in
+NPM that are not yet available in MRIcron - specifically, NPM can
+conduct permutation thresholding and the Brunner and Munzel test. To
+conduct these statistics,
+you need to download and install npm.exe - this only works on the
+Windows operating system.</p>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ol>
+
+
+
+
+
+
+ <li>First go to the 'Options' menu and set the permutations to <span style="font-weight: bold;">None</span>.
+Permutation thresholding can be useful, but it will take at least 1000
+times longer than a normal False-Discovery Rate corrected threshold,
+and is typically less sensitive. Therfore, for you first glance at your
+data, turn this feature off.</li>
+
+
+
+        <li>For analyzing the continuous data:</li>
+
+
+
+        
+        
+        
+        <ol>
+
+
+
+          <li>Go to&nbsp;'Option' menu and click 'Tests' - make sure the 'Brunner Munzel' is checked and the t-test is <span style="font-weight: bold;">unchecked</span>.
+Our data is not normally distributed, so we will use a non-parametric
+test (using the permuted Brunner Munzel rank order statistic).</li>
+
+
+
+          <li>Click the VLSM/BinaryImagesContinuousGroups command. Select the continuous.val file.</li>
+
+
+
+        
+        
+        
+        </ol>
+
+
+
+
+
+
+ <li>For analyzing the binomial data:</li>
+
+
+
+        
+        
+        
+        <ol>
+
+
+
+          <li>Click the VLSM/BinaryImagesBinaryGroups command. Select
+the binomial.val file. This will use the Liebermeister measure (a more
+sensitive binomial test than Chi-Squared or Fisher's Exact test, see Seneta and Phipps, 2001; Phipps, 2003).<br>
+ <img style="width: 387px; height: 379px;" alt="Comparison" src="images/lieber.gif">
+</li>
+
+
+
+        
+        
+        
+        </ol>
+
+
+
+        <li>NPM will now compute the requested tests. It will create
+overlap images of all your patients (e.g. sum.nii.gz) and a statistical
+map (BM.nii.gz for continuous data, L.nii.gz for binomial data).<br>
+
+
+
+
+          <img style="width: 458px; height: 347px;" alt="NPM" src="images/npm.gif"></li>
+
+
+
+      
+      
+      
+      </ol>
+
+
+
+      
+      
+      
+      <p><b>Viewing results</b></p>
+
+
+
+
+
+
+ 
+      
+      
+      
+      
+      
+      
+      <p>We can open up the statistical maps generated and place them
+on top of an anatomical scan. If your lesion maps were aligned to
+stereotaxic MNI space, you can open them on top of one of the standard
+templates (File/OpenTemplates/ch2). Here is a quick guide:</p>
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      <ol>
+
+
+
+
+
+
+ <li>Launch MRIcron and choose File/OpenTemplates/ch2bet as our background image</li>
+
+
+
+
+
+
+ <li>Choose Overlay/Add and choose the statistical map created in the previous step (e.g. C:\dataset\binL.nii.gz). </li>
+
+
+
+
+
+
+ <li>When MRIcron detects a statistical map, it calculates the
+p-values
+for each test in order to determine the false discover rate (FDR)
+threshold - e.g. how much robust signal is present in your data.
+MRIcron displays a histogram of the Z-scores. Note in the example
+below, most of the data has positive Z scores suggesting a robust
+signal (if our data was merely noise, we should see a bell-shaped
+distribution with a mean of 0, instead the mean Z score is around 2).<br>
+
+
+
+
+
+
+ <img style="width: 367px; height: 240px;" alt="Histogram" src="images/zhistogram.gif"><br>
+
+
+
+
+        </li>
+
+
+
+
+
+
+ <li>Next, MRIcron displays the overlay. Note at the bottom of the
+screen the software reports the critical values: the p05/p01 values
+correspond to uncorrected p&lt;0.05 and p&lt;0.01 values that are very
+liberal (these tests will make many false alarms, e.g. here we have
+conducted 16082 tests, so p05 should result in many false positives).
+The fwe05 and fwe01 values correspond to the Bonferroni-corrected
+values: this test is very conservative, and you will often fail to
+detect real effects. The FDR05 and FDR01 results reflect the False
+Discover Rate - e.g. a FDR05 should show around 20 real activations for
+every false positive. Note that when there is very little or no signal,
+FDR is as conservative as Bonferroni, but it is adaptive to the actual
+signal in your dataset. Note that you can select the image thresholding
+and cutoff for your overlay. Note that by default,
+my software loads statistical maps with thresholds from FDR05 to FDR01,
+unless there is insufficient signal, in which case it uses the
+uncorrected 0.05...0.01 values. Also note that the current overlay is
+set to appear in a monochromatic red color scheme.<br>
+
+
+
+
+
+
+ <img style="width: 470px; height: 232px;" alt="lesion stats" src="images/results.jpg"><br>
+The image below shows how changing a threshold can change the
+appearance of a statistical overlay. Consider the raw statitical map
+shown in the left panel, while the middle panel has been thresholded to
+only show voxels with Z-scores greater than 2.5 (with three regions
+surviving this threshold), the right panel shows a more conservative
+threshold of Z&gt;4.5 - with only a single peak surviving.<br>
+
+
+          <img style="width: 739px; height: 338px;" alt="Thresholding" src="images/threshold.gif"></li>
+
+
+
+        </li>
+
+
+
+
+
+
+ <li>We can repeat steps 2..4 to load multiple overlays, to compare
+different statistical tests. For example, clicking on the
+'tutorialfmri.bat' icon will launch MRIcron and load to overlapping
+regions of interest. By using the Overlay/TransparencyOnOtherOverlays
+command we can view both of these overlays simultaneously.</li>
+
+
+
+      
+      
+      
+      </ol>
+
+
+
+      </td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+ 
+  
+  
+  
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+<table style="text-align: left; background-color: rgb(0, 0, 80); width: 100%;" border="0" cellpadding="0" cellspacing="0">
+
+
+
+
+
+  <tbody>
+
+
+
+
+
+    <tr>
+
+
+
+
+
+      <td><img style="width: 367px; height: 109px;" alt="logo" src="images/meld.jpg"></td>
+
+
+
+
+
+    </tr>
+
+
+
+
+
+  
+  
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+
+
+</body>
+</html>

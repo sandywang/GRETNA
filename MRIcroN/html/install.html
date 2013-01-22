@@ -1,0 +1,361 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  
+  <meta name="GENERATOR" content="cr">
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <title>MRIcron Installation Page</title>
+</head>
+
+
+<body bgcolor="#ffffff">
+
+
+
+
+
+
+
+
+ 
+<table bgcolor="#000050" border="0" width="100%">
+
+
+
+
+
+
+
+
+ <tbody>
+
+
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+
+
+ <td><a href="index.html"><img src="images/icon.png" border="0" height="86" width="128"></a></td>
+
+
+
+
+
+
+
+
+ <td width="100%"><font color="#ffffff" size="5">MRIcron Installation</font></td>
+
+
+
+
+
+
+
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+
+
+
+
+
+
+<p><b>Introduction :: Current version is 12/2009 </b></p>
+MRIcron can run on Windows, Linux and Macintosh OSX computers. Please select the version that works best for your operating system.</p>
+<ul>
+<li>Windows (WinAPI widgetset)</li>
+<li>Linux</li>
+  <ul>
+   <li>32-bit (GTK1 widgetset)</li>
+   <li>32-bit (GTK2 widgetset)</li>
+   <li>64-bit (GTK1 widgetset)</li>
+   <li>64-bit (GTK2 widgetset)</li>
+     </ul>
+<li>Macintosh OSX</li>
+  <ul>
+   <li>OSX 10.4 or later (Universal binary, Carbon widgetset)</li>
+   <li>OSX 10.3 or earlier (PowerPC, GTK1 widgetset)</li>
+  </ul>
+
+
+</ul>
+
+<p><b>License</b></p>
+Chris Rorden's MRIcron, copyright 2007, all rights reserved. Redistribution and use in binary forms, with or without modification,
+are permitted provided inclusion of the copyright notice, this
+list of conditions and the following disclaimer is provided with the
+distribution: </br> Neither the name of the copyright owner nor the name of
+this project (MRIcron) may be used to endorse or promote products
+derived from this software without specific prior written permission.This software is provided by the copyright holder "as is" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall the copyright owner be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.</br>
+<p></p>
+
+<p><b>Windows</b> [Requires Windows 95 or later; works on both 32-bit and 64-bit versions of Windows]</p>
+
+<ol>
+
+  <li>Download the <a href="http://www.nitrc.org/frs/download.php/1694/mricrond.zip">installer</a>.</li>
+
+  <li>Unzip and run the installer (double click on the .zip file and run the program InstallMR.exe).</li>
+
+  <li>By default, the installer places the programs in C:\program
+files\mricron, simply double click on mricron.exe to run the software.</li>
+
+  <li>You may also double-click on the .bat files, which load example
+images, for example 'examplefmri.bat' shows two statistical maps on top
+of a high resolution anatomical scan.</li>
+
+
+</ol>
+
+<img src="images/windows.png" border="0" height="36" width="926"><br>
+
+
+
+
+
+<p><b>Linux x86  32bit <u>GTK1</u> Note that it is easier to install the GTK2 version (see below) with recent (>2005) distributions of Linux. </b> 
+<ol>
+
+  <li>Download the <a href="http://www.nitrc.org/frs/download.php/1697/mricronlx.zip">software</a>.</li>
+
+  <li>Unzip the software (for modern Linux systems, right click on the file mricronlx.zip and choose to 'extract here').</li>
+
+  <li>Open a terminal window.</li>
+
+  <li>Change to the folder where you installed mricron, e.g. cd ~/mricron</li>
+
+  <li>Launch mricron by typing ./mricron (note you must be in the same folder as the mricron executable.</li>
+
+  <li>You can also run the example .bat files, for example ./xfmri.bat
+shows two statistical maps on top of a high resolution anatomical scan.</li>
+
+  
+  <ol>
+
+    <li>In case you receive error messages, check if all the dependencies of the program are installed. In particular, you need</li>
+
+    
+    <ol>
+
+      <li>GTK 1.2 (this is called GTK+ by some distributions, and gtk by others)</li>
+
+      <li>libgdk_lixbuf2.0</li>
+
+    
+    </ol>
+
+    <li>You can see a complete list of .so files needed by the software using the command:<br>
+
+&nbsp; ldd ./mricron</li>
+
+    <li>In case you cannot run the program and it displays a message
+saying it cannot find one of these libraries (you must run the program
+from the command line to see error messages), you need to download and
+install a package for the necessary library:
+      
+      <ul>
+
+        
+        <ul>
+
+          <li>On RPM-based distributions you can find packages here: http://rpm.pbone.net/</li>
+
+          <li>On Debian-based distributions you can find packages here: http://www.debian.org/distrib/packages<br>
+
+          </li>
+
+        
+        </ul>
+
+      
+      </ul>
+
+    </li>
+
+  
+  </ol>
+
+</ol>
+
+<img src="images/gtk1.png" border="0" height="39" width="1020"><br>
+
+
+<p><b>Linux x86  32bit <u>GTK2</u> Note that the GTK1 version (above) has been more extensively tested.</b>
+<ol>
+
+  <li>Download the <a href="http://www.nitrc.org/frs/download.php/1696/mricronlx2.zip">software</a>.</li>
+
+  <li>Unzip the software (for modern Linux systems, right click on the file mricronlx2.zip and choose to 'extract here').</li>
+
+  <li>Double-click on the mricron application icon to launch the program.</li>
+</ol>
+
+<img src="images/gtk2.png" border="0" height="38" width="1020"><br>
+
+<p><b>Linux x86  64bit <u>GTK1</u> </b>
+<ol>
+
+  <li>Download the <a href="http://www.nitrc.org/frs/download.php/1698/mricronlx641.zip">software</a>.</li>
+
+  <li>Unzip the software (for modern Linux systems, right click on the file mricronx641.zip and choose to 'extract here').</li>
+
+  <li>Double-click on the mricron application icon to launch the program.</li>
+</ol>
+
+<img src="images/gtk1.png" border="0" height="38" width="1020"><br>
+
+<p><b>Linux x86  64bit <u>GTK2</u> </b>
+<ol>
+
+  <li>Download the <a href="http://www.nitrc.org/frs/download.php/1699/mricronlx642.zip">software</a>.</li>
+
+  <li>Unzip the software (for modern Linux systems, right click on the file mricronx64.zip and choose to 'extract here').</li>
+
+  <li>Double-click on the mricron application icon to launch the program.</li>
+</ol>
+
+<img src="images/gtk2.png" border="0" height="38" width="1020"><br>
+
+
+<p><span style="font-weight: bold;">Macintosh Intel</span><b> [Universal Binary]</b> <p>
+
+<ol>
+  <li>Download the&nbsp;<a href="http://www.nitrc.org/frs/download.php/1693/mricronmac.zip">software</a>.</li>
+  <li>Unzip the software (double click on the .zip file - a new folder called mricron will be created).
+  <li><b>Optional:</b> If you are using OSX 10.5 or later, you may want to consider the <a href="http://www.nitrc.org/frs/downloadlink.php/735">DTI-TK NIfTI Quick Look Plugin</a>. This will preview NIfTI images from the finder and the open dialog box.</a>
+
+</li>
+</ol>
+
+<img src="images/osx.png" border="0" height="38" width="1020"><br>
+
+
+<p><span style="font-weight: bold;">Macintosh PowerPC </span><b> OSX 10.4 or later [Universal Binary]</b><p>
+<ol>
+  <li>Download the&nbsp;<a href="http://www.nitrc.org/frs/download.php/1693/mricronmac.zip">software</a>.</li>
+  <li>Unzip the software (double click on the .zip file - a new folder called mricron will be created).</li>
+</ol>
+
+<img src="images/osx.png" border="0" height="38" width="1020"><br>
+
+
+<p><span style="font-weight: bold;">Macintosh PowerPC GTK</span><b> OSX 10.3 or earlier</b>
+<br>&nbsp;<b>Note:</b>Users with OSX 10.4 or later should run the standard "Macintosh PowerPC" version of MRIcron. This version of MRIcron for the Macintosh PowerPC requires GTK to be installed. In many cases the best solution is to run the Windows-native version of MRIcron using <a href="http://www.microsoft.com/mac/products/virtualpc/virtualpc.aspx?pid=virtualpc">VirtualPC</a>.<p>
+
+<ol>
+
+  <li>Download the&nbsp;<a href="mricronppc.zip">software</a>.</li>
+
+  <li>Unzip the software (double click on the .zip file - a new folder called mricron will be created).</li>
+
+  <li>You will need to install X11.&nbsp;</li>
+
+  
+  <ol>
+
+    <li>Check to see if X11 is in the applications\utilities folder.</li>
+
+    <li>If X11 is not installed:</li>
+
+    
+    <ol>
+
+      <li>OSX 10.4 user can install X11 by using the DVD installer disk</li>
+
+      <li>Alternatively, download and run the <a href="http://www.apple.com/downloads/macosx/apple/x11formacosx.html">X11 installer</a> distributed by Apple.</li>
+
+    
+    </ol>
+
+  
+  </ol>
+
+  <li>Download and install the correct version of <a href="http://fink.sourceforge.net/download/index.php?phpLang=en">fink</a>
+for your version of OS X and let it download and install the additional
+29 GTK and related packages needed. Here's the required command for my
+software (all on one line):&nbsp;</li>
+
+  
+  <ul>
+
+    <li>sudo fink install gdk-pixbuf gtk+ gtk+-data gtk+-shlibs gtk-doc gtkglarea gtk-engines</li>
+
+  
+  </ul>
+
+  <li>Launch X11 (double click on the X11 icon in the applications\utilitiesfolder).&nbsp;</li>
+
+  <li>Launch an X11 terminal &nbsp;(from the keyboard, type Apple-N). From the terminal you can do the following</li>
+
+
+
+  <ol>
+
+    <li>Change to the folder where you installed mricron, e.g. cd ~/Documents/mricron</li>
+
+    <li>Launch mricron by typing ./mricron (note you must be in the same folder as the mricron executable.</li>
+
+    <li>You can also run the example .bat files, for example
+./xfmri.bat shows two statistical maps on top of a high resolution
+anatomical scan.</li>
+
+  
+  </ol>
+
+</ol>
+
+<img src="images/gtk1.png" border="0" height="39" width="1020"><br>
+<br>
+<p><span style="font-weight: bold;">Source Code </span> [All platforms]<p>
+<ol>
+  <li>Install the <a href="http://wiki.lazarus.freepascal.org/Installing_Lazarus"> Lazarus IDE with Freepascal compiler</a>. You may want to download one of the latest <a href="http://www.hu.freepascal.org/lazarus/">builds</a>. </li>
+  <li>Get the source code. The source code is available <a href="http://www.nitrc.org/frs/download.php/1695/mricron.zip">here</a>.</li>
+  <li> You can build the software from the command line (see the 'script' files in the MRIcron folder, these use the command lazbuild, for example "lazbuild ./mricron.lpr --ws=carbon" compiles the software for the OSX Carbon widgetset). Alternatively, you can build from the IDE (launch the Lazarus program and choose File/Open to select the project file [.lpr extension]).
+</ol>
+
+
+
+
+
+<table style="text-align: left; background-color: rgb(0, 0, 80); width: 100%;" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td><a href="http://www.cabiatl.com"><img style="width: 512px; height: 109px;" border="0" alt="logo" src="images/meld.jpg"></a></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
+

@@ -1,0 +1,1 @@
+start mricron .\templates\ch2.nii.gz -s 3 -l 0 -h 140 -c pink -o .\templates\ch2bet.nii.gz -c -0 -l 30 -h 200 -o .\example\attention.nii.gz -l 1.96 -h 5 -z  -b 40 -t 50 -r .\example\fmri2r.ini

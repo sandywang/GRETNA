@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+  <title>MRIcron Batch File Page</title>
+</head>
+<body bgcolor="#ffffff">
+ 
+<table bgcolor="#000050" border="0" width="100%">
+ <tbody>
+    <tr>
+ <td><a href="index.html"><img src="images/icon.png"  border="0"  height="86" width="128"></a></td>
+ <td width="100%"><font color="#ffffff" size="5">MRIcron Advanced Settings</font></td>
+    </tr>
+ 
+  </tbody>
+</table>
+ 
+<p><b>Advanced Options</b></p>
+ 
+<p><b>Command line options</b> &nbsp; Usage: mricron BackgroundImageFilename [options]</p>
+ 
+<p>If you launch MRIcron from the command line you can (optionally)
+include default parameters to specify desired settings. Nice examples
+of these commands are the batch files that are created in the same
+folder as the mricron.exe program (you need to include the 'Tutorials'
+when you install mricron). For example, lets look at simple batch file:<br>
+ &nbsp; <u>start /MAX mricron .\templates\ch2bet.nii.gz -c -0 -l 20 -h 140</u><br>
+The terms 'start /MAX mricron' are standard parts of a Windows batch
+file. This launches MRIcron and ensures that the main window is
+maximized to fill the entire screen. You could run this from a batch
+script (a text file with the name '.bat') or from the command line
+(e.g. choose Start/Run and type 'cmd' to start the Windows command
+line). Note that this script will only work from the folder where
+MRIcron is stored. Otherwise, the script will need to specify the
+location of the software:<br>
+ &nbsp; <u>start /MAX c:\mricron\mricron c:\mricron\templates\ch2bet.nii.gz -c -0 -l 20 -h 140 x</u><br>
+Note that after the program name the script specifies the background
+image that is to be loaded, in this cas the image ch2bet.nii.gz. After
+this, you can optinally specify additional settings. For example, the
+"-c -0" sets the image to have a grayscale color scheme. While "-l 20
+-h 140" sets the image brightness to be set for the range 20..140 (e.g.
+voxels with values less than 20 will appear black, voxels greater than
+140 will be white, and intermediate values will be linearly scaled for
+this range). Finally, the 'X' command adjusts the adjusts the
+proportions of the sagittal, coronal and axial panels so that each of
+these views will be shown at a similar scale. <br>
+ This next example shows how you can load an overlay on top of another image:<br>
+ &nbsp; <u>start mricron .\templates\ch2.nii.gz -c -0 -l 20 -h 140 -o .\templates\ch2bet.nii.gz -c -1 10 -h 130</u><br>
+Note how this script uses some parameters multiple times - the first
+set of -c-l-h parameters refer to the background image (ch2), while the
+second set refer to the overlay image (ch2bet). The parameters that can
+be adjusted for each image are noted with an asterix in the table below
+(-c, -l, -h, -z).</p>
+ 
+<p>Here is a complete list of the parameters you can specify </p>
+ 
+<table border="1" cellspacing="0">
+ <tbody>
+    <tr>
+ <td width="180"><b>Parameter</b></td>
+ <td width="100%"><b>Notes</b></td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-b &lt;%&gt; </td>
+ <td width="100%">Sets transparency of overlays on background.
+Supported values are -1,0,20,40,50,60,80,100. A value of -1 signifies
+additive color blending.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-c &lt;LUT name&gt;</td>
+ <td width="100%">Specify color lookup table. "-c bone" will load
+bone.lut. You can also specify the index number of the LUT by using the
+prefix "-". For example, "-c -1" will load the red color scheme, while
+"-c -0" will load the grayscale color scheme.</td>
+ <td>*</td>
+    </tr>
+ <tr>
+ <td>-d</td>
+ <td width="100%">Defaults will be saved when the user quits.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+      <td>-f</td>
+      <td>Loads image 'flat': the NIfTI orientation matrix is ignored.
+This is the same effect as editing the .ini file and setting 'Reslice=0'</td>
+      <td></td>
+    </tr>
+    <tr>
+ <td>-h</td>
+ <td width="100%">Sets maximum value for image intensity scaling. For
+example a Z-score statistical map loaded with "-l 1.96 -h 4" will show
+values near 1.96 as maximal dark and values near 4 as maximal bright.
+See also -l and -z</td>
+ <td>*</td>
+    </tr>
+ <tr>
+ <td>-l</td>
+ <td width="100%">Sets minimum value for image intensity scaling. see -h</td>
+ <td>*</td>
+    </tr>
+ <tr>
+ <td>-m</td>
+ <td width="100%">Will show a multi-slice view using default multislice settings.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-m &lt;INI name&gt;</td>
+ <td width="100%">Will show a multi-slice view using the settings for
+the file &lt;INI name&gt;. For example "-m c:\mymulti.ini". Multislice
+settings files can be created by selecting File/SaveSettings in the
+multislice window.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-o &lt;overlay name&gt;</td>
+ <td width="100%">Will load overlay &lt;overlay name&gt;. For example "-o c:\statmap.hdr".</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-r</td>
+ <td width="100%">Will show a rendering using default rendering settings.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-r &lt;INI name&gt;</td>
+ <td width="100%">Will show a rendering using the settings for the file
+&lt;INI name&gt;. For example "-r c:\myrender.ini". Rendering settings
+files can be created by selecting File/SaveSettings in the render
+window.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-s &lt;v&gt;</td>
+ <td width="100%">Settings smoothing. &lt;v&gt; should be a value 0..3.
+If &lt;v&gt; is odd (1 or 3) then bilinear smoothing is applied to
+images (otherwise, nearest neighbor is used). If &lt;v&gt; is 2 or 3
+then overlays will be scaled using trilinear interpolation (otherwise,
+nearest neighbor is used).</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-t &lt;%&gt;</td>
+ <td width="100%">Sets transparency of overlays with respect to other
+overlays. Supported values are -1,0,20,40,50,60,80,100. A value of -1
+signifies additive color blending.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-v &lt;drawing name&gt;</td>
+ <td>Will load volume of interest &lt;drawing name&gt;. For example "-o c:\lesion.voi".</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-x</td>
+ <td>Main window will be maximized to fill entire screen. The size of
+each view (sagittal, coronal and axial) will be proportionally scaled.</td>
+ <td>&nbsp;</td>
+    </tr>
+ <tr>
+ <td>-z</td>
+ <td>Image color scaling will be from zero. For example a Z-score
+statistical map loaded with "-l 1.96 -h 4 -z" will hide values below
+1.96, but will show values near 1.96 as a medium intensity and values
+near 4 as maximal bright. See also -h</td>
+ <td>*</td>
+    </tr>
+ 
+  </tbody>
+</table>
+ 
+<p><b>Default Settings</b></p>
+<p>You can adjust many of MRIcron's settings by choosing Help/Preferences. A window will appear that allows you to edit many of the values from your mricron.ini file. The window is shown below, and the mricron.ini settings are described in the table below.</p>
+
+<p><img style="width: 356px; height: 337px;" alt="overlay panel" src="images/prefs.gif"></p>
+
+ 
+<p>MRIcron remembers users preferences. Three standard .INI format text
+files are automatically generated: mricron.ini, \render\default.ini,
+and \multislice\default.ini. The file mricron.ini saves general
+settings, while the other files store values specific to the rendering
+and multislice views respectively. The user can save custom multislice
+and rendering settings by opening up the render (or multislice view)
+and creating their desired settings and then choosing
+File\SaveSettings. Deleting the ini files will return the software to
+its factory settings.</p>
+ 
+<p>The mricron.ini file has a few values that can not be adjusted from
+the program, but can be changed by editing the file with a text editor.
+Here is a complete list of the parameters you can specify </p>
+ 
+<table border="1" cellspacing="0">
+ <tbody>
+    <tr><td width="180"><b>Parameter</b></td><td width="100%"><b>Notes</b></td></tr>
+    <tr><td>file0...file5=</td><td>Stores the five most recently viewed images. These will appear in the File/OpenRecent submenu.</td></tr>
+    <tr><td>reslice=</td><td>If 1, image will be spatially oriented using the NIfTI transforms, similar to SPM5. If 0, images will be shown as saved to disk (like SPM2 and FSLview). Reslice=1 requires more memory, but hopefully avoids left-right confusions.</td></tr>
+    <tr><td>ShowDraw=</td><td>If 1, the 'Draw' menu and drawing tools will be visible.</td></tr>
+    <tr><td>Smooth=</td><td>If 1, resliced images will use the slow but relatively precise trilinear interpolation </td></tr>
+    <tr><td>XBar=</td><td>If 1, cross-hairs will mark the currently selected voxel. </td></tr>
+    <tr><td>OverlaySmooth=</td><td>If 1, overlays will be scaled to background image using smooth trilinear interpolation. If 0, overlays will use nearest neighbor (and the edges may appear jagged). </td></tr>
+    <tr><td>LRMirror=</td><td>If 1, images with NIfTI orientation parameters will appear in radiological convention (with left on the right). If 0, images will be in neurological convention (with left on the left). </td></tr>
+    <tr><td>Yoke=</td><td>If 1, images in multiple instances of MRIcron will show the same location - changing the selected voxel in one instance will cahange the view in other instances. </td></tr>
+    <tr><td>MaxDim=</td><td>If an image is larger than this value in any dimension, the image will be rescaled so that this is the largest dimension. This minimizes memory consumption. For example, if this is set to 256 and you open an image with 512x512x300 voxels, it will be displayed as 256x256x150voxels. </td></tr>
+    <tr><td>Zoom=</td><td>Default image scaling. Zero specifies that the image is strecthed to fit the window, 1 for best integer fit to window (e.g. if a 235% scaling is possible, the image will be scaled 200%), 2 for 100%, 3 for 200%, etc. </td></tr>
+    <tr><td>LUT=</td><td>Selected color scheme. E.G. if 24, then the 24th color scheme is used. </td></tr>
+    <tr><td>XBarGap=</td><td>Empty gap between crosshairs.  If 7, then 7 pixels separate crosshairs.</td></tr>
+    <tr><td>XBarThick=</td><td>Width of crosshairs. </td></tr>
+    <tr><td>XBarClr=</td><td>Color of crosshairs. This is a 24-bit value, with top 8 bytes representing blue, middle 8 representing blue and least significant 8 representing red. So a value of 255 would be a bright, pure red. </td></tr>
+    <tr><td>VOIClr=</td><td>Color of volume of interest drawing. Same values as XBarClr. </td></tr>
+    <tr><td>BGTransPct=</td><td>Transparency of overlays on background (in percent). 0 for opaque overlays, 50 for a translucent overlay (50% each) and 100 for a completely transparent overlay. -1 specificies additive combination. </td></tr>
+    <tr><td>OverlayTransPct=</td><td>Transparency of overlays relative to each other. Same values as BGTransPct </td></tr>
+    <tr><td>MaxThreads=</td><td>Maximum number of CPU cores used for rendering. If set to 5, only five cores will be used regardless of the number of CPUs. Higher numbers lead to faster rendering, but can slow other applications. For systems with more than two cores, a good value is the number of cores minus one. For example, with a quad-CPU machine, set this to 3. If you have fewer CPUs than MaxThreads, MRIcron will use all of your available CPUs (e.g. threads will equal the number of CPUs), offering optimal speed.</td></tr>   
+     <tr><td>SigDigits=</td><td>Number of digits shown after decimal place. Influences the voxel intensity value shown in the bottom-left status label.  </td></tr>    
+    <tr><td>TabletPressure=</td><td>Only used when using a Tablet device (e.g. Wacom tablet or a Tablet PC which pressure sensitive stylus). Threshold for transitioning between a thin (1 voxel) and thick (3 voxel) pen - if pen pressure is double this threshold, a five pixel line will be drawn.. Tablet stylus pressure will range from 0..100. If set to 100, the pen will always draw a thin line, regardless of pressure. If set to 30, light pressure (<30%) will create a thin line, medium pressure (30..60%) will lead to a 3-voxel line and heavy pressure (>60%) will causes a very thick line (5 pixels wide).</td></tr>    
+<tr><td>TabletErasePressure=</td><td>Pressure threshold for stylus eraser on Tablet systems. Same comments as TabletPressure.</td></tr>    
+
+<tr><td>LesionSmooth=</td><td>Smoothing Full Width Half Maximum (in mm) This is used by the Draw Menu's "Create SPM5 mask" function.</td></tr>    
+  </tbody>
+</table>
+    <br>
+
+<table style="text-align: left; background-color: rgb(0, 0, 80); width: 100%;" border="0" cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td><img style="width: 367px; height: 109px;" alt="logo" src="images/meld.jpg"></td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

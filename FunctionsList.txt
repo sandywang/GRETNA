@@ -1,0 +1,60 @@
+gretna_alff:
+       calculate amplitude of low-frequency fluctuation in a voxelwise manner;
+gretna_assortativity:
+       calculate the assortative coefficient for a binary network;
+gretna_assortativity_weight:
+       calculate the assortative coefficient for a weighted network;
+gretna_batch_preprocessing:
+       batch script to perform preprocessings of resting-state fMRI data;
+gretna_chisquare2:
+       perform 2*2 chi-square test;
+gretna_copyfile:
+       copy specific files from different directories into a single directory (useful for VBM statistical analysis);
+gretna_Corr2Pval:
+       convert P values to corresponding correlation coefficients;
+gretna_correlation_analysis:
+       perform brain-behavior correlation analysis in a voxelwise manner;
+gretna_degree_distribution:
+       fit degree distribution;
+gretna_dicom_convert:
+       concert dicom data to nifti format (based on MRIcroN);
+gretna_dicom_reorganization:
+       reorganize the storage order of raw dicom data;
+gretna_distance:
+       calculated shortest path length between all pairs of nodes in a binary network;
+gretna_distance_weight:
+       calculated shortest path length between all pairs of nodes in a weigthed network;
+gretna_edge_betweenness:
+       calculated edge betweenness for a binary network (based on Matlab-bgl);
+gretna_edge_betweenness_weight:
+       calculated edge betweenness for a weighted network (based on Matlab-bgl);
+gretna_falff:
+       calculate fractional amplitude of low-frequency fluctuation in a voxelwise manner;
+gretna_fc_partial:
+       calculate partical correlation coefficients among multiple variables for multiple subjects;
+gretna_fc_pearson:
+       calculate pearson correlation coefficients among multiple variables for multiple subjects;
+gretna_FDR:
+       false discovery rate (FDR) procedure to correct for multiple comparisons;
+gretna_filtering:
+       perform temporal filtering of time series by ideal rectangular filter;
+gretna_fishertrans:
+       perform fisher's r-to-z transformation;
+gretna_inv_fishertrans:
+       perform fisher's r-to-z inverse transformation;
+gretna_gen_cov_path:
+       generate a .txt file sorting directories & filenames of confouding variables (e.g., rp_sub01.txt, csf_sub01.txt);
+gretna_gen_data_path:
+       generate a .txt file sorting directories of those dataset to be processed;
+gretna_gen_derivatives_tc:
+       calculate the first derivatives (backward) of variables;
+gretna_gen_mask:
+       generate a data-based EPI mask;
+gretna_gen_mean_image:
+       generate a mean image over multiple images and subjects;
+gretna_gen_random_network1:
+       generate random networks with the same number of nodes, edges and degree distribution as a real binary network;
+gretna_gen_random_network1_weight:
+
+gretna_gen_random_network2:
+       generate random networks with the same number of nodes and edges as a real binary network;

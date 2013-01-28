@@ -5,21 +5,14 @@ function gretna_fc(DataList ,  LabMask , OutputName)
     Mask=spm_read_vols(PMask);
     Mask=reshape(Mask , [] , 1);
     Node=max(Mask , [] ,  1);
-    TimeCourse=zeros(TimePoint , Node);
-    
+ 
     Volume=spm_read_vols(cell2mat(P));
-    Volume=reshape(Volume , [] , TimePoint);
+    Volume=reshape(Volume , [] , TimePoint);   
     
     
+    TimeCourse=zeros(TimePoint , Node);      
     for i=1:Node
-        Pos= find(Mask==i);
-        %OneNodeTC=zeros(size(Pos , 1) , TimePoint);
-        %for t=1:TimePoint
-        %    Volume=spm_read_vols(P{t});
-        %    Volume=reshape(Volume , [] ,1 );
-        %    OneNodeTC(:,t)=Volume(Pos);
-        %end
-        
+        Pos= Mask==i;
         OneNodeTC=Volume(Pos , :);
         
         MeanTC=mean(OneNodeTC , 1);

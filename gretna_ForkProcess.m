@@ -1,4 +1,7 @@
 function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
+    if isnumeric(SubjNum)
+        SubjNum=sprintf('_%.4d' , SubjNum);
+    end
     if ischar(Matrix)
         Matrix=load(Matrix);
     end
@@ -181,7 +184,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 sw.aSigma     = (sum(sw.Sigma)     -  sum(sw.Sigma([1 end]))/2)*deltas;
                             end
                         end
-                        ChildDir=sprintf('%s%sSmallWorld%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sSmallWorld%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -257,7 +260,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 eff.aSigma       = (sum(eff.Sigma)       -  sum(eff.Sigma([1 end]))/2)*deltas;
                             end
                         end
-                        ChildDir=sprintf('%s%sEfficiency%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sEfficiency%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -284,7 +287,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if j~=1
                             NodeD.adegree=(sum(NodeD.degree)-sum(NodeD.degree([1 end]))/2)*deltas;
                         end
-                        ChildDir=sprintf('%s%sNodeDegree%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sNodeDegree%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -310,7 +313,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if j~=1
                             NodeG.agE=(sum(NodeG.gE)-sum(NodeG.gE([1 end]))/2)*deltas;
                         end
-                        ChildDir=sprintf('%s%sNodeEfficiency%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sNodeEfficiency%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -336,7 +339,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if j~=1
                             NodeB.abi=(sum(NodeB.bi)-sum(NodeB.bi([1 end]))/2)*deltas;
                         end
-                        ChildDir=sprintf('%s%sNodeBetweenness%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sNodeBetweenness%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -392,7 +395,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     M.numberofmodule_zscore = [M.numberofmodule_zscore ,...
                         thres_M.numberofmodule_zscore]; 
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sModularity%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sModularity%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -460,7 +463,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     r.rand=[r.rand , thres_r.rand];
                     r.zscore=[r.zscore , thres_r.zscore];
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sAssortativity%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sAssortativity%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -533,7 +536,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     beta.rand=[beta.rand , thres_beta.rand];
                     beta.zscore=[beta.zscore , thres_beta.zscore];
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sHierarchy%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sHierarchy%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -575,7 +578,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     S.rand=[S.rand , thres_S.rand];
                     S.zscore=[S.zscore , thres_S.zscore];
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sSynchronization%.4d',OutputDir , filesep , SubjNum);
+                        ChildDir=sprintf('%s%sSynchronization%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
                             ans=rmdir(ChildDir,'s');
                             mkdir(ChildDir);
@@ -592,5 +595,5 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
         end
     end
 
-    fid=fopen(sprintf('%s%stmp%s%.4d.out' , OutputDir , filesep , filesep , SubjNum) , 'w');
+    fid=fopen(sprintf('%s%stmp%s%s.out' , OutputDir , filesep , filesep , SubjNum) , 'w');
     fclose(fid);

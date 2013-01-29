@@ -1133,27 +1133,27 @@ function Result=CalListbox(AHandle)
                     {sprintf('. TR (s):  %d' , AHandle.Para.TR)};...
                     {sprintf('. Band (Hz):  %s' , AHandle.Para.FreBand)}];
             case 'COVARIATES REGRESSION'
-                [~ , Name , Ext]=fileparts(AHandle.Para.GSMask);
+                [Path , Name , Ext]=fileparts(AHandle.Para.GSMask);
                 Result=[Result ; ...
                     {Mode} ; ...
                     {sprintf('. Brain Mask:  %s' , [Name , Ext])} ; ...
                     {sprintf('. Global signal:  %s' , AHandle.Para.GSBool)}];
                 if strcmp(AHandle.Para.GSBool , 'TRUE')
-                    [~ , Name , Ext]=fileparts(AHandle.Para.GSMask);
+                    [Path , Name , Ext]=fileparts(AHandle.Para.GSMask);
                     Result=[Result ;...
                         {sprintf('. . Brain Mask:  %s' , [Name , Ext])}];
                 end
                 Result=[Result ; ...
                     {sprintf('. White matter signal:  %s' , AHandle.Para.WMBool)}];
                 if strcmp(AHandle.Para.WMBool , 'TRUE')
-                    [~ , Name , Ext]=fileparts(AHandle.Para.WMMask);
+                    [Path , Name , Ext]=fileparts(AHandle.Para.WMMask);
                     Result=[Result ;...
                         {sprintf('. . White Mask:  %s' , [Name , Ext])}];
                 end
                 Result=[Result ; ...
                     {sprintf('. CSF signal:  %s' , AHandle.Para.CSFBool)}];
                 if strcmp(AHandle.Para.CSFBool , 'TRUE')
-                    [~ , Name , Ext]=fileparts(AHandle.Para.CSFMask);
+                    [Path , Name , Ext]=fileparts(AHandle.Para.CSFMask);
                     Result=[Result ;...
                         {sprintf('. . CSF Mask:  %s' , [Name , Ext])}];
                 end
@@ -1173,7 +1173,7 @@ function Result=CalListbox(AHandle)
             case 'FUNCTIONAL CONNECTIVITY MATRIX'
                 Result=[Result ;...
                     {Mode}];
-                [~ , Name , Ext]=fileparts(AHandle.Para.LabMask);
+                [Path , Name , Ext]=fileparts(AHandle.Para.LabMask);
                 Result=[Result ;...
                     {sprintf('. Label Mask:  %s' , [Name , Ext])} ] ;
         end

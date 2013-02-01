@@ -2215,7 +2215,9 @@ function HelpPushtool_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to HelpPushtool (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    GUIPath=fileparts(which('PreprocessInterface.m'));
+    ManualFile=[GUIPath , filesep , 'GretnaManual.pdf'];
+    open(ManualFile);
 
 % --- Executes on selection change in ConfigListbox.
 function ConfigListbox_Callback(hObject, eventdata, handles)

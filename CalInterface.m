@@ -972,7 +972,9 @@ function HelpPushtool_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to HelpPushtool (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    GUIPath=fileparts(which('PreprocessInterface.m'));
+    ManualFile=[GUIPath , filesep , 'GretnaManual.pdf'];
+    open(ManualFile);
 
 % --------------------------------------------------------------------
 function LoadPushtool_ClickedCallback(hObject, eventdata, handles)

@@ -27,6 +27,7 @@ function [S] = gretna_synchronization_weight(W, NumofRandom)
 %
 % Jinhui WANG, NKLCNL, BNU, BeiJing, 2011/10/23, Jinhui.Wang.1982@gmail.com
 %==========================================================================
+%   Revised by Sandy Wang, 130220. sort Eigenvalue
 
 W = abs(W);
 W = W - diag(diag(W));
@@ -35,7 +36,7 @@ Deg = sum(W);
 
 D = diag(Deg,0);
 G = D - W;
-Eigenvalue = eig(G);
+Eigenvalue = sort(eig(G));%Add sort by Sandy Wang
 
 S.real = Eigenvalue(2)/Eigenvalue(end);
 

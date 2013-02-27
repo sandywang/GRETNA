@@ -26,11 +26,9 @@ W = abs(W);
 W = W - diag(diag(W));
 W(logical(W)) = 1./W(logical(W));
 
-x = sparse(W);
+bc = gretna_betweenness_centrality(W);
 
-[tmp, ~] = betweenness_centrality(x);
-
-bi = tmp'/2;
+bi = bc'/2;
 averb = mean(bi);
 
 return

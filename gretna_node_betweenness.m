@@ -25,11 +25,9 @@ function [averb bi] = gretna_node_betweenness(A)
 A = abs(A);
 A = A - diag(diag(A));
 
-x=sparse(A);
+bc = gretna_betweenness_centrality(A);
 
-[tmp, ~] = betweenness_centrality(x,'unweighted',1);
-
-bi = tmp'/2;
+bi = bc'/2;
 averb = mean(bi);
 
 return

@@ -201,9 +201,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
             case 'NETWORK - EFFICIENCY'
                 for j=1:size(Thres , 2)
                     if NetType
-                        [~, ~ , thres_eff]=gretna_sw_efficiency_weight(A{j}, NumRandNet, 1);
+                        [~, ~ , thres_eff]=gretna_sw_efficiency_weight(A{j}, 0, 1);
                     else
-                        [~, ~, thres_eff]=gretna_sw_efficiency(A{j}, NumRandNet, 1);
+                        [~, ~, thres_eff]=gretna_sw_efficiency(A{j}, 0, 1);
                     end
 
                     if NumRandNet~=0

@@ -1742,7 +1742,7 @@ end
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.RefPrefix=Para.RefPrefix;
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.SubjName=FieldName(6:end);
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.T1Image=T1Image;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).files_in=T1Image;
+                        pipeline.([FieldName , DelMsg , '_Coregister']).files_in=[files_in ; T1Image];
                         if ~isempty(DelMsg)
                             DelMsg=[];
                         end
@@ -1766,7 +1766,7 @@ end
                         command='spm_jobman(''run'' , opt.SegmentBatch)';
                         pipeline.([FieldName , DelMsg , '_Segment']).command=command;
                         pipeline.([FieldName , DelMsg , '_Segment']).opt.SegmentBatch=SPMJOB.matlabbatch;
-                        pipeline.([FieldName , DelMsg , '_Segment']).files_in=T1Image;
+                        pipeline.([FieldName , DelMsg , '_Segment']).files_in=[files_in ; T1Image];
                         if ~isempty(DelMsg)
                             DelMsg=[];
                         end

@@ -812,7 +812,7 @@ function RunEvent(hObject , handles)
         pipeline.(sprintf('Fork%.4d' , i)).opt.OutputDir=OutputDir;
         pipeline.(sprintf('Fork%.4d' , i)).opt.SubjNum=i;
         pipeline.(sprintf('Fork%.4d' , i)).files_in={sprintf('%s%s%.4d.in' , tmpDir , filesep , i)};
-        pipeline.(sprintf('Fork%.4d' , i)).files_out={sprintf('%s%s%.4d.out' , tmpDir , filesep , i)};
+        %pipeline.(sprintf('Fork%.4d' , i)).files_out={sprintf('%s%s%.4d.out' , tmpDir , filesep , i)};
     end
 
     opt.path_logs = [handles.LogDir , filesep ,  'NetworkMetrics_logs'];

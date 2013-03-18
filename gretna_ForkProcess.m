@@ -125,10 +125,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                             gretna_sw_harmonic(A{j} , 0 , 1);
                     end
                     if NumRandNet~=0
-                        thres_sw.Cprand      = [];
-                        thres_sw.Lprand      = [];
-                        %thres_sw.nodalCprand = [];
-                        %thres_sw.nodalLprand = [];
+                        thres_sw.Cprand      = zeros(NumRandNet, 1);
+                        thres_sw.Lprand      = zeros(NumRandNet, 1);
                         
                         for n=1:NumRandNet
                             if NetType
@@ -141,11 +139,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 D=gretna_distance(RandNet{n , j});
                                 [Lprand, ~] = gretna_node_shortestpathlength(D);
                             end
-                            thres_sw.Cprand = ...
-                                [thres_sw.Cprand ; Cprand];
+                            thres_sw.Cprand(n, 1) = Cprand;
                             
-                            thres_sw.Lprand = ...
-                                [thres_sw.Lprand ; Lprand];
+                            thres_sw.Lprand(n, 1) = Lprand;
                         end
                         thres_sw.Cp_zscore = (thres_sw.Cp - mean(thres_sw.Cprand))...
                                             ./std(thres_sw.Cprand);
@@ -207,8 +203,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     end
 
                     if NumRandNet~=0
-                        thres_eff.locErand    = [];
-                        thres_eff.gErand      = [];
+                        thres_eff.locErand    = zeros(NumRandNet, 1);
+                        thres_eff.gErand      = zeros(NumRandNet, 1);
                         
                         for n=1:NumRandNet
                             if NetType
@@ -220,8 +216,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 [locErand , ~] = gretna_node_local_efficiency(D);
                                 [gErand   , ~] = gretna_node_global_efficiency(D);
                             end
-                            thres_eff.locErand = [thres_eff.locErand ; locErand];
-                            thres_eff.gErand   = [thres_eff.gErand   ; gErand];
+                            thres_eff.locErand(n, 1) = locErand;
+                            thres_eff.gErand(n, 1)   = gErand;
                         end
                         
                         thres_eff.locE_zscore  = (thres_eff.locE-mean(thres_eff.locErand))...
@@ -414,7 +410,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     if NetType
                         thres_r=gretna_assortativity_weight(A{j}, 0);
                         if NumRandNet~=0
-                            thres_r.rand=[];
+                            thres_r.rand=zeros(NumRandNet, 1);
                             for n = 1:NumRandNet
                                 H_rand     = sum(sum(RandNet{n , j}))/2;
                                 Mat_rand   = RandNet{n , j};
@@ -429,9 +425,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                     degi_rand = [degi_rand ; deg_rand(i_rand(k_rand))];
                                     degj_rand = [degj_rand ; deg_rand(j_rand(k_rand))];
                                 end
-                                thres_r.rand=[thres_r.rand ;...
+                                thres_r.rand(n, 1)=...
                                     ((sum(v_rand.*degi_rand.*degj_rand)/H_rand - (sum(0.5*(v_rand.*(degi_rand+degj_rand)))/H_rand)^2)...
-                                    /(sum(0.5*(v_rand.*(degi_rand.^2+degj_rand.^2)))/H_rand - (sum(0.5*(v_rand.*(degi_rand+degj_rand)))/H_rand)^2))];
+                                    /(sum(0.5*(v_rand.*(degi_rand.^2+degj_rand.^2)))/H_rand - (sum(0.5*(v_rand.*(degi_rand+degj_rand)))/H_rand)^2));
                             end
                             thres_r.zscore = (thres_r.real - mean(thres_r.rand))...
                                 /(std(thres_r.rand));
@@ -439,7 +435,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     else
                         thres_r=gretna_assortativity(A{j}, 0);
                         if NumRandNet~=0
-                            thres_r.rand=[];
+                            thres_r.rand=zeros(NumRandNet, 1);
                             for n = 1:NumRandNet
                                 [deg_rand] = sum(RandNet{n , j});
                                 K_rand     = sum(deg_rand)/2;
@@ -451,9 +447,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                     degi_rand = [degi_rand ; deg_rand(i_rand(k_rand))];
                                     degj_rand = [degj_rand ; deg_rand(j_rand(k_rand))];
                                 end
-                                thres_r.rand=[thres_r.rand ;...
+                                thres_r.rand(n, 1)=...
                                     ((sum(degi_rand.*degj_rand)/K_rand - (sum(0.5*(degi_rand+degj_rand))/K_rand)^2)...
-                                    /(sum(0.5*(degi_rand.^2+degj_rand.^2))/K_rand - (sum(0.5*(degi_rand+degj_rand))/K_rand)^2))];
+                                    /(sum(0.5*(degi_rand.^2+degj_rand.^2))/K_rand - (sum(0.5*(degi_rand+degj_rand))/K_rand)^2));
                             end
                             thres_r.zscore = (thres_r.real - mean(thres_r.rand))...
                                 /(std(thres_r.rand));
@@ -486,7 +482,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     end
                     
                     if NumRandNet~=0
-                        thres_beta.rand=[];
+                        thres_beta.rand=zeros(NumRandNet, 1);
                         if NetType
                             for n=1:NumRandNet
                                 [~,ki_rand]= ...
@@ -503,8 +499,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                     cii_rand ([index_rand1 index_rand2]) = [];
             
                                     stats_rand = regstats(log(cii_rand),log(ki_rand),'linear','beta');
-                                    thres_beta.rand =...
-                                         [thres_beta.rand ; -stats_rand.beta(2)];
+                                    thres_beta.rand(n, 1) =...
+                                         -stats_rand.beta(2);
                                 end
                             end
                         else
@@ -514,8 +510,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 [~,cii_rand] = ...
                                     gretna_node_clustcoeff(RandNet{n , j});
                                 if all(cii_rand == 0) || all(ki_rand == 0)
-                                    thres_beta.rand = ...
-                                        [thres_beta.rand ; nan];
+                                    thres_beta.rand(n, 1) = ...
+                                        nan;
                                 else
                                     index_rand1 = find(ki_rand == 0);
                                     index_rand2 = find(cii_rand == 0);
@@ -523,8 +519,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                     cii_rand ([index_rand1 index_rand2]) = [];
             
                                     stats_rand = regstats(log(cii_rand),log(ki_rand),'linear','beta');
-                                    thres_beta.rand =...
-                                         [thres_beta.rand ; -stats_rand.beta(2)];
+                                    thres_beta.rand(n, 1) =...
+                                         -stats_rand.beta(2);
                                 end
                             end
                         end
@@ -559,16 +555,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     end
                     
                     if NumRandNet~=0
-                        thres_S.rand=[];
+                        thres_S.rand=zeros(NumRandNet, 1);
                         for n=1:NumRandNet
                             Deg_rand = sum(RandNet{n , j});
                             
                             D_rand = diag(Deg_rand,0);
                             G_rand = D_rand - RandNet{n , j};
-                            Eigenvalue_rand = eig(G_rand);
+                            Eigenvalue_rand = sort(eig(G_rand));
         
-                            thres_S.rand = ...
-                                [thres_S.rand ; Eigenvalue_rand(2)/Eigenvalue_rand(end)];
+                            thres_S.rand(n, 1) = ...
+                                Eigenvalue_rand(2)/Eigenvalue_rand(end);
                         end
                         thres_S.zscore = ...
                             (thres_S.real - mean(thres_S.rand(~isnan(thres_S.rand))))...
@@ -594,6 +590,3 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                 end
         end
     end
-
-    fid=fopen(sprintf('%s%stmp%s%s.out' , OutputDir , filesep , filesep , SubjNum) , 'w');
-    fclose(fid);

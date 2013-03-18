@@ -102,7 +102,6 @@ for i = 1:Num_subs
     R_abs_wei_short = zeros(size(Ymask));
     
     for ii = 1:length(Index)
-        ii
         D = pdist2(XYZ(ii,:),XYZ);
         
         r = Ydata(:,ii)' * Ydata / (numSample - 1);

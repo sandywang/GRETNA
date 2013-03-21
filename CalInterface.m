@@ -86,6 +86,7 @@ if ~isfield(handles , 'Para')
     	Para.ThresType='correlation coefficient';
     	Para.NetType='weighted';
     	Para.ModulAlorithm='greedy optimization';
+        save(ParaFile , 'Para');
     end
     handles.Para=Para;
 end

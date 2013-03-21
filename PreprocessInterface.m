@@ -83,6 +83,12 @@ if ~isfield(handles , 'Para')
     if exist(ParaFile , 'file')
         Para=load([GUIPath , filesep , 'PreprocessPara.mat']);
         Para=Para.Para;
+        if ~isfield(Para, 'DCMask') ||...
+            ~isfield(Para, 'DCRthr') ||...
+            ~isfield(Para, 'DCDis') ||...
+            ~isfield(Para, 'QueueSize')
+            Para=[];
+        end
     else
         Para=[];
     end
@@ -147,12 +153,19 @@ if ~isfield(handles , 'Para')
         Para.HMBool='TRUE';
         Para.HMPath='';
         Para.HMPrefix='rp_*';
+    %Voxel-wise Degree
+        Para.DCMask=[GUIPath , filesep ,...
+            'mask' , filesep , 'BrainMask_05_61x73x61.img'];
+        Para.DCRthr=0.3;
+        Para.DCDis=75;
+    %Queue Size
+        Para.QueueSize=2;
     %FC
         Para.LabMask=[GUIPath , filesep ,...
             'Templates' , filesep , 'AAL_90_3mm.nii'];
-        %Para.MatOutput=pwd;
         save(ParaFile , 'Para');
     end
+    set(handles.QueueEntry, 'String', num2str(Para.QueueSize));
     handles.Para=Para;
 end
 handles.StopFlag=0;
@@ -567,6 +580,18 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Output Directory:')) 
                 ConfigText={sprintf('%s' , handles.Para.MatOutput)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Degree Mask:'))
+                ConfigText={sprintf('%s' , handles.Para.DCMask)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Threshold:'))
+                ConfigText={sprintf('%s' , num2str(handles.Para.DCRthr))};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Distance:'))
+                ConfigText={sprintf('%s' , num2str(handles.Para.DCDis))};
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             end
@@ -988,7 +1013,40 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Degree Mask:'))
+                [Path , Name , Ext]=fileparts(handles.Para.DCMask);
+                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
+                    'Pick one mask file' , [Path , filesep , Name , Ext]);
+                if ischar(File)
+                    handles.Para.LabMask=[Path , File];
+                    ConfigText={sprintf('%s' , handles.Para.DCMask)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Threshold:'))
+                DCRthr=inputdlg('Enter the Threshold of r:',...
+                    'Connectional Threshold',...
+                    1,...
+                    {num2str(handles.Para.DCRthr)});
+                if ~isempty(DCRthr)
+                    handles.Para.DCRthr=str2num(DCRthr{1});
+                    ConfigText={sprintf('%s' , DCRthr{1})};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Distance:'))
+                DCDis=inputdlg('Enter the Threshold of Distance:',...
+                    'Connectional Distance',...
+                    1,...
+                    {num2str(handles.Para.DCDis)});
+                if ~isempty(DCDis)
+                    handles.Para.DCDis=str2num(DCDis{1});
+                    ConfigText={sprintf('%s' , DCDis{1})};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
             end
+         
             CalText=CalListbox(handles);
             set(handles.DefaultPushtool , 'Enable' , 'On');
             set(handles.CalListbox , 'String' , CalText);
@@ -1175,7 +1233,17 @@ function Result=CalListbox(AHandle)
                     {Mode}];
                 [Path , Name , Ext]=fileparts(AHandle.Para.LabMask);
                 Result=[Result ;...
-                    {sprintf('. Label Mask:  %s' , [Name , Ext])} ] ;
+                    {sprintf('. Label Mask:  %s' , [Name , Ext])} ];
+            case 'VOXEL-BASED DEGREE'
+                Result=[Result ;...
+                    {Mode}];
+                [Path, Name, Ext]=fileparts(AHandle.Para.DCMask);
+                Result=[Result ;...
+                    {sprintf('. Degree Mask:  %s' , [Name , Ext])} ];
+                Result=[Result ; ...
+                    {sprintf('. Connectional Threshold:  %s' , num2str(AHandle.Para.DCRthr))}];
+                Result=[Result ; ...
+                    {sprintf('. Connectional Distance:  %d' , AHandle.Para.DCDis)}];
         end
     end
     
@@ -1882,10 +1950,38 @@ end
                     DelMsg=[];
                 end
                 
+            case 'VOXEL-BASED DEGREE'
+                [FileList , files_in , files_out , DataFile]=...
+                    UpdateDataList('' , DataFile , TimePoint);
+                %Voxel-based Degree
+                DCDir=[Para.ParentDir , 'GretnaVoxelDegree'];
+                if ~(exist(DCDir , 'dir')==7)
+                    mkdir(DCDir);
+                end
+                DCOutput=[DCDir , filesep , FieldName(6:end)];
+                command='gretna_voxel_based_degree_pipeuse(opt.FileList, opt.DCOutput, opt.DCMask, opt.DCRthr, opt.DCDis, opt.SubjName)';
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).command=command;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.FileList=FileList;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCOutput=DCOutput;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCMask=Para.DCMask;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCRthr=Para.DCRthr;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCDis=Para.DCDis;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.SubjName=FieldName(6:end);
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).files_in=files_in;
+                pipeline.([FieldName , DelMsg , '_VoxelDegree']).files_out=...
+                    {[DCOutput, filesep, 'degree_abs_wei_', FieldName(6:end), '.nii']};
+                if ~isempty(DelMsg)
+                    DelMsg=[];
+                end
+                
             case 'FUNCTIONAL CONNECTIVITY MATRIX'
                 [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('OVER' , DataFile , TimePoint);
+                    UpdateDataList('' , DataFile , TimePoint);
                 %FC
+                MatOutput=[Para.ParentDir , 'GretnaMatrixResult'];
+                if ~(exist(MatOutput , 'dir')==7)
+                    mkdir(MatOutput);
+                end
                 OutputName=[Para.MatOutput , filesep ,  FieldName(6:end) , '.txt'];
                 command='gretna_fc(opt.FileList , opt.LabMask , opt.OutputName)';
                 pipeline.([FieldName , DelMsg , '_FC']).command=command;
@@ -1991,6 +2087,7 @@ end
 while ~strcmp(ParentDir(end) , filesep)
   	ParentDir=ParentDir(1:end-1);
 end
+handles.Para.ParentDir=ParentDir;
 
 if handles.ConnectFlag
     if ~isfield(handles , 'NetCalList') || ~isfield(handles , 'NetPara')
@@ -2126,10 +2223,6 @@ set(handles.InputListbox , 'Enable' , 'inactive');
 handles.PipelineLog=[LogDir , 'pipeline_logs'];
 
 %MatOutput
-handles.Para.MatOutput=[ParentDir , 'GretnaMatrixResult'];
-if ~(exist(handles.Para.MatOutput , 'dir')==7)
-    mkdir(handles.Para.MatOutput);
-end
 
 %if ~isempty(strfind(handles.CalList , 'Normalize'))
 %    handles.Para.PicDir=[ParentDir , 'GretnaPicForCheck'];
@@ -2310,7 +2403,9 @@ function QueueEntry_Callback(hObject, eventdata, handles)
 % hObject    handle to QueueEntry (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+QueueSize=get(handles.QueueEntry, 'String');
+handles.Para.QueueSize=str2num(QueueSize);
+guidata(hObject, handles);
 % Hints: get(hObject,'String') returns contents of QueueEntry as text
 %        str2double(get(hObject,'String')) returns contents of QueueEntry as a double
 

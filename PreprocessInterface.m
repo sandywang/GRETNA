@@ -1982,7 +1982,7 @@ end
                 if ~(exist(MatOutput , 'dir')==7)
                     mkdir(MatOutput);
                 end
-                OutputName=[Para.MatOutput , filesep ,  FieldName(6:end) , '.txt'];
+                OutputName=[MatOutput , filesep ,  FieldName(6:end) , '.txt'];
                 command='gretna_fc(opt.FileList , opt.LabMask , opt.OutputName)';
                 pipeline.([FieldName , DelMsg , '_FC']).command=command;
                 pipeline.([FieldName , DelMsg , '_FC']).opt.FileList=FileList;

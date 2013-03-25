@@ -49,9 +49,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
     eff.nodalgE   =[];
     eff.gE        =[];
     if NumRandNet~=0
-        eff.locErand=[];
+        eff.locErand=zeros(NumRandNet, size(Thres, 2));
         eff.locE_zscore=[];
-        eff.gErand=[];
+        eff.gErand=zeros(NumRandNet, size(Thres, 2));
         eff.gE_zscore=[];
         eff.Gamma=[];
         eff.Lambda=[];
@@ -160,9 +160,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         sw.Gamma        = [sw.Gamma     , thres_sw.Gamma];
                         sw.Sigma        = [sw.Sigma     , thres_sw.Sigma];
                     end
-                    sw.nodalCp=[sw.nodalCp , thres_sw.nodalCp];
+                    sw.nodalCp=[sw.nodalCp , thres_sw.nodalCp'];
                     sw.Cp=[sw.Cp , thres_sw.Cp];
-                    sw.nodalLp=[sw.nodalLp , thres_sw.nodalCp];
+                    sw.nodalLp=[sw.nodalLp , thres_sw.nodalCp'];
                     sw.Lp=[sw.Lp , thres_sw.Lp];
                 
                     if j==size(Thres , 2)
@@ -194,6 +194,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         end
                     end
                 end
+                
             case 'NETWORK - EFFICIENCY'
                 for j=1:size(Thres , 2)
                     if NetType
@@ -228,18 +229,18 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         thres_eff.Lambda       = thres_eff.gE/mean(thres_eff.gErand);
                         thres_eff.Sigma        = thres_eff.Gamma/thres_eff.Lambda;
                         
-                        eff.locErand=[eff.locErand , thres_eff.locErand];
+                        eff.locErand(n,:)=thres_eff.locErand;
                         eff.locE_zscore=[eff.locE_zscore , thres_eff.locE_zscore];
-                        eff.gErand=[eff.gErand , thres_eff.gErand];
+                        eff.gErand(n,:)=thres_eff.gErand;
                         eff.gE_zscore=[eff.gE_zscore , thres_eff.gE_zscore];
                     
                         eff.Gamma=[eff.Gamma , thres_eff.Gamma];
                         eff.Lambda=[eff.Lambda , thres_eff.Lambda];
                         eff.Sigma=[eff.Sigma , thres_eff.Sigma];
                     end
-                    eff.nodallocE =[eff.nodallocE , thres_eff.nodallocE];
+                    eff.nodallocE =[eff.nodallocE , thres_eff.nodallocE'];
                     eff.locE      =[eff.locE  , thres_eff.locE];
-                    eff.nodalgE   =[eff.nodalgE , thres_eff.nodalgE];  
+                    eff.nodalgE   =[eff.nodalgE , thres_eff.nodalgE'];  
                     eff.gE        =[eff.gE , thres_eff.gE];
                 
                     if j==size(Thres , 2)
@@ -278,10 +279,10 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     else
                         [~ , thres_ei]=gretna_node_degree(A{j});
                     end
-                    NodeD.degree=[NodeD.degree , thres_ei];
+                    NodeD.degree=[NodeD.degree , thres_ei'];
                     if j==size(Thres , 2)
                         if j~=1
-                            NodeD.adegree=(sum(NodeD.degree)-sum(NodeD.degree([1 end]))/2)*deltas;
+                            NodeD.adegree=(sum(NodeD.degree, 2)-sum(NodeD.degree(:,[1 end]), 2)/2)*deltas;
                         end
                         ChildDir=sprintf('%s%sNodeDegree%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
@@ -304,10 +305,10 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     else
                         [~ , thres_GEi]=gretna_node_global_efficiency(A{j});
                     end
-                    NodeG.gE=[NodeG.gE , thres_GEi];
+                    NodeG.gE=[NodeG.gE , thres_GEi'];
                     if j==size(Thres , 2)
                         if j~=1
-                            NodeG.agE=(sum(NodeG.gE)-sum(NodeG.gE([1 end]))/2)*deltas;
+                            NodeG.agE=(sum(NodeG.gE, 2)-sum(NodeG.gE(:,[1 end]), 2)/2)*deltas;
                         end
                         ChildDir=sprintf('%s%sNodeEfficiency%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7
@@ -330,10 +331,10 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     else
                         [~, thres_bi]=gretna_node_betweenness(A{j});
                     end
-                    NodeB.bi=[NodeB.bi , thres_bi];
+                    NodeB.bi=[NodeB.bi , thres_bi'];
                     if j==size(Thres , 2)
                         if j~=1
-                            NodeB.abi=(sum(NodeB.bi)-sum(NodeB.bi([1 end]))/2)*deltas;
+                            NodeB.abi=(sum(NodeB.bi, 2)-sum(NodeB.bi(:,[1 end]), 2)/2)*deltas;
                         end
                         ChildDir=sprintf('%s%sNodeBetweenness%s',OutputDir , filesep , SubjNum);
                         if exist(ChildDir,'dir')==7

@@ -88,7 +88,11 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
         
         A{j}=TempMatrix;
     end
-
+    TempDir=sprintf('%s%sRandTmp%s', OutputDir, filesep, SubjNum);
+    if exist(TempDir, 'dir')==7
+        rmdir(TempDir, 's');
+    end
+    mkdir(TempDir);
     if ~isempty(strcmpi(CalList , 'Network - Small World')) || ...
         ~isempty(strcmpi(CalList , 'Network - Efficiency')) || ...
         ~isempty(strcmpi(CalList , 'Network - Modularity')) || ...
@@ -96,17 +100,17 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
         ~isempty(strcmpi(CalList , 'Network - Hierarchy')) || ...
         ~isempty(strcmpi(CalList , 'Network - Synchronization'))
         if NumRandNet~=0
-            RandNet=cell(NumRandNet , size(Thres , 2));
+            %RandNet=cell(NumRandNet , size(Thres , 2));
             for i=1:NumRandNet
                 for j=1:size(Thres , 2)                 
                     TempA = A{j} - diag(diag(A{j}));
                     TempA = abs(TempA);
                     if NetType
-                        RandweiM = gretna_gen_random_network1_weight(TempA);
+                        RandNet = gretna_gen_random_network1_weight(TempA);
                     else
-                        RandweiM = gretna_gen_random_network1(TempA);
+                        RandNet = gretna_gen_random_network1(TempA);
                     end
-                    RandNet{i , j}=RandweiM;
+                    save(sprintf('%s%s%.4d%.4d.mat',TempDir,filesep,i,j),'RandNet');
                 end
             end
         end
@@ -129,15 +133,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         thres_sw.Lprand      = zeros(NumRandNet, 1);
                         
                         for n=1:NumRandNet
+                            Tmp=load(sprintf('%s%s%.4d%.4d', TempDir, filesep, n, j));
+                            RandNet=Tmp.RandNet;
                             if NetType
                                 [Cprand, ~] = ...
-                                    gretna_node_clustcoeff_weight(RandNet{n , j} , '2');
-                                [Lprand, ~] = gretna_node_shortestpathlength_weight(RandNet{n,j});
+                                    gretna_node_clustcoeff_weight(RandNet , '2');
+                                [Lprand, ~] = gretna_node_shortestpathlength_weight(RandNet);
                             else
                                 [Cprand, ~] = ...
-                                    gretna_node_clustcoeff(RandNet{n , j});
-                                D=gretna_distance(RandNet{n , j});
-                                [Lprand, ~] = gretna_node_shortestpathlength(D);
+                                    gretna_node_clustcoeff(RandNet);
+                                [Lprand, ~] = gretna_node_shortestpathlength(RandNet);
                             end
                             thres_sw.Cprand(n, 1) = Cprand;
                             
@@ -208,14 +213,14 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         thres_eff.gErand      = zeros(NumRandNet, 1);
                         
                         for n=1:NumRandNet
+                            Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                            RandNet=Tmp.RandNet;
                             if NetType
-                                D = gretna_distance_weight(RandNet{n , j});
-                                [locErand , ~] = gretna_node_local_efficiency_weight(D);
-                                [gErand   , ~] = gretna_node_global_efficiency_weight(D);
+                                [locErand , ~] = gretna_node_local_efficiency_weight(RandNet);
+                                [gErand   , ~] = gretna_node_global_efficiency_weight(RandNet);
                             else
-                                D = gretna_distance(RandNet{n , j});
-                                [locErand , ~] = gretna_node_local_efficiency(D);
-                                [gErand   , ~] = gretna_node_global_efficiency(D);
+                                [locErand , ~] = gretna_node_local_efficiency(RandNet);
+                                [gErand   , ~] = gretna_node_global_efficiency(RandNet);
                             end
                             thres_eff.locErand(n, 1) = locErand;
                             thres_eff.gErand(n, 1)   = gErand;
@@ -229,9 +234,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         thres_eff.Lambda       = thres_eff.gE/mean(thres_eff.gErand);
                         thres_eff.Sigma        = thres_eff.Gamma/thres_eff.Lambda;
                         
-                        eff.locErand(n,:)=thres_eff.locErand;
+                        eff.locErand(:,j)=thres_eff.locErand;
                         eff.locE_zscore=[eff.locE_zscore , thres_eff.locE_zscore];
-                        eff.gErand(n,:)=thres_eff.gErand;
+                        eff.gErand(:,j)=thres_eff.gErand;
                         eff.gE_zscore=[eff.gE_zscore , thres_eff.gE_zscore];
                     
                         eff.Gamma=[eff.Gamma , thres_eff.Gamma];
@@ -365,7 +370,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                             thres_M.numberofmodule_rand=[];
                             thres_M.modularity_rand=[];
                             for n=1:NumRandNet
-                                [Ci_rand , Q_rand]=gretna_modularity_Danon(RandNet{n , j});
+                                Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                                RandNet=Tmp.RandNet;
+                                [Ci_rand , Q_rand]=gretna_modularity_Danon(RandNet);
                                 thres_M.numberofmodule_rand=...
                                     [thres_M.numberofmodule_rand ; size(Ci_rand , 1)];
                                 thres_M.modularity_rand=...
@@ -373,7 +380,9 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                             end
                         elseif Algorithm == '2'
                             for n=1:NumRandNet
-                                [Ci_rand , Q_rand]=gretna_modularity_Newman(RandNet{n , j});
+                                Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                                RandNet=Tmp.RandNet;
+                                [Ci_rand , Q_rand]=gretna_modularity_Newman(RandNet);
                                 thres_M.numberofmodule_rand=...
                                     [thres_M.numberofmodule_rand ; size(Ci_rand , 1)];
                                 thres_M.modularity_rand=...
@@ -413,12 +422,14 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if NumRandNet~=0
                             thres_r.rand=zeros(NumRandNet, 1);
                             for n = 1:NumRandNet
-                                H_rand     = sum(sum(RandNet{n , j}))/2;
-                                Mat_rand   = RandNet{n , j};
+                                Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                                RandNet=Tmp.RandNet;
+                                H_rand     = sum(sum(RandNet))/2;
+                                Mat_rand   = RandNet;
                                 Mat_rand(Mat_rand~=0) = 1;
                                 [deg_rand] = sum(Mat_rand);
                                 K_rand     = sum(deg_rand)/2;
-                                [i_rand , j_rand , v_rand] = find(triu(RandNet{n , j},1));
+                                [i_rand , j_rand , v_rand] = find(triu(RandNet,1));
                             
                                 degi_rand=[];
                                 degj_rand=[];
@@ -438,9 +449,11 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if NumRandNet~=0
                             thres_r.rand=zeros(NumRandNet, 1);
                             for n = 1:NumRandNet
-                                [deg_rand] = sum(RandNet{n , j});
+                                Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                                RandNet=Tmp.RandNet;
+                                [deg_rand] = sum(RandNet);
                                 K_rand     = sum(deg_rand)/2;
-                                [i_rand , j_rand] = find(triu(RandNet{n , j},1));
+                                [i_rand , j_rand] = find(triu(RandNet,1));
                             
                                 degi_rand=[];
                                 degj_rand=[];
@@ -486,10 +499,12 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         thres_beta.rand=zeros(NumRandNet, 1);
                         if NetType
                             for n=1:NumRandNet
+                                Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                                RandNet=Tmp.RandNet;
                                 [~,ki_rand]= ...
-                                    gretna_node_degree_weight(RandNet{n , j});
+                                    gretna_node_degree_weight(RandNet);
                                 [~,cii_rand] = ...
-                                    gretna_node_clustcoeff_weight(RandNet{n , j} , '2');
+                                    gretna_node_clustcoeff_weight(RandNet , '2');
                                 if all(cii_rand == 0) || all(ki_rand == 0)
                                     thres_beta.rand = ...
                                         [thres_beta.rand ; nan];
@@ -506,10 +521,12 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                             end
                         else
                             for n=1:NumRandNet
+                                Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                                RandNet=Tmp.RandNet;
                                 [~,ki_rand]= ...
-                                    gretna_node_degree(RandNet{n , j});
+                                    gretna_node_degree(RandNet);
                                 [~,cii_rand] = ...
-                                    gretna_node_clustcoeff(RandNet{n , j});
+                                    gretna_node_clustcoeff(RandNet);
                                 if all(cii_rand == 0) || all(ki_rand == 0)
                                     thres_beta.rand(n, 1) = ...
                                         nan;
@@ -558,10 +575,12 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     if NumRandNet~=0
                         thres_S.rand=zeros(NumRandNet, 1);
                         for n=1:NumRandNet
-                            Deg_rand = sum(RandNet{n , j});
+                            Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
+                            RandNet=Tmp.RandNet;
+                            Deg_rand = sum(RandNet);
                             
                             D_rand = diag(Deg_rand,0);
-                            G_rand = D_rand - RandNet{n , j};
+                            G_rand = D_rand - RandNet;
                             Eigenvalue_rand = sort(eig(G_rand));
         
                             thres_S.rand(n, 1) = ...
@@ -591,3 +610,5 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                 end
         end
     end
+    
+    rmdir(TempDir, 's');

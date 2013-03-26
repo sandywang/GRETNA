@@ -48,7 +48,7 @@ if NumofRandom ~= 0
         
         D_rand = diag(Deg_rand,0);
         G_rand = D_rand - W_rand;
-        Eigenvalue_rand = eig(G_rand);
+        Eigenvalue_rand = sort(eig(G_rand));
         
         S.rand(n,1) = Eigenvalue_rand(2)/Eigenvalue_rand(end);
     end

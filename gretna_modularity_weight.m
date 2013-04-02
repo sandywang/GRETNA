@@ -40,8 +40,9 @@ W = abs(W);
 
 if Algorithm == '1'
     [Ci Q] = gretna_modularity_Danon(W);
+    M.Ci=Ci;
     
-    M.numberofmodule_real = size(Ci,1);
+    M.numberofmodule_real = max(Ci);
     M.modularity_real = Q;
     
     if NumofRandom ~= 0
@@ -49,7 +50,7 @@ if Algorithm == '1'
         for n = 1:NumofRandom
             [Wrand] = gretna_gen_random_network1_weight(W);
             [Ci_rand Q_rand] = gretna_modularity_Danon(Wrand);
-            M.numberofmodule_rand(n,1) = size(Ci_rand,1);
+            M.numberofmodule_rand(n,1) = max(Ci_rand);
             M.modularity_rand(n,1) = Q_rand;
         end
         
@@ -59,8 +60,9 @@ if Algorithm == '1'
     
 elseif Algorithm == '2'
     [Ci Q] = gretna_modularity_Newman(W);
+    M.Ci=Ci;
     
-    M.numberofmodule_real = size(Ci,1);
+    M.numberofmodule_real = max(Ci);
     M.modularity_real = Q;
     
     if NumofRandom ~= 0
@@ -68,7 +70,7 @@ elseif Algorithm == '2'
         for n = 1:NumofRandom
             [Wrand] = gretna_gen_random_network1_weight(W);
             [Ci_rand Q_rand] = gretna_modularity_Newman(Wrand);
-            M.numberofmodule_rand(n,1) = size(Ci_rand,1);
+            M.numberofmodule_rand(n,1) = max(Ci_rand);
             M.modularity_rand(n,1) = Q_rand;
         end
         

@@ -62,6 +62,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
     NodeG.gE            =[];
     NodeB.bi            =[];
 
+    M.Ci=[];
     M.numberofmodule_real   = [];
     M.modularity_real       = [];
     M.numberofmodule_zscore = [];
@@ -365,6 +366,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     M.numberofmodule_real=...
                         [M.numberofmodule_real ,thres_M.numberofmodule_real];
                     M.modularity_real=[M.modularity_real , thres_M.modularity_real];
+                    M.Ci=[M.Ci, thres_M.Ci];
                     if NumRandNet~=0
                         if Algorithm == '1'
                             thres_M.numberofmodule_rand=[];
@@ -374,17 +376,19 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 RandNet=Tmp.RandNet;
                                 [Ci_rand , Q_rand]=gretna_modularity_Danon(RandNet);
                                 thres_M.numberofmodule_rand=...
-                                    [thres_M.numberofmodule_rand ; size(Ci_rand , 1)];
+                                    [thres_M.numberofmodule_rand ; max(Ci_rand)];
                                 thres_M.modularity_rand=...
                                     [thres_M.modularity_rand ; Q_rand];
                             end
                         elseif Algorithm == '2'
+                            thres_M.numberofmodule_rand=[];
+                            thres_M.modularity_rand=[];
                             for n=1:NumRandNet
                                 Tmp=load(sprintf('%s%s%.4d%.4d',TempDir,filesep,n,j));
                                 RandNet=Tmp.RandNet;
                                 [Ci_rand , Q_rand]=gretna_modularity_Newman(RandNet);
                                 thres_M.numberofmodule_rand=...
-                                    [thres_M.numberofmodule_rand ; size(Ci_rand , 1)];
+                                    [thres_M.numberofmodule_rand ; max(Ci_rand)];
                                 thres_M.modularity_rand=...
                                     [thres_M.modularity_rand ; Q_rand];
                             end

@@ -14,8 +14,7 @@ function [Ci Q] = gretna_modularity_Danon(A)
 %
 % Outputs:
 %        Ci:
-%                N*1 cell (n = # of modules) with each cell containing the
-%                indices of those nodes belonging to it.
+%                The communities (listed for each node).
 %        Q:
 %                Modularity value of the given partition.
 %
@@ -106,11 +105,11 @@ while length(e) > 1
     end
 end
 
-ModStr = cell(max(Ci),1);
-for i = 1:max(Ci)
-    ModStr{i,1} = find(Ci == i);
-end
-Ci = ModStr;
-clear ModStr
+%ModStr = cell(max(Ci),1);
+%for i = 1:max(Ci)
+%    ModStr{i,1} = find(Ci == i);
+%end
+%Ci = ModStr;
+%clear ModStr
 
 return

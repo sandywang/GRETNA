@@ -1018,7 +1018,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                 [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
                     'Pick one mask file' , [Path , filesep , Name , Ext]);
                 if ischar(File)
-                    handles.Para.LabMask=[Path , File];
+                    handles.Para.DCMask=[Path , File];
                     ConfigText={sprintf('%s' , handles.Para.DCMask)};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);

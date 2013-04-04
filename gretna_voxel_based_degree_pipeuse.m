@@ -102,7 +102,7 @@ if Dis==0
     end
 else
     for ii = 1:length(Index)
-        D = pdist2(XYZ(ii,:),XYZ);
+        D = gretna_pdist2(XYZ(ii,:),XYZ);
 
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
 

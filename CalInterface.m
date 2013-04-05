@@ -496,7 +496,8 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
         [Path Name Ext]=fileparts(DataText{SelectedValue});
         if strcmp(Ext , '.mat')
             TempStruct=load([Path , filesep , Name , Ext]);
-            TempMat=getfield(TempStruct , Name);
+            F=fieldnames(TempStruct);
+            TempMat=getfield(TempStruct , F{1});
             if size(TempMat , 2)~=1
                 TempMat={TempMat};
             end
@@ -596,29 +597,30 @@ function handles=DataListbox(handles)
         	[Path , File , Ext]=...
             	fileparts(handles.DataList{j});
             if strcmp(Ext , '.txt')
-            	temp_mat=load([Path , filesep , File , Ext]);
+            	TempMat=load([Path , filesep , File , Ext]);
                 subj_num=subj_num+1;
                 present_list=[present_list ;...
                 	{sprintf('%s%s%s%s',...
                     Path , filesep , File , Ext)}];
                 present_list=[present_list ; ...
                 	{sprintf('--->#%.4d: (%d -- %d)',...
-                    subj_num , size(temp_mat , 1),...
-                    size(temp_mat , 2))}];
+                    subj_num , size(TempMat , 1),...
+                    size(TempMat , 2))}];
             elseif strcmp(Ext , '.mat')
-            	temp_struct=load([Path , filesep , File , Ext]);
-                temp_mat=getfield(temp_struct , File);
-                if size(temp_mat , 2)==1
+            	TempStruct=load([Path , filesep , File , Ext]);
+                F=fieldnames(TempStruct);
+                TempMat=getfield(TempStruct , F{1});
+                if size(TempMat , 2)==1
                     present_list=[present_list ; ...
                     	{sprintf('%s%s%s%s',...
                         Path , filesep,...
                         File , Ext)}];
-                    for i=1:size(temp_mat , 1)
+                    for i=1:size(TempMat , 1)
                     	subj_num=subj_num+1;
                         present_list=[present_list ; ...
                         	{sprintf('--->#%.4d: (%d -- %d)',...
-                            subj_num , size(temp_mat{i} , 1),...
-                            size(temp_mat{i} , 2))}];
+                            subj_num , size(TempMat{i} , 1),...
+                            size(TempMat{i} , 2))}];
                     end
                 else
                 	subj_num=subj_num+1;
@@ -627,8 +629,8 @@ function handles=DataListbox(handles)
                         Path , filesep , File , Ext)}];
                     present_list=[present_list ; ...
                     	{sprintf('--->#%.4d: (%d -- %d)',...
-                        subj_num , size(temp_mat , 1),...
-                        size(temp_mat , 2))}];
+                        subj_num , size(TempMat , 1),...
+                        size(TempMat , 2))}];
                 end
             end
         end
@@ -705,7 +707,8 @@ function RunEvent(hObject , handles)
                 {TempMat}];
         elseif strcmp(Ext , '.mat')
             TempStruct=load([Path , filesep , Name , Ext]);
-            TempMat=getfield(TempStruct , Name);
+            F=fieldnames(TempStruct);
+            TempMat=getfield(TempStruct , F{1});
             if iscell(TempMat)
                 MatrixList=[MatrixList ;...
                     TempMat];

@@ -510,8 +510,8 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 [~,cii_rand] = ...
                                     gretna_node_clustcoeff_weight(RandNet , '2');
                                 if all(cii_rand == 0) || all(ki_rand == 0)
-                                    thres_beta.rand = ...
-                                        [thres_beta.rand ; nan];
+                                    thres_beta.rand(n, 1) = ...
+                                        nan;
                                 else
                                     index_rand1 = find(ki_rand == 0);
                                     index_rand2 = find(cii_rand == 0);

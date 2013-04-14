@@ -2250,7 +2250,7 @@ for i=1:size(SubjField , 1)
         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Para=NetPara;
         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.OutputDir=NetworkDir;
         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.SubjNum=['_',SubjField{i}(6:end)];
-        pipeline.([SubjField{i} , '_NetworkMetrics']).files_in={[Para.MatOutput , filesep , SubjField{i}(6:end) , '.txt']};
+        pipeline.([SubjField{i} , '_NetworkMetrics']).files_in={[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt']};
         %pipeline.([SubjField{i} , '_NetworkMetrics']).files_out={sprintf('%s%s%s.out' , TempDir , filesep , ['_',SubjField{i}(6:end)])};
     end
 end

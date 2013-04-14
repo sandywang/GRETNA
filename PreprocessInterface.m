@@ -1798,7 +1798,7 @@ end
                     %Coregister
                     if strcmp(Para.CorBool , 'TRUE')
                         if isempty(T1Image)
-                            T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , SubjName);
+                            T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , FieldName(6:end));
                         end
                         SPMJOB=load([GUIPath , filesep ,...
                             'Jobsman' , filesep , 'gretna_Coregister.mat']);
@@ -1821,7 +1821,7 @@ end
                     %Segment
                     if strcmp(Para.SegBool , 'TRUE')
                         if isempty(T1Image)
-                            T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , SubjName);
+                            T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , FieldName(6:end));
                         end
                         SPMJOB=load([GUIPath , filesep ,...
                             'Jobsman' , filesep , 'gretna_Segmentation.mat']);
@@ -2245,7 +2245,7 @@ for i=1:size(SubjField , 1)
     if handles.ConnectFlag
         command='gretna_ForkProcess(opt.Matrix , opt.CalList , opt.Para , opt.OutputDir , opt.SubjNum)';
         pipeline.([SubjField{i} , '_NetworkMetrics']).command=command;
-        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Matrix=[Para.MatOutput , filesep , SubjField{i}(6:end) , '.txt'];
+        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Matrix=[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt'];
         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.CalList=NetCalList;
         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Para=NetPara;
         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.OutputDir=NetworkDir;

@@ -75,7 +75,7 @@ Vec_Group1 = Vec_Group1(index,:);
 Vec_Group2 = Vec_Group2(index,:);
 
 if nargin == 6
-    [~,significance,~,stats] = ttest2(Vec_Group1, Vec_Group2, 0.05, Tail, 'equal', 2);
+    [~,significance,~,stats] = ttest2(Vec_Group1, Vec_Group2, 0.05, Tail, 'unequal', 2);
     T(index) = stats.tstat;
     P(index) = significance;
 else
@@ -88,7 +88,7 @@ else
         [stats] = regstats([Vec_Group1(edge,:)'; Vec_Group2(edge,:)'],predic,'linear',{'tstat','r'});
         Res(edge,:) = stats.r + stats.tstat.beta(1) + stats.tstat.beta(2).*group_ind;
     end
-    [~,significance,~,stats] = ttest2(Res(:,1:dim1(3)), Res(:,dim1(3)+1:dim1(3)+dim2(3)), 0.05, Tail, 'equal', 2);
+    [~,significance,~,stats] = ttest2(Res(:,1:dim1(3)), Res(:,dim1(3)+1:dim1(3)+dim2(3)), 0.05, Tail, 'unequal', 2);
     T(index) = stats.tstat;
     P(index) = significance;
 end
@@ -139,7 +139,7 @@ if sum(Mat_suprathres(:))/2 > 2
         
         P_rand = zeros(dim1(1));
         
-        [~,significance,~,~] = ttest2(rand_group1, rand_group2, 0.05, Tail, 'equal', 2);
+        [~,significance,~,~] = ttest2(rand_group1, rand_group2, 0.05, Tail, 'unequal', 2);
         P_rand(index) = significance;   P_rand = P_rand + P_rand';
         
         P_rand(P_rand > P_thr) = 0;

@@ -3,7 +3,13 @@ function gretna_regressout(DataList , Prefix , CovConfig)
 
     if strcmpi(CovConfig.HMBool , 'TRUE')
         HMFile=gretna_GetNeedFile(CovConfig.HMPath , CovConfig.HMPrefix , CovConfig.Name);
-        CovConfig.CovCell=[CovConfig.CovCell ; HMFile];
+        TempMat=load(HMFile{1});
+        if strcmpi(CovConfig.HMDeriv, 'TRUE')
+            HMDerivTC=[zeros(1, size(TempMat, 2));TempMat(1:end-1,:)];
+            TempMat=TempMat-HMDerivTC;
+            TempMat(1,:)=zeros(1, size(TempMat, 2));
+        end
+        Cov=[Cov, TempMat];
     end
     CovCell=CovConfig.CovCell;
 
@@ -36,7 +42,7 @@ function gretna_regressout(DataList , Prefix , CovConfig)
                 Cov=[Cov , TC];
             end
         end
-    end
+    end            
     
     PMask=spm_vol(CovConfig.BrainMask);
     Mask=spm_read_vols(PMask);

@@ -86,7 +86,8 @@ if ~isfield(handles , 'Para')
         if ~isfield(Para, 'DCMask') ||...
             ~isfield(Para, 'DCRthr') ||...
             ~isfield(Para, 'DCDis') ||...
-            ~isfield(Para, 'QueueSize')
+            ~isfield(Para, 'QueueSize') ||...
+            ~isfield(Para, 'HMDerivBool')
             Para=[];
         end
     else
@@ -153,6 +154,7 @@ if ~isfield(handles , 'Para')
         Para.HMBool='TRUE';
         Para.HMPath='';
         Para.HMPrefix='rp_*';
+        Para.HMDerivBool='FALSE';
     %Voxel-wise Degree
         Para.DCMask=[GUIPath , filesep ,...
             'mask' , filesep , 'BrainMask_05_61x73x61.img'];
@@ -574,6 +576,18 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 ConfigText={sprintf('%s' , handles.Para.HMPrefix)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Add Derivative (12):'))
+                if strcmp(handles.Para.HMDerivBool , 'TRUE');
+                    ConfigText={'*TRUE';...
+                        'FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                else
+                    ConfigText={'TRUE';...
+                        '*FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 2);
+                end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Label Mask:'))
                 ConfigText={sprintf('%s' , handles.Para.LabMask)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
@@ -995,6 +1009,20 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Add Derivative (12):'))
+                if strcmp(handles.Para.HMDerivBool , 'TRUE')
+                    handles.Para.HMDerivBool='FALSE';
+                    ConfigText={'TRUE';...
+                        '*FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 2);
+                else
+                    handles.Para.HMDerivBool='TRUE';
+                    ConfigText={'*TRUE';...
+                        'FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Label Mask:'))
                 [Path , Name , Ext]=fileparts(handles.Para.LabMask);
                 [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
@@ -1221,11 +1249,13 @@ function Result=CalListbox(AHandle)
                     if isempty(AHandle.Para.HMPath)
                     	Result=[Result ;...
                             {'. . Text Parent Path:  Same with Functional Dataset'};...
-                            {sprintf('. . Text Prefix:  %s' , AHandle.Para.HMPrefix)}];
+                            {sprintf('. . Text Prefix:  %s' , AHandle.Para.HMPrefix)};...
+                            {sprintf('. . Add Derivative (12):  %s' , AHandle.Para.HMDerivBool)}];
                     else
                         Result=[Result ;...
                             {sprintf('. . Text Parent Path:  %s' , AHandle.Para.HMPath)};...
-                            {sprintf('. . Text Prefix:  %s' , AHandle.Para.HMPrefix)}];
+                            {sprintf('. . Text Prefix:  %s' , AHandle.Para.HMPrefix)};...
+                            {sprintf('. . Add Derivative (12):  %s' , AHandle.Para.HMDerivBool)}];
                     end
                 end
             case 'FUNCTIONAL CONNECTIVITY MATRIX'
@@ -1937,6 +1967,7 @@ end
                 Config.HMBool    = Para.HMBool;
                 Config.HMPath    = Para.HMPath;
                 Config.HMPrefix  = Para.HMPrefix;
+                Config.HMDeriv   = Para.HMDerivBool;
                 Config.Name      = FieldName(6:end);
                 Config.CovCell   = CovCell;
                 command='gretna_regressout(opt.FileList , opt.Prefix , opt.CovConfig)';

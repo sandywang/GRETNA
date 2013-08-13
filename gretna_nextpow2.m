@@ -29,7 +29,7 @@ tbl = tbl(tbl>=n);          %tbl =134, 135, ... , 256
 
 for x=1:length(tbl)
     p = tbl(x);
-    [f,~] = log2(p);
+    [f,E] = log2(p);
     if ~isempty(f) && f == 0.5   %Copy from nextpow2.m
         return;
     end
@@ -42,14 +42,14 @@ for x=1:length(tbl)
     end
     if mod(p,3) == 0
         y = p/3;
-        [f,~] = log2(y);
+        [f,E] = log2(y);
         if ~isempty(f) && f == 0.5   %Copy from nextpow2.m
             return;
         end
     end
     if mod(p,5) ==0
         y = p/5;
-        [f,~] = log2(y);
+        [f,E] = log2(y);
         if ~isempty(f) && f == 0.5   %Copy from nextpow2.m
             return;
         end

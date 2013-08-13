@@ -261,21 +261,22 @@ if Thres_type == 's'
             
         end % for threshold
         
-        node.Cpratio = node.Cp     ./ mean(node.Cprand,4);
-        node.Lpratio = node.Lp     ./ mean(node.Lprand,4);
-        node.locEratio = node.locE ./ mean(node.locErand,4);
-        node.gEratio = node.gE     ./ mean(node.gErand,4);
-        node.degratio = node.deg   ./ mean(node.degrand,4);
-        node.bwratio = node.bw     ./ mean(node.bwrand,4);
+        if n>0%Add by Sandy 20130809
+            node.Cpratio = node.Cp     ./ mean(node.Cprand,4);
+            node.Lpratio = node.Lp     ./ mean(node.Lprand,4);
+            node.locEratio = node.locE ./ mean(node.locErand,4);
+            node.gEratio = node.gE     ./ mean(node.gErand,4);
+            node.degratio = node.deg   ./ mean(node.degrand,4);
+            node.bwratio = node.bw     ./ mean(node.bwrand,4);
         
-        net.Cpratio = net.Cp     ./ mean(net.Cprand,3);
-        net.Lpratio = net.Lp     ./ mean(net.Lprand,3);
-        net.locEratio = net.locE ./ mean(net.locErand,3);
-        net.gEratio   = net.gE   ./ mean(net.gErand,3);
-        net.degratio = net.deg   ./ mean(net.degrand,3);
-        net.bwratio = net.bw     ./ mean(net.bwrand,3);
-        net.modratio = net.mod   ./ mean(net.modrand,3);
-        
+            net.Cpratio = net.Cp     ./ mean(net.Cprand,3);
+            net.Lpratio = net.Lp     ./ mean(net.Lprand,3);
+            net.locEratio = net.locE ./ mean(net.locErand,3);
+            net.gEratio   = net.gE   ./ mean(net.gErand,3);
+            net.degratio = net.deg   ./ mean(net.degrand,3);
+            net.bwratio = net.bw     ./ mean(net.bwrand,3);
+            net.modratio = net.mod   ./ mean(net.modrand,3);
+        end
     end % for subjects
     
     % generate the area under curve (auc) to provide threshold insensitive

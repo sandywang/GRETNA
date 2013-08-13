@@ -132,7 +132,7 @@ if n~=0
         if randtype == 1
             [Arand] =  gretna_gen_random_network1(A);
         else
-            [Arand] =  gretna_gen_random_network2(N,K);
+            [Arand] =  gretna_gen_random_network2(A);
         end
         [sw.Cprand(i), sw.nodalCprand(i,:)] = gretna_node_clustcoeff(Arand);
         

@@ -325,7 +325,7 @@ else
             fprintf ('Correlation threshold = %.2f \n', Thres(thres_j));
             
             % binarize
-            bin = gretna_R2b(As{sub},'s',Thres(thres_j));
+            bin = gretna_R2b(As{sub},'r',Thres(thres_j));
             
             % clustering coefficient
             [net.Cp(thres_j,sub), node.Cp(thres_j,sub,:)] = gretna_node_clustcoeff(bin);

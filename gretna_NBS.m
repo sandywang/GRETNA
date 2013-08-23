@@ -6,7 +6,7 @@ function [T P NumofEdge_real Comnet max_NumofEdge_rand P_com] = gretna_NBS(Mat_G
 % current version is only applicable to two groups.
 %
 %
-% Syntax: function [T P NumofEdge_real Comnet max_NumofEdge_rand P_com] = gretna_NBS(Mat_Group1, Mat_Group2, P_thr1, Tail, M, Mask_Net, Covariate)
+% Syntax: function [T P NumofEdge_real Comnet max_NumofEdge_rand P_com] = gretna_NBS(Mat_Group1, Mat_Group2, P_thr1, Tail, M, Mask_Net, Path_covariate)
 %
 % Inputs:
 %       Mat_Group1:
@@ -76,25 +76,25 @@ Vec_Group2 = Vec_Group2(index,:);
 
 if nargin == 6
     [~,significance,~,stats] = ttest2(Vec_Group1, Vec_Group2, 0.05, Tail, 'unequal', 2);
-    T(index) = stats.tstat;
-    P(index) = significance;
+    T(index) = stats.tstat; P(index) = significance;
 else
     Covariate = load(Path_covariate);
-    Res = zeros(length(index),dim1(3)+dim2(3));
     group_ind = [ones(dim1(3),1); zeros(dim2(3),1)];
     predic = [group_ind Covariate];
     
-    for edge = 1:length(index)
-        [stats] = regstats([Vec_Group1(edge,:)'; Vec_Group2(edge,:)'],predic,'linear',{'tstat','r'});
-        Res(edge,:) = stats.r + stats.tstat.beta(1) + stats.tstat.beta(2).*group_ind;
+    [stats] = gretna_glm([Vec_Group1'; Vec_Group2'], predic, 't', 1);
+    T(index) = stats.t;
+    if strcmpi(Tail, 'right')
+        significance = tcdf(-stats.t,stats.df);
+    elseif strcmpi(Tail, 'left')
+        significance = tcdf(stats.t,stats.df);
+    else
+        significance = 2 .* tcdf(-abs(stats.t),stats.df);
     end
-    [~,significance,~,stats] = ttest2(Res(:,1:dim1(3)), Res(:,dim1(3)+1:dim1(3)+dim2(3)), 0.05, Tail, 'unequal', 2);
-    T(index) = stats.tstat;
     P(index) = significance;
 end
 
-T = T + T';
-P = P + P';
+T = T + T'; P = P + P';
 
 Mat_suprathres = P;
 Mat_suprathres(Mat_suprathres > P_thr) = 0;
@@ -124,23 +124,33 @@ if sum(Mat_suprathres(:))/2 > 2
     Comnet = Comnet(IX,1);
     
     % Permutation test
-    if nargin == 6
-        RandMat = cat(2, Vec_Group1, Vec_Group2);
-    else
-        RandMat = Res;
-    end
-    
+    RandMat = cat(2, Vec_Group1, Vec_Group2);
     max_NumofEdge_rand = zeros(M,1);
+    
     for num = 1:M
-        num
+
         rand_index = randperm(dim1(3) + dim2(3));
         rand_group1 = RandMat(:,rand_index(1:dim1(3)));
         rand_group2 = RandMat(:,rand_index(dim1(3)+1:end));
         
         P_rand = zeros(dim1(1));
         
-        [~,significance,~,~] = ttest2(rand_group1, rand_group2, 0.05, Tail, 'unequal', 2);
-        P_rand(index) = significance;   P_rand = P_rand + P_rand';
+        if nargin == 6
+            [~,significance,~,~] = ttest2(rand_group1, rand_group2, 0.05, Tail, 'unequal', 2);
+            P_rand(index) = significance;   P_rand = P_rand + P_rand';
+        else
+            rand_predic = [group_ind Covariate(rand_index,:)];
+            
+            [stats] = gretna_glm([rand_group1'; rand_group2'], rand_predic, 't', 1);
+            if strcmpi(Tail, 'right')
+                significance = tcdf(-stats.t,stats.df);
+            elseif strcmpi(Tail, 'left')
+                significance = tcdf(stats.t,stats.df);
+            else
+                significance = 2 .* tcdf(-abs(stats.t),stats.df);
+            end
+            P_rand(index) = significance;   P_rand = P_rand + P_rand';
+        end
         
         P_rand(P_rand > P_thr) = 0;
         P_rand(logical(P_rand)) = 1;

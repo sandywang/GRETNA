@@ -2288,6 +2288,10 @@ end
 opt.path_logs = [LogDir , 'pipeline_logs'];
 opt.mode = 'batch';
 opt.mode_pipeline_manager = 'batch';
+if ismac
+    opt.mode='background';
+    opt.mode_pipeline_manager='background';
+end
 opt.max_queued = str2num(get(handles.QueueEntry , 'String'));
 opt.flag_verbose = 0;
 opt.flag_pause = 0;

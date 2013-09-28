@@ -168,7 +168,7 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     end
                     sw.nodalCp=[sw.nodalCp , thres_sw.nodalCp'];
                     sw.Cp=[sw.Cp , thres_sw.Cp];
-                    sw.nodalLp=[sw.nodalLp , thres_sw.nodalCp'];
+                    sw.nodalLp=[sw.nodalLp , thres_sw.nodalLp'];
                     sw.Lp=[sw.Lp , thres_sw.Lp];
                 
                     if j==size(Thres , 2)

@@ -22,120 +22,129 @@ function [Wrand] = gretna_gen_random_network1_weight(W)
 % Jinhui WANG, NKLCNL, BNU, BeiJing, 2011/10/23, Jinhui.Wang.1982@gmail.com
 % =========================================================================
 
-Wrand = W - diag(diag(W));
-Topo = Wrand;
+W = W - diag(diag(W));
+
+Wrand = W;
+Topo = W;
 Topo(Topo ~= 0) = 1;
-srand = Topo;
-srand = srand - diag(diag(srand));
-nrew = 0;
 
-[i1,j1] = find(srand);
-aux = find(i1>j1);
-i1 = i1(aux);
-j1 = j1(aux);
-Ne = length(i1);
+N = length(Topo);
+K = sum(sum(Topo))/2;
 
-ntry = 2*Ne;% maximum randmised times
+if K == N*(N-1)/2
+    warning('The inputed matrix/network is fully connected, please use gretna_gen_random_network2_weight to generate random networks')
+else
 
-for i = 1:ntry
-    e1 = 1+floor(Ne*rand);% randomly select two links
-    e2 = 1+floor(Ne*rand);
-    v1 = i1(e1);
-    v2 = j1(e1);
-    v3 = i1(e2);
-    v4 = j1(e2);
-%     if srand(v1,v2)<1;
-%         v1
-%         v2
-%         srand(v1,v2)
-%         pause;
-%     end
-%     if srand(v3,v4)<1;
-%         v3
-%         v4
-%         srand(v3,v4)
-%         pause;
-%     end
+    nrew = 0;
     
-    if (v1~=v3)&&(v1~=v4)&&(v2~=v4)&&(v2~=v3);
-        if rand > 0.5;
-            if (srand(v1,v3)==0)&&(srand(v2,v4)==0);
+    [i1,j1] = find(Topo);
+    aux = find(i1>j1);
+    i1 = i1(aux);
+    j1 = j1(aux);
+    Ne = length(i1);
+    
+    ntry = 2*Ne;% maximum randmised times
+    
+    for i = 1:ntry
+        e1 = 1+floor(Ne*rand);% randomly select two links
+        e2 = 1+floor(Ne*rand);
+        v1 = i1(e1);
+        v2 = j1(e1);
+        v3 = i1(e2);
+        v4 = j1(e2);
+        %     if Topo(v1,v2)<1;
+        %         v1
+        %         v2
+        %         Topo(v1,v2)
+        %         pause;
+        %     end
+        %     if Topo(v3,v4)<1;
+        %         v3
+        %         v4
+        %         Topo(v3,v4)
+        %         pause;
+        %     end
+        
+        if (v1~=v3)&&(v1~=v4)&&(v2~=v4)&&(v2~=v3);
+            if rand > 0.5;
+                if (Topo(v1,v3)==0)&&(Topo(v2,v4)==0);
+                    
+                    % the following line prevents appearance of isolated clusters of size 2
+                    %           if (k1(v1).*k1(v3)>1)&(k1(v2).*k1(v4)>1);
+                    
+                    Topo(v1,v2) = 0;
+                    Topo(v3,v4) = 0;
+                    Topo(v2,v1) = 0;
+                    Topo(v4,v3) = 0;
+                    
+                    Topo(v1,v3) = 1;
+                    Topo(v2,v4) = 1;
+                    Topo(v3,v1) = 1;
+                    Topo(v4,v2) = 1;
+                    
+                    Wrand(v1,v3) = Wrand(v1,v2);
+                    Wrand(v2,v4) = Wrand(v3,v4);
+                    Wrand(v3,v1) = Wrand(v2,v1);
+                    Wrand(v4,v2) = Wrand(v4,v3);
+                    
+                    Wrand(v1,v2) = 0;
+                    Wrand(v3,v4) = 0;
+                    Wrand(v2,v1) = 0;
+                    Wrand(v4,v3) = 0;
+                    
+                    nrew = nrew+1;
+                    
+                    i1(e1) = v1;
+                    j1(e1) = v3;
+                    i1(e2) = v2;
+                    j1(e2) = v4;
+                    
+                    % the following line prevents appearance of isolated clusters of size 2
+                    %            end;
+                    
+                end;
+            else
+                v5 = v3;
+                v3 = v4;
+                v4 = v5;
+                clear v5;
                 
-                % the following line prevents appearance of isolated clusters of size 2
-                %           if (k1(v1).*k1(v3)>1)&(k1(v2).*k1(v4)>1);
-                
-                srand(v1,v2) = 0;
-                srand(v3,v4) = 0;
-                srand(v2,v1) = 0;
-                srand(v4,v3) = 0;
-                
-                srand(v1,v3) = 1;
-                srand(v2,v4) = 1;
-                srand(v3,v1) = 1;
-                srand(v4,v2) = 1;
-                
-                Wrand(v1,v3) = Wrand(v1,v2);
-                Wrand(v2,v4) = Wrand(v3,v4);
-                Wrand(v3,v1) = Wrand(v2,v1);
-                Wrand(v4,v2) = Wrand(v4,v3);
-                
-                Wrand(v1,v2) = 0;
-                Wrand(v3,v4) = 0;
-                Wrand(v2,v1) = 0;
-                Wrand(v4,v3) = 0;
-                
-                nrew = nrew+1;
-                
-                i1(e1) = v1;
-                j1(e1) = v3;
-                i1(e2) = v2;
-                j1(e2) = v4;
-                
-                % the following line prevents appearance of isolated clusters of size 2
-                %            end;
-                
-            end;
-        else
-            v5 = v3;
-            v3 = v4;
-            v4 = v5;
-            clear v5;
-            
-            if (srand(v1,v3)==0)&&(srand(v2,v4)==0);
-                
-                % the following line prevents appearance of isolated clusters of size 2
-                %           if (k1(v1).*k1(v3)>1)&(k1(v2).*k1(v4)>1);
-                
-                srand(v1,v2) = 0;
-                srand(v4,v3) = 0;
-                srand(v2,v1) = 0;
-                srand(v3,v4) = 0;
-                
-                srand(v1,v3) = 1;
-                srand(v2,v4) = 1;
-                srand(v3,v1) = 1;
-                srand(v4,v2) = 1;
-                
-                Wrand(v1,v3) = Wrand(v1,v2);
-                Wrand(v2,v4) = Wrand(v3,v4);
-                Wrand(v3,v1) = Wrand(v2,v1);
-                Wrand(v4,v2) = Wrand(v4,v3);
-                
-                Wrand(v1,v2) = 0;
-                Wrand(v3,v4) = 0;
-                Wrand(v2,v1) = 0;
-                Wrand(v4,v3) = 0;
-                
-                nrew=nrew+1;
-                
-                i1(e1) = v1;
-                j1(e1) = v3;
-                i1(e2) = v2;
-                j1(e2) = v4;
-                
-                % the following line prevents appearance of isolated clusters of size 2
-                %           end;
-                
+                if (Topo(v1,v3)==0)&&(Topo(v2,v4)==0);
+                    
+                    % the following line prevents appearance of isolated clusters of size 2
+                    %           if (k1(v1).*k1(v3)>1)&(k1(v2).*k1(v4)>1);
+                    
+                    Topo(v1,v2) = 0;
+                    Topo(v4,v3) = 0;
+                    Topo(v2,v1) = 0;
+                    Topo(v3,v4) = 0;
+                    
+                    Topo(v1,v3) = 1;
+                    Topo(v2,v4) = 1;
+                    Topo(v3,v1) = 1;
+                    Topo(v4,v2) = 1;
+                    
+                    Wrand(v1,v3) = Wrand(v1,v2);
+                    Wrand(v2,v4) = Wrand(v3,v4);
+                    Wrand(v3,v1) = Wrand(v2,v1);
+                    Wrand(v4,v2) = Wrand(v4,v3);
+                    
+                    Wrand(v1,v2) = 0;
+                    Wrand(v3,v4) = 0;
+                    Wrand(v2,v1) = 0;
+                    Wrand(v4,v3) = 0;
+                    
+                    nrew=nrew+1;
+                    
+                    i1(e1) = v1;
+                    j1(e1) = v3;
+                    i1(e2) = v2;
+                    j1(e2) = v4;
+                    
+                    % the following line prevents appearance of isolated clusters of size 2
+                    %           end;
+                    
+                end
             end
         end
     end

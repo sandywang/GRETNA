@@ -44,8 +44,8 @@ function gretna_regressout(DataList , Prefix , CovConfig)
         end
     end            
     
-    PMask=spm_vol(CovConfig.BrainMask);
-    Mask=spm_read_vols(PMask);
+    %PMask=spm_vol(CovConfig.BrainMask);
+    %Mask=spm_read_vols(PMask);
 
     POut = P;
     for t = 1:TimePoint
@@ -62,25 +62,25 @@ function gretna_regressout(DataList , Prefix , CovConfig)
     
     for k = 1:Slices
         SliceData = zeros(Rows,Columns,TimePoint);
-        SliceMask = Mask(:,:,k);
-        SliceMask = reshape(SliceMask , [] , 1);
-        TmpMask   = find(SliceMask~=0);
+        %SliceMask = Mask(:,:,k);
+        %SliceMask = reshape(SliceMask , [] , 1);
+        %TmpMask   = find(SliceMask~=0);
         
-        if ~isempty(TmpMask)
+        %if ~isempty(TmpMask)
             for t = 1:TimePoint
                 SliceData(:,:,t) = spm_slice_vol(P{t},spm_matrix([0 0 k]),[Rows Columns],0);        
             end
             SliceData=double(reshape(SliceData , [] , TimePoint));
-            Tmp=SliceData(TmpMask , :);
-            Tmp=Tmp';
+            %Tmp=SliceData(TmpMask , :);
+            Tmp=SliceData';
         
             Stat = gretna_glm(Tmp, Cov , 'r');
             Tmp=Stat.r';
 
-            SliceData=zeros(size(SliceData));
-            SliceData(TmpMask , :)=Tmp;
-            SliceData=reshape(SliceData , [Rows , Columns , TimePoint]);
-        end
+            %SliceData=zeros(size(SliceData));
+            %SliceData(TmpMask , :)=Tmp;
+            SliceData=reshape(Tmp , [Rows , Columns , TimePoint]);
+        %end
             
         for t = 1:TimePoint
             POut{t} = spm_write_plane(POut{t},SliceData(:,:,t),k);

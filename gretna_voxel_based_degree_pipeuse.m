@@ -53,7 +53,7 @@ if ~strcmpi(Output_path(end),filesep)
     Output_path=[Output_path, filesep];
 end
 
-if ~exist(Output_path, 'dir')==7
+if exist(Output_path, 'dir')~=7
     mkdir(Output_path);
 end
 
@@ -66,7 +66,7 @@ XYZ = XYZ(:,Index)';
 [I J K] = ind2sub(size(Ymask),Index);
 
 Vin = spm_vol(Data_List);
-Ydata = spm_get_data(Data_List,[I J K]');
+Ydata = spm_get_data(Vin,[I J K]');
 
 numSample = size(Ydata,1);
 Ydata = Ydata - repmat(mean(Ydata), numSample, 1);

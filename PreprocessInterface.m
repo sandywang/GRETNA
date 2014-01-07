@@ -90,6 +90,10 @@ if ~isfield(handles , 'Para')
             ~isfield(Para, 'HMDerivBool')
             Para=[];
         end
+        
+        if exist(Para.LabMask, 'file')~=2
+            Para=[];
+        end
     else
         Para=[];
     end
@@ -165,7 +169,7 @@ if ~isfield(handles , 'Para')
     %FC
         Para.LabMask=[GUIPath , filesep ,...
             'Templates' , filesep , 'AAL_90_3mm.nii'];
-        save(ParaFile , 'Para');
+        %save(ParaFile , 'Para');
     end
     set(handles.QueueEntry, 'String', num2str(Para.QueueSize));
     handles.Para=Para;
@@ -1219,10 +1223,8 @@ function Result=CalListbox(AHandle)
                     {sprintf('. TR (s):  %d' , AHandle.Para.TR)};...
                     {sprintf('. Band (Hz):  %s' , AHandle.Para.FreBand)}];
             case 'COVARIATES REGRESSION'
-                [Path , Name , Ext]=fileparts(AHandle.Para.GSMask);
                 Result=[Result ; ...
                     {Mode} ; ...
-                    {sprintf('. Brain Mask:  %s' , [Name , Ext])} ; ...
                     {sprintf('. Global signal:  %s' , AHandle.Para.GSBool)}];
                 if strcmp(AHandle.Para.GSBool , 'TRUE')
                     [Path , Name , Ext]=fileparts(AHandle.Para.GSMask);
@@ -1288,7 +1290,7 @@ function PrefixEntry_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     handles=UpdateInputListbox(handles);
     InputText=get(handles.InputListbox , 'String');
-    if isempty(handles.DataList) && ~isempty(InputText)
+    if isempty(handles.DataList) %&& ~isempty(InputText)
         Choose=questdlg(['There are no *.nii or *img file in the directory! ',...
             'If you want to select Dicom file, please click "Dicom to Nifti", ',...
             'else click Quit'],...
@@ -1343,7 +1345,7 @@ function InputEntry_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     handles=UpdateInputListbox(handles);
     InputText=get(handles.InputListbox , 'String');
-    if isempty(handles.DataList) && ~isempty(InputText)
+    if isempty(handles.DataList) %&& ~isempty(InputText)
         Choose=questdlg(['There are no *.nii or *img file in the directory! ',...
             'If you want to select Dicom file, please click "Dicom to Nifti", ',...
             'else click Quit'],...
@@ -1401,7 +1403,7 @@ function InputButton_Callback(hObject, eventdata, handles)
         set(handles.InputEntry , 'String' , ParentDir);
         handles=UpdateInputListbox(handles);
         InputText=get(handles.InputListbox , 'String');
-        if isempty(handles.DataList) && ~isempty(InputText)
+        if isempty(handles.DataList) %&& ~isempty(InputText)
             Choose=questdlg(['There are no *.nii or *img file in the directory! ',...
                 'If you want to select Dicom file, please click "Dicom to Nifti", ',...
                 'else click Quit'],...
@@ -1521,14 +1523,13 @@ function handles=UpdateInputListbox(handles)
                     	[Path , Name ,Ext]=...
                         	fileparts([ParentDir , filesep ,...
                             Subj(i).name , filesep , SubjImage(1).name]);
-                        if strcmp(Ext , '.img')
-                            fid=fopen([Path , filesep , Name , '.hdr']);
+                        Nii=nifti(fullfile(Path, [Name, Ext]));
+                        Dims=size(Nii.dat);
+                        if length(Dims)>3
+                            TimePoint=Dims(4);
                         else
-                            fid=fopen([Path , filesep , Name , Ext]);
+                            TimePoint=1;
                         end
-                        fseek(fid , 48 , 'bof');
-                        TimePoint=fread(fid , 1 , 'int16');
-                        fclose(fid);
                         ImageList=[Path , filesep , Name , Ext];
                     else
                         ImageList=cell(size(SubjImage , 1) , 1);
@@ -1585,14 +1586,13 @@ function handles=UpdateInputListbox(handles)
                     if strcmp(Ext , '.nii') || strcmp(Ext , '.img')
                         NiiName=[Path , filesep , Name , Ext];
                         
-                        if strcmp(Ext , '.img')
-                            fid=fopen([Path , filesep , Name , '.hdr']);
+                        Nii=nifti(fullfile(Path, [Name, Ext]));
+                        Dims=size(Nii.dat);
+                        if length(Dims)>3
+                            TimePoint=Dims(4);
                         else
-                            fid=fopen([Path , filesep , Name , Ext]);
+                            TimePoint=1;
                         end
-                        fseek(fid , 48 , 'bof');
-                        TimePoint=fread(fid , 1 , 'int16');
-                        fclose(fid);
                         
                         if TimePoint~=1
                             InputListbox=[InputListbox;...
@@ -1635,8 +1635,10 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
     if isempty(SelectedValue)
         return;
     end
-    FieldName=fieldnames(handles.DataList);
-    handles.DataList=rmfield(handles.DataList , FieldName{SelectedValue});
+    if ~strfind(InputListbox{SelectedValue}, 'Time Points: [Empty!]');
+        FieldName=fieldnames(handles.DataList);
+        handles.DataList=rmfield(handles.DataList , FieldName{SelectedValue});
+    end
     InputListbox(SelectedValue)=[];
     set(handles.InputListbox , 'String' , InputListbox);
     if size(InputListbox , 1) < SelectedValue
@@ -1678,14 +1680,13 @@ TimePoint=[];
 if ~strcmpi(CalList{1} , 'DICOM TO NIFTI')
     if ischar(DataFile)
         [Path , Name , Ext]=fileparts(DataFile);
-       	if strcmp(Ext , '.img')
-        	fid=fopen([Path , filesep , Name , '.hdr']);
+        Nii=nifti(fullfile(Path, [Name, Ext]));
+        Dims=size(Nii.dat);
+        if length(Dims)>3
+            TimePoint=Dims(4);
         else
-        	fid=fopen([Path , filesep , Name , Ext]);
+            TimePoint=1;
         end
-        fseek(fid , 48 , 'bof');
-        TimePoint=fread(fid , 1 , 'int16');
-        fclose(fid);
     end
 end
     for j=1:size(CalList , 1)
@@ -1963,7 +1964,7 @@ end
                         Para.HMPath=Para.EPIPath;
                     end
                 end
-                Config.BrainMask = Para.GSMask;
+                %Config.BrainMask = Para.GSMask;
                 Config.HMBool    = Para.HMBool;
                 Config.HMPath    = Para.HMPath;
                 Config.HMPrefix  = Para.HMPrefix;
@@ -2295,7 +2296,7 @@ end
 opt.max_queued = str2num(get(handles.QueueEntry , 'String'));
 opt.flag_verbose = 0;
 opt.flag_pause = 0;
-opt.flag_update = 1;
+opt.flag_update = 0;
 psom_run_pipeline(pipeline,opt);
 RefreshStatus(handles);
 

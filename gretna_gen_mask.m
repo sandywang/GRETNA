@@ -67,7 +67,7 @@ for i = 1:Num_subs
     ind_Mask = Mask1 & Mask2;
     
     cd (Output_path)
-    save (['mask_sub' num2str(i) '.mat'], 'ind_Mask')
+    save (['Mask_sub' num2str(i) '.mat'], 'ind_Mask')
     
     ind_Vout = Vdata(1);
     ind_Vout.fname = ['Mask_sub' num2str(i) '.img'];

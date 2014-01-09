@@ -93,6 +93,11 @@ if ~isfield(handles , 'Para')
         
         if exist(Para.LabMask, 'file')~=2
             Para=[];
+            try
+                delete(fullfile(GUIPath, 'PreprocessPara.mat'));
+            catch
+                fprintf('Delete %s Failed', fullfile(GUIPath, 'PreprocessPara.mat'));
+            end
         end
     else
         Para=[];

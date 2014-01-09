@@ -83,7 +83,7 @@ if ~isfield(handles , 'Para')
     if isempty(Para)
     	Para.NumRandNet=100;
     	Para.ThresRegion='0.05 : 0.01 : 0.4';
-    	Para.ThresType='correlation coefficient';
+    	Para.ThresType='sparsity';
     	Para.NetType='weighted';
     	Para.ModulAlorithm='greedy optimization';
         save(ParaFile , 'Para');

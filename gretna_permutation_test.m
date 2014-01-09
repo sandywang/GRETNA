@@ -1,4 +1,4 @@
-function [Delta P] = gretna_permutation_test(Para, Index_group1, Index_group2, M, Cov)
+function [Delta, P] = gretna_permutation_test(Para, Index_group1, Index_group2, M, Cov)
 
 %==========================================================================
 %   This function is used to perform nonparametric permutation test.
@@ -9,14 +9,14 @@ function [Delta P] = gretna_permutation_test(Para, Index_group1, Index_group2, M
 % Inputs:
 %       Para:
 %               N*1 array. Note, N = N1 + N2.
-%       Cov:
-%               The covariates (a N*M array).
 %       Index_group1:
 %               The index of one group (N1*1 array).
 %       Index_group2:
 %               The index of the other group (N2*1 array).
 %       M:
 %               The number of permutations.
+%       Cov:
+%               The covariates (a N*M array).
 %
 % Outputs:
 %       Delta:
@@ -55,10 +55,10 @@ for num = 1:M
     Delta.rand(num) = mean(rand_Para1) - mean(rand_Para2);
 end
 
-if Delta.real >= 0
-    P = length(find(Delta.rand > Delta.real))/(M);
+if Delta.real > 0
+    P = (1+length(find(Delta.rand > Delta.real)))/(M+1);
 else
-    P = length(find(Delta.rand < Delta.real))/(M);
+    P = (1+length(find(Delta.rand < Delta.real)))/(M+1);
 end
 
 return

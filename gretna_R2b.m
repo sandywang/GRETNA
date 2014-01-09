@@ -1,4 +1,4 @@
-function [A, rthr] = gretna_R2b (W, type, thr)
+function [A, rthr] = gretna_R2b(W, type, thr)
 
 %==========================================================================
 % This function is used to threshold a weighted matrix into a binary
@@ -6,7 +6,7 @@ function [A, rthr] = gretna_R2b (W, type, thr)
 % strength.
 %
 %
-% Syntax: function [A, r] = gretna_R2b (W, type, thr)
+% Syntax: function [A, rthr] = gretna_R2b (W, type, thr)
 %
 % Inputs:
 %         W:
@@ -23,7 +23,7 @@ function [A, rthr] = gretna_R2b (W, type, thr)
 % Outputs:
 %         A:
 %               The resulting binary matrix
-%         r:
+%         rthr:
 %               The corresponding correlation value used to threshold the
 %               weighted network at "thr" under "type".
 %
@@ -36,16 +36,20 @@ W = abs(W);
 W = W - diag(diag(W)); % removing the self-correlation
 
 if type == 's'
-    if thr>1 || thr <=0
+    if thr > 1 || thr <= 0
         error('0 < thr <= 1');
     end
     sparsity = thr;
     K = ceil(sparsity*N*(N-1));
+    
+    if mod(K,2) ~= 0
+        K = K + 1;
+    end
 end
 
 if type == 'k'
-    if thr <1 || thr >= (N)*(N-1)/2,
-        error(' 1<=thr<N*(N-1)/2');
+    if thr < 1 || thr > (N)*(N-1)/2,
+        error(' 1 <= thr <= N*(N-1)/2');
     end
     K = 2*thr;
 end
@@ -60,6 +64,7 @@ end
 
 if rthr == 0
     A = W > rthr;
+    warning('The non-zero mimimum in the matrix is larger than that determined by the specificed parameter!')
 else
     A = W >= rthr;
 end

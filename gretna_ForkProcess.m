@@ -186,18 +186,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 sw.aSigma     = (sum(sw.Sigma)     -  sum(sw.Sigma([1 end]))/2)*deltas;
                             end
                         end
-                        ChildDir=sprintf('%s%sSmallWorld%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'SmallWorld');%sprintf('%s%sSmallWorld',OutputDir);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(sw);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'sw', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end
+                        save(fullfile(ChildDir, sprintf('SmallWorld_Struct_%s.mat', SubjNum)), 'sw');
                     end
                 end
                 
@@ -263,19 +261,17 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                                 eff.aSigma       = (sum(eff.Sigma)       -  sum(eff.Sigma([1 end]))/2)*deltas;
                             end
                         end
-                        ChildDir=sprintf('%s%sEfficiency%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'Efficiency');%sprintf('%s%sEfficiency',OutputDir, filesep);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(eff);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir,  sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' ,'eff', ResultName{k} ,...
                                 '-ASCII', '-DOUBLE','-TABS');
                         end
+                        save(fullfile(ChildDir, sprintf('Efficiency_Struct_%s.mat', SubjNum)), 'eff');
                     end
                 end
             case 'NODE - DEGREE'
@@ -290,18 +286,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if j~=1
                             NodeD.adegree=(sum(NodeD.degree, 2)-sum(NodeD.degree(:,[1 end]), 2)/2)*deltas;
                         end
-                        ChildDir=sprintf('%s%sNodeDegree%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'NodeDegree');%sprintf('%s%sNodeDegree%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(NodeD);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'NodeD', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
-                        end                    
+                        end
+                        save(fullfile(ChildDir, sprintf('NodeDegree_Struct_%s.mat', SubjNum)), 'NodeD');
                     end
                 end
             case 'NODE - EFFICIENCY'
@@ -316,18 +310,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if j~=1
                             NodeG.agE=(sum(NodeG.gE, 2)-sum(NodeG.gE(:,[1 end]), 2)/2)*deltas;
                         end
-                        ChildDir=sprintf('%s%sNodeEfficiency%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'NodeEfficiency');%sprintf('%s%sNodeEfficiency%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(NodeG);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'NodeG', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end
+                        save(fullfile(ChildDir, sprintf('NodeEfficiency_Struct_%s.mat', SubjNum)), 'NodeG');
                     end
                 end
             case 'NODE - BETWEENNESS'
@@ -342,18 +334,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                         if j~=1
                             NodeB.abi=(sum(NodeB.bi, 2)-sum(NodeB.bi(:,[1 end]), 2)/2)*deltas;
                         end
-                        ChildDir=sprintf('%s%sNodeBetweenness%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'NodeBetweenness');%sprintf('%s%sNodeBetweenness%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(NodeB);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'NodeB', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end      
+                        save(fullfile(ChildDir, sprintf('NodeBetweenness_Struct_%s.mat', SubjNum)), 'NodeB');
                     end
                 end
             case 'NETWORK - MODULARITY'
@@ -405,18 +395,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     M.numberofmodule_zscore = [M.numberofmodule_zscore ,...
                         thres_M.numberofmodule_zscore]; 
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sModularity%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'Modularity');%sprintf('%s%sModularity%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(M);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'M', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end      
+                        save(fullfile(ChildDir, sprintf('Modularity_Struct_%s.mat', SubjNum)), 'M');
                     end
                 end
             case 'NETWORK - ASSORTATIVITY'
@@ -477,18 +465,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     r.rand=[r.rand , thres_r.rand];
                     r.zscore=[r.zscore , thres_r.zscore];
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sAssortativity%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'Assortativity');%sprintf('%s%sAssortativity%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(r);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'r', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end      
+                        save(fullfile(ChildDir, sprintf('Assortativity_Struct_%s.mat', SubjNum)), 'r');
                     end
                 end
             case 'NETWORK - HIERARCHY'
@@ -554,18 +540,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     beta.rand=[beta.rand , thres_beta.rand];
                     beta.zscore=[beta.zscore , thres_beta.zscore];
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sHierarchy%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'Hierarchy');%sprintf('%s%sHierarchy%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(beta);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'beta', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end      
+                        save(fullfile(ChildDir, sprintf('Hierarchy_Struct_%s.mat', SubjNum)), 'beta');
                     end
                 end
             case 'NETWORK - SYNCHRONIZATION'
@@ -598,18 +582,16 @@ function gretna_ForkProcess(Matrix , CalList , Para , OutputDir , SubjNum)
                     S.rand=[S.rand , thres_S.rand];
                     S.zscore=[S.zscore , thres_S.zscore];
                     if j==size(Thres , 2)
-                        ChildDir=sprintf('%s%sSynchronization%s',OutputDir , filesep , SubjNum);
-                        if exist(ChildDir,'dir')==7
-                            ans=rmdir(ChildDir,'s');
-                            mkdir(ChildDir);
-                        else
+                        ChildDir=fullfile(OutputDir, 'Synchronization');%sprintf('%s%sSynchronization%s',OutputDir , filesep , SubjNum);
+                        if exist(ChildDir,'dir')~=7
                             mkdir(ChildDir);
                         end
                         ResultName=fieldnames(S);
                         for k=1:size(ResultName , 1)
-                            save([ChildDir , filesep , ResultName{k} , '.txt'],...
+                            save(fullfile(ChildDir, sprintf('%s_%s.txt', ResultName{k}, SubjNum)),...
                                 '-struct' , 'S', ResultName{k} , '-ASCII', '-DOUBLE','-TABS');
                         end      
+                        save(fullfile(ChildDir, sprintf('Synchronization_Struct_%s.mat', SubjNum)), 'S');
                     end
                 end
         end

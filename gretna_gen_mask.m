@@ -32,9 +32,9 @@ Num_subs = size(Dir_data{1},1);
 
 for i = 1:Num_subs
     cd (Dir_data{1}{i})
-    File_name = spm_select('List',pwd, ['^' File_filter '.*\.img$']);
+    File_name = spm_select('ExtList',pwd, ['^' File_filter '.*\.img$'],inf);
     if isempty(File_name)
-        File_name = spm_select('List',pwd, ['^' File_filter '.*\.nii$']);
+        File_name = spm_select('ExtList',pwd, ['^' File_filter '.*\.nii$'],inf);
     end
     
     Vdata = spm_vol(File_name);
@@ -55,7 +55,7 @@ for i = 1:Num_subs
     % criterion 2
     Mask2 = zeros(Vdata(1).dim(1:3));
     for t = 1:Timepoints
-        [Ydata_t ~] = spm_read_vols(Vdata(t));
+        [Ydata_t, ~] = spm_read_vols(Vdata(t));
         m_Ydata_t = mean(Ydata_t(:));
         Ydata_t(Ydata_t <= m_Ydata_t/8) = 0;
         Ydata_t(logical(Ydata_t)) = 1;
@@ -70,7 +70,7 @@ for i = 1:Num_subs
     save (['Mask_sub' num2str(i) '.mat'], 'ind_Mask')
     
     ind_Vout = Vdata(1);
-    ind_Vout.fname = ['Mask_sub' num2str(i) '.img'];
+    ind_Vout.fname = ['Mask_sub' num2str(i) '.nii'];
     ind_Vout = spm_write_vol(ind_Vout, ind_Mask);
     
     fprintf('%s done\n', [Dir_data{1}{i}]);

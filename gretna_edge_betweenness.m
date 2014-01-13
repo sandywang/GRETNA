@@ -1,4 +1,4 @@
-function [averb bi] = gretna_edge_betweenness(A)
+function [averb, bi] = gretna_edge_betweenness(A)
 
 %==========================================================================
 % This function is used to calculate edge betweenness for a binary graph or
@@ -12,9 +12,9 @@ function [averb bi] = gretna_edge_betweenness(A)
 %                The adjencent matrix of G (N*N, symmetric).
 % Outputs:
 %        averb:
-%                Nodal betweenness of G.
+%                Mean edge betweenness over all edges of G.
 %        bi:
-%                Nodal betweenness of each node in G.  
+%                Edge betweenness of each edge in G.  
 %
 %
 % Jinhui WANG, NKLCNL, BNU, BeiJing, 2011/10/23, Jinhui.Wang.1982@gmail.com
@@ -23,7 +23,7 @@ function [averb bi] = gretna_edge_betweenness(A)
 A = abs(A);
 A = A - diag(diag(A));
 
-[tmp, ~] = betweenness_centrality(sparse(A));
+[~, tmp] = betweenness_centrality(sparse(A));
 
 bi = full(tmp);
 averb = mean(bi(logical(A)));

@@ -25,9 +25,9 @@ elseif strcmpi(NType, 'b')
         'UniformOutput', false);
 end
 Cp=cell2mat(Cp);
-nodalCp=cell2mat(nodalCp');
+nodalCp=cell2mat(nodalCp')';
 Lp=cell2mat(Lp);
-nodalLp=cell2mat(nodalLp');
+nodalLp=cell2mat(nodalLp')';
 
 SWMat=fullfile(TempDir, 'SWMat.mat');
 if exist(SWMat, 'file')~=2

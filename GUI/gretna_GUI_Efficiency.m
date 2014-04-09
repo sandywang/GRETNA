@@ -20,9 +20,9 @@ elseif strcmpi(NType, 'b')
         'UniformOutput', false);
 end
 Eloc=cell2mat(Eloc);
-nodalEloc=cell2mat(nodalEloc');
+nodalEloc=cell2mat(nodalEloc')';
 Eg=cell2mat(Eg);
-nodalEg=cell2mat(nodalEg');
+nodalEg=cell2mat(nodalEg')';
 
 EFFMat=fullfile(TempDir, 'EFFMat.mat');
 if exist(EFFMat, 'file')~=2

@@ -1,26 +1,26 @@
-function varargout = PreprocessInterface(varargin)
-% PREPROCESSINTERFACE MATLAB code for PreprocessInterface.fig
-%      PREPROCESSINTERFACE, by itself, creates a new PREPROCESSINTERFACE or raises the existing
+function varargout = gretna_GUI_PreprocessInterface(varargin)
+% GRETNA_GUI_PREPROCESSINTERFACE MATLAB code for gretna_GUI_PreprocessInterface.fig
+%      GRETNA_GUI_PREPROCESSINTERFACE, by itself, creates a new GRETNA_GUI_PREPROCESSINTERFACE or raises the existing
 %      singleton*.
 %
-%      H = PREPROCESSINTERFACE returns the handle to a new PREPROCESSINTERFACE or the handle to
+%      H = GRETNA_GUI_PREPROCESSINTERFACE returns the handle to a new GRETNA_GUI_PREPROCESSINTERFACE or the handle to
 %      the existing singleton*.
 %
-%      PREPROCESSINTERFACE('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PREPROCESSINTERFACE.M with the given input arguments.
+%      GRETNA_GUI_PREPROCESSINTERFACE('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in GRETNA_GUI_PREPROCESSINTERFACE.M with the given input arguments.
 %
-%      PREPROCESSINTERFACE('Property','Value',...) creates a new PREPROCESSINTERFACE or raises the
+%      GRETNA_GUI_PREPROCESSINTERFACE('Property','Value',...) creates a new GRETNA_GUI_PREPROCESSINTERFACE or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before PreprocessInterface_OpeningFcn gets called.  An
+%      applied to the GUI before gretna_GUI_PreprocessInterface_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to PreprocessInterface_OpeningFcn via varargin.
+%      stop.  All inputs are passed to gretna_GUI_PreprocessInterface_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help PreprocessInterface
+% Edit the above text to modify the response to help gretna_GUI_PreprocessInterface
 
 % Last Modified by Sandy Wang 20121127
 
@@ -28,8 +28,8 @@ function varargout = PreprocessInterface(varargin)
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @PreprocessInterface_OpeningFcn, ...
-                   'gui_OutputFcn',  @PreprocessInterface_OutputFcn, ...
+                   'gui_OpeningFcn', @gretna_GUI_PreprocessInterface_OpeningFcn, ...
+                   'gui_OutputFcn',  @gretna_GUI_PreprocessInterface_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,15 +44,15 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before PreprocessInterface is made visible.
-function PreprocessInterface_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before gretna_GUI_PreprocessInterface is made visible.
+function gretna_GUI_PreprocessInterface_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to PreprocessInterface (see VARARGIN)
+% varargin   command line arguments to gretna_GUI_PreprocessInterface (see VARARGIN)
 
-% Choose default command line output for PreprocessInterface
+% Choose default command line output for gretna_GUI_PreprocessInterface
 handles.output = hObject;
 
 if nargin==4
@@ -183,12 +183,12 @@ handles.StopFlag=0;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes PreprocessInterface wait for user response (see UIRESUME)
-% uiwait(handles.PreprocessInterface);
+% UIWAIT makes gretna_GUI_PreprocessInterface wait for user response (see UIRESUME)
+% uiwait(handles.gretna_GUI_PreprocessInterface);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = PreprocessInterface_OutputFcn(hObject, eventdata, handles) 
+function varargout = gretna_GUI_PreprocessInterface_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -2269,27 +2269,25 @@ handles.PipelineLog=[LogDir , 'pipeline_logs'];
 %end
 
 pipeline=[];
-CalList=handles.CalList;
-DataList=handles.DataList;
-SubjField=fieldnames(DataList);
+handles.AliasList=fieldnames(handles.DataList);
 Para=handles.Para;
 
 guidata(hObject , handles);
 
-for i=1:size(SubjField , 1)
-    SubjData=getfield(DataList , SubjField{i});
-    pipeline=PreprocessFork(SubjData , CalList , Para , SubjField{i} , pipeline);
-    if handles.ConnectFlag
-        command='gretna_ForkProcess(opt.Matrix , opt.CalList , opt.Para , opt.OutputDir , opt.SubjNum)';
-        pipeline.([SubjField{i} , '_NetworkMetrics']).command=command;
-        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Matrix=[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt'];
-        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.CalList=NetCalList;
-        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Para=NetPara;
-        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.OutputDir=NetworkDir;
-        pipeline.([SubjField{i} , '_NetworkMetrics']).opt.SubjNum=['_',SubjField{i}(6:end)];
-        pipeline.([SubjField{i} , '_NetworkMetrics']).files_in={[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt']};
-        %pipeline.([SubjField{i} , '_NetworkMetrics']).files_out={sprintf('%s%s%s.out' , TempDir , filesep , ['_',SubjField{i}(6:end)])};
-    end
+for i=1:size(handles.AliasList, 1)
+    SubjData=handles.DataList.(handles.AliasList{i});
+    pipeline=PreprocessFork(SubjData, handles.CalList, Para, handles.AliasList{i}, pipeline);
+%     if handles.ConnectFlag
+%         command='gretna_ForkProcess(opt.Matrix , opt.CalList , opt.Para , opt.OutputDir , opt.SubjNum)';
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).command=command;
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Matrix=[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt'];
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.CalList=NetCalList;
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Para=NetPara;
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.OutputDir=NetworkDir;
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.SubjNum=['_',SubjField{i}(6:end)];
+%         pipeline.([SubjField{i} , '_NetworkMetrics']).files_in={[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt']};
+%         %pipeline.([SubjField{i} , '_NetworkMetrics']).files_out={sprintf('%s%s%s.out' , TempDir , filesep , ['_',SubjField{i}(6:end)])};
+%     end
 end
 opt.path_logs = [LogDir , 'pipeline_logs'];
 opt.mode = 'batch';
@@ -2302,41 +2300,83 @@ else
     opt.mode_pipeline_manager = 'batch';
 end
 opt.max_queued = str2num(get(handles.QueueEntry , 'String'));
-opt.flag_verbose = 0;
-opt.flag_pause = 0;
-opt.flag_update = 0;
+opt.flag_verbose = false;
+opt.flag_pause = false;
+opt.flag_update = false;
+opt.time_between_checks=3;
 psom_run_pipeline(pipeline,opt);
-RefreshStatus(handles);
+RefreshStatus(handles.AliasList, handles.InputListbox, handles.PipelineLog);
 
-function RefreshStatus(handles)
-    SubjField=fieldnames(handles.DataList);
-    StatusStruct=load([handles.PipelineLog , filesep , 'PIPE_status']);
-    StatusName=fieldnames(StatusStruct);
-    StatusText=[];
-    for i=1:size(SubjField , 1)
-        StatusNow=[];
-        Leng=size(SubjField{i} , 2);
-        for j=1:size(StatusName)
-            if strcmp(SubjField{i} ,...
-                    StatusName{j}(1:Leng))
-                LastMission=StatusName{j}(Leng+2:end);
-                if ~strcmp(StatusStruct.(StatusName{j}) , 'finished')
-                	StatusNow=sprintf('(%s/%s): %s' , ...
-                        SubjField{i}(6:Leng) , LastMission ,...
-                        StatusStruct.(StatusName{j}));
-                    break;
-                end
-            end
+function RefreshStatus(AliasList, ListboxObject, LogDir)
+OldCell='Init';
+while 1
+    Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
+    Name=fieldnames(Struct);
+    Cell=cellfun(@(h) Struct.(h), Name, 'UniformOutput', false);
+    if ~ischar(OldCell)
+        List=get(ListboxObject , 'String');
+        if exist(List{1}, 'file')==2
+            break
         end
-        
-        if isempty(StatusNow);
-            StatusNow=sprintf('(%s/%s): finished' , ...
-                SubjField{i}(6:Leng) , LastMission);
+        if all(strcmpi(Cell, OldCell))
+            pause(3);
+            continue;
         end
-        StatusText=[StatusText ; {StatusNow}];
     end
-    set(handles.InputListbox , 'String' , StatusText , 'Value' , 1);
+    OldCell=Cell;
+    
+    Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
+        'UniformOutput', false);
+    Text=cell(size(AliasList));
+    
+    for i=1:numel(AliasList)
+        ExitCode=0;
+        
+        CurrName=Name(Index{i});
+        StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
+        
+        if sum(strcmpi('running', StateCell))
+            CurrIndex=strcmpi('running', StateCell);
+            CurrName=CurrName(CurrIndex);
+            StateText='';
+            for j=1:numel(CurrName)
+                StateText=[StateText,...
+                    sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+            end
+            StateText=StateText(1:end-1);
+            Flag='running';
+        elseif sum(strcmpi('failed', StateCell))
+            CurrIndex=strcmpi('failed', StateCell);
+            CurrName=CurrName(CurrIndex);
+            StateText='';
+            for j=1:numel(CurrName)
+                StateText=[StateText,...
+                    sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+            end
+            StateText=StateText(1:end-1);
+            Flag='failed';
+            ExitCode=1;
+        elseif all(strcmpi('finished', StateCell))
+            StateText='All';
+            Flag='finished';
+            ExitCode=1;
+        elseif (strcmpi('none', StateCell))
+            StateText='All';
+            Flag='waiting';
+        else
+            StateText='';
+            Flag='waiting';
+        end
+        Text{i, 1}=sprintf('(%s/%s): %s)',...
+            AliasList{i}, StateText, Flag);
+    end
+    
+    set(ListboxObject , 'String', Text, 'Value' , 1);
     drawnow;
+    if ExitCode
+        break;
+    end
+end
     
 % --------------------------------------------------------------------
 function DefaultPushtool_ClickedCallback(hObject, eventdata, handles)
@@ -2436,12 +2476,13 @@ set(handles.RunButton   , 'Enable' , 'On');
 set(handles.RunPushtool , 'Enable' , 'On');
 set(handles.StopPushtool, 'Enable' , 'Off');
 set(handles.RefreshPushtool , 'Enable' , 'Off');
-set(handles.InputListbox    , 'Enable' , 'On' , 'String' , handles.InputText);
 
 StopFlag=dir([handles.PipelineLog , filesep , 'PIPE.lock']);
 if ~isempty(StopFlag)
     delete([handles.PipelineLog , filesep , 'PIPE.lock']);
 end
+set(handles.InputListbox    , 'Enable' , 'On' , 'String' , handles.InputText);
+drawnow;
 
 function QueueEntry_Callback(hObject, eventdata, handles)
 % hObject    handle to QueueEntry (see GCBO)
@@ -2472,16 +2513,7 @@ function RefreshPushtool_ClickedCallback(hObject, eventdata, handles)
 % hObject    handle to RefreshPushtool (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-RefreshStatus(handles);
-if ~(isempty(dir([handles.PipelineLog , filesep , 'jobs.finish'])) &&...
-        ~isempty(dir([handles.PipelineLog , filesep , 'PIPE.lock'])))
-    set(handles.RunButton       , 'Enable' , 'On');
-    set(handles.RunPushtool     , 'Enable' , 'On');
-    set(handles.StopPushtool    , 'Enable' , 'Off');
-    set(handles.RefreshPushtool , 'Enable' , 'Off');
-    set(handles.InputListbox    , 'Enable' , 'On');
-end
-
+RefreshStatus(handles.AliasList, handles.InputListbox, handles.PipelineLog);
 
 % --- Executes on selection change in PopupMenu.
 function PopupMenu_Callback(hObject, eventdata, handles)

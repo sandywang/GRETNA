@@ -27,3 +27,4 @@ if strcmpi(NType, 'w')
 elseif strcmpi(NType, 'b')
     [Be, nodalBe]=gretna_node_betweenness(Matrix);
 end
+nodalBe=nodalBe';

@@ -27,3 +27,4 @@ if strcmpi(NType, 'w')
 elseif strcmpi(NType, 'b')
     [Eg, nodalEg]=gretna_node_global_efficiency(Matrix);
 end
+nodalEg=nodalEg';

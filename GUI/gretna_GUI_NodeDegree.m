@@ -27,3 +27,4 @@ if strcmpi(NType, 'w')
 elseif strcmpi(NType, 'b')
     [Deg, nodalDeg]=gretna_node_degree(Matrix);
 end
+nodalDeg=nodalDeg';

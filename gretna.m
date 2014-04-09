@@ -78,11 +78,11 @@ function PreprocessButton_Callback(hObject, eventdata, handles)
 % hObject    handle to PreprocessButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-PreprocessInterface;
+gretna_GUI_PreprocessInterface;
 
 % --- Executes on button press in CalButton.
 function CalButton_Callback(hObject, eventdata, handles)
 % hObject    handle to CalButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-CalInterface;
+gretna_GUI_CalInterface;

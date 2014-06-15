@@ -28,7 +28,7 @@ W(logical(W)) = 1./W(logical(W));
 
 x = sparse(W);
 
-[tmp, ~] = betweenness_centrality(x);
+[tmp, tmpE] = betweenness_centrality(x);
 
 bi = tmp'/2;
 averb = mean(bi);

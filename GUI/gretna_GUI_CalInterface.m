@@ -533,60 +533,108 @@ function DataListbox_Callback(hObject, eventdata, handles)
 if strcmp(get(gcf , 'SelectionType') , 'normal')
     return;
 elseif strcmp(get(gcf , 'SelectionType') , 'open')
-    DataText=get(handles.DataListbox , 'String');
     SelectedValue=get(handles.DataListbox , 'Value');
-    ShowMatrix=0;
-    if isempty(SelectedValue)
-        return;
+    if SelectedValue==0
+        return
     end
-    while SelectedValue
-        if ~isempty(strfind(DataText{SelectedValue} , '--->#'))
-            ShowMatrix=ShowMatrix+1;
-        else
-            break;
+    DataText=get(handles.DataListbox , 'String'); 
+    
+    Info=DataText{SelectedValue};
+    Tok=regexp(Info, '--->#(.*?)_.*', 'tokens');
+    
+    if isempty(Tok)
+        return
+    end
+    Flag=Tok{1}{1};
+    
+    Match=regexp(DataText, '--->#(.*?)_.*');
+    for i=SelectedValue:-1:1
+        if isempty(Match{i})
+            break
         end
-        SelectedValue=SelectedValue-1;
+    end
+    PathName=DataText{i};
+    
+    if strcmpi(Flag, 'MAT')
+        TempMat=load(PathName);
+        Tok=regexp(Info, '--->#MAT_.*_VAR_(.*):.*', 'tokens');
+        NAME=Tok{1}{1};
+        if ~isfield(TempMat, NAME)
+            Tok=regexp(Info, '--->#MAT_.*_VAR_(.*)_CELL_.*:.*', 'tokens');
+            NAME=Tok{1}{1};
+        end
+        VAR=TempMat.(NAME);
+        if isnumeric(VAR)
+            Net=VAR;
+            figure('Name', sprintf('%s(VAR: %s)', PathName, NAME),...
+                'Numbertitle', 'Off'),
+            imagesc(Net);
+        elseif iscell(VAR)
+            Tok=regexp(Info, '--->#MAT_.*_VAR_.*_CELL_(.*):.*', 'tokens');
+            NUM=str2num(Tok{1}{1});
+            Net=VAR{NUM};
+            figure('Name', sprintf('%s(VAR: %s --> %s)', PathName, NAME, NUM),...
+                'Numbertitle', 'Off'),
+            imagesc(Net);
+        end
+    elseif strcmpi(Flag, 'TXT')
+        Net=load(PathName);
+        figure('Name', sprintf('%s', PathName), 'Numbertitle' , 'Off'),
+        imagesc(Net);
     end
     
-    if ShowMatrix
-        [Path Name Ext]=fileparts(DataText{SelectedValue});
-        if strcmp(Ext , '.mat')
-            TempStruct=load([Path , filesep , Name , Ext]);
-            F=fieldnames(TempStruct);
-            TempMat=getfield(TempStruct , F{1});
-            if size(TempMat , 2)~=1
-                TempMat={TempMat};
-            end
-        else
-            TempMat=load([Path , filesep , Name , Ext]);
-            TempMat={TempMat};
-        end
-        figure('Name', sprintf('%s%s%s%s  $%.4d',...
-            Path , filesep , Name , Ext  , ShowMatrix), ...
-            'NUmbertitle' , 'Off'),...
-            imagesc(TempMat{ShowMatrix});
-        daspect([1,1,1]);
-        colorbar;
-    else
-        SelectedFile=DataText{SelectedValue};
-        temp_order=0;
-        for i=1:size(handles.DataList , 1)
-            if strcmp(handles.DataList{i} , SelectedFile)
-                temp_order=i;
-                break;
-            else
-                continue;
-            end
-        end
-        handles.DataList(temp_order)=[];
-        handles=DataListbox(handles);
-        if isempty(handles.DataList)
-            set(handles.DataListbox , 'Value' , 0);
-        else
-            set(handles.DataListbox , 'Value' , 1);
-        end
-    end
-    guidata(hObject , handles);
+%     ShowMatrix=0;
+%     if isempty(SelectedValue)
+%         return;
+%     end
+%     while SelectedValue
+%         if ~isempty(strfind(DataText{SelectedValue} , '--->#'))
+%             ShowMatrix=ShowMatrix+1;
+%         else
+%             break;
+%         end
+%         SelectedValue=SelectedValue-1;
+%     end
+%     
+%     if ShowMatrix
+%         [Path Name Ext]=fileparts(DataText{SelectedValue});
+%         if strcmp(Ext , '.mat')
+%             TempStruct=load([Path , filesep , Name , Ext]);
+%             F=fieldnames(TempStruct);
+%             TempMat=getfield(TempStruct , F{1});
+%             if size(TempMat , 2)~=1
+%                 TempMat={TempMat};
+%             end
+%         else
+%             TempMat=load([Path , filesep , Name , Ext]);
+%             TempMat={TempMat};
+%         end
+%         figure('Name', sprintf('%s%s%s%s  $%.4d',...
+%             Path , filesep , Name , Ext  , ShowMatrix), ...
+%             'NUmbertitle' , 'Off'),...
+%             imagesc(TempMat{ShowMatrix});
+%         daspect([1,1,1]);
+%         colorbar;
+%     else
+%         SelectedFile=DataText{SelectedValue};
+%         temp_order=0;
+%         for i=1:size(handles.DataList , 1)
+%             if strcmp(handles.DataList{i} , SelectedFile)
+%                 temp_order=i;
+%                 break;
+%             else
+%                 continue;
+%             end
+%         end
+%         handles.DataList(temp_order)=[];
+%         handles=DataListbox(handles);
+%         if isempty(handles.DataList)
+%             set(handles.DataListbox , 'Value' , 0);
+%         else
+%             set(handles.DataListbox , 'Value' , 1);
+%         end
+%     end
+%     guidata(hObject , handles);
 end
 % Hints: contents = cellstr(get(hObject,'String')) returns DataListbox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from DataListbox
@@ -661,11 +709,12 @@ function handles=DataListbox(handles)
             elseif strcmp(Ext , '.mat')
             	TempStruct=load([Path , filesep , Name , Ext]);
                 FieldNames=fieldnames(TempStruct);
+                present_list=[present_list;...
+                    {fullfile(Path, [Name, Ext])}];
+
                 for j=1:numel(FieldNames)
                     TempMat=TempStruct.(FieldNames{j});
                     if iscell(TempMat)
-                        present_list=[present_list;...
-                            {fullfile(Path, [Name, Ext])}];
                         for k=1:numel(TempMat)
                             present_list=[present_list ; ...
                                 {sprintf('--->#MAT_%s_VAR_%s_CELL_%.4d: (%d -- %d)',...
@@ -673,8 +722,6 @@ function handles=DataListbox(handles)
                                 size(TempMat{k}, 1), size(TempMat{k}, 2))}];
                         end
                     else
-                        present_list=[present_list ;...
-                            {sprintf('%s', fullfile(Path, [Name, Ext]))}];
                         present_list=[present_list ; ...
                             {sprintf('--->#MAT_%s_VAR_%s: (%d -- %d)',...
                             Name, FieldNames{j},...

@@ -27,7 +27,7 @@ A = A - diag(diag(A));
 
 x = sparse(A);
 
-[tmp, ~] = betweenness_centrality(x,'unweighted',1);
+[tmp, tmpE] = betweenness_centrality(x,'unweighted',1);
 
 bi = tmp'/2;
 averb = mean(bi);

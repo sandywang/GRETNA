@@ -8,20 +8,32 @@ for j=1:numel(FieldNames)
     f=FieldNames{j};
     n1=size(TempMat.(f), 1);
     n2=size(TempMat.(f), 2);
-    if n1>1 && ~strcmpi(f, 'community_index')
+    if n1>1 && n2>1 %&& ~strcmpi(f, 'community_index')
         for i=1:n1
             Result.(sprintf('%s_Node%.4d', f, i))=...
                 cell2mat(cellfun(@(m) GetVariable(m, f, i), MatList,...
                     'UniformOutput', false));
         end
-    elseif n2>1 && strcmpi(f, 'community_index')
+        
         for i=1:n2
             Result.(sprintf('%s_Thres%.4d', f, i))=...
                 cell2mat(cellfun(@(m) GetVariable2(m, f, i), MatList,...
                     'UniformOutput', false));
-        end
-    else
-        Result.(f)=cell2mat(cellfun(@(m) GetVariable(m, f), MatList,...
+        end        
+    end
+    
+    if n1==1 && n2>1
+        Result.(sprintf('%s_All_Threshold', f))=cell2mat(cellfun(@(m) GetVariable(m, f), MatList,...
+            'UniformOutput', false));
+    end
+    
+    if n2==1 && n1>1
+        Result.(sprintf('%s_All_Node', f))=cell2mat(cellfun(@(m) GetVariable2(m, f), MatList,...
+            'UniformOutput', false));
+    end
+    
+    if n1==1 && n2==1
+        Result.(f)=cell2mat(cellfun(@(m) GetVariable2(m, f), MatList,...
             'UniformOutput', false));
     end
 end

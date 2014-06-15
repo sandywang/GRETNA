@@ -1,5 +1,5 @@
 function gretna_T1_dcm2nii(InputFile , OutputDir , SubjName)
-        Path=fileparts(which('PreprocessInterface.m'));
+        Path=fileparts(which('gretna.m'));
         ProgramDir=[Path , filesep , 'DCM2NII' , filesep];
         Default_ini=[ProgramDir , 'dcm2nii.ini'];
         Option=[' -b ' , Default_ini];

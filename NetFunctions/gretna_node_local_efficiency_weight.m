@@ -28,7 +28,7 @@ for i=1:N
     NV =  find(W(i,:));
     if length(NV) > 1
         B = W(NV,NV);
-        [locEi(i), ~] = gretna_node_global_efficiency_weight(B);
+        [locEi(i), tmp] = gretna_node_global_efficiency_weight(B);
     end
 end
 

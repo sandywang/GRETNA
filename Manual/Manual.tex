@@ -1,0 +1,867 @@
+\documentclass[11pt]{article}
+%\documentclass[11pt]{book}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=pink,citecolor=green]{hyperref}
+\usepackage{pifont}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\usepackage{geometry}
+\geometry{left=2em,right=2em}%,top=,bottom=2.5cm}
+
+\usepackage{indentfirst}
+\lstset{numbers=none,
+		numberstyle=\large,
+		keywordstyle=\color{pink},
+		commentstyle=\color{green},
+		frame=shadowbox;
+		escapeinside=``,
+		breaklines,
+		extendedchars=false,
+		xleftmargin=1em,
+		xrightmargin=1em,
+		aboveskip=1em,
+		tabsize=4,
+		showspaces=false
+		}
+
+\setlength{\parindent}{0em}
+\linespread{2}
+
+\title{GRETNA}
+\author{Sandy Wang}
+\begin{document}
+	\maketitle
+	\tableofcontents
+	\section{Overview}
+		\textbf{GRETNA} toolbox has been designed for the \textbf{graph-theoretical network analysis} of fMRI data. 
+		It is a suite of MATLAB functions and some MATLAB-based Interface to perform the process of conventional fMRI preprocessing,
+		as well as to calculate most frequently used network metrics, 
+		like small world, efficiency, degree, betweenness, assortativity, hierarchy, synchronization and modularity.
+	\section{Licence}
+		\textbf{GRETNA} is distributed under the terms of the GUN General Public Licence as published by the Free Software Foundation (version 3) 
+		and the details on "copyleft" can be found at \url{http://www.gnu.org/copyleft/}.
+	\section{Prerequisites}
+		You need the following to run \textbf{GRETNA} on your computer:
+		\begin{itemize}
+			\item MATLAB: A high level numerical mathematics environment developed by MathWorks, Inc. Natick, MA, USA.
+				GRETNA requires MATLAB2010a or later version
+			\item SPM8: SPM is made freely available to the (neuro)imaging community, 
+				to promote collaboration and a common analysis scheme across laboratories. 
+				The software represents the implementation of the theoretical concepts of Statistical Parametric Mapping in a complete analysis package.
+			\item MRICroN's dcm2nii: 
+				GRETNA included this package in its distribution. So you do not need download MRICroN's dcm2nii again.
+			\item MatlabBGL: MatlabBGL is a MATLAB package for working with graphs. 
+				It uses the Boost Graph Library to efficiently implement the graph algorithms.
+				GRETNA included this package in its distribution. So you do not need download MatlabBGL again.
+			\item PSOM: The pipeline system for GNU Octave and Matlab(r) (PSOM) is a lightweght library to manage complex multi-stage data processing.
+				A pipeline is a collection of jobs, i.e. Matlab or Octave codes with a well identified set of options that are using files for inputs and outputs.
+				GRETNA included this package in its distribution. So you do not need download PSOM again.
+		\end{itemize}
+	\section{Installation}
+		\textcolor{red}{Warning: Please ensure your GRETNA path do not include blank!.}
+		\subsection{Command-line}
+			If you do not have write permission for the path of GRETNA, 
+			please add GRETNA to MATLAB's path with the following command every time you launch MATLAB:
+			\begin{lstlisting}
+				>> addpath(genpath("/usr/local/share/software/GRETNA"));
+			\end{lstlisting}
+			Where \textbf{"/usr/local/share/software/GRETNA"} is the location of your GRETNA.
+		\subsection{Interface}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{SetPath.eps}
+				\end{center}
+			\end{figure}
+			To ensure GRETNA is automatically on your MATLAB path in the future, 
+			you need launch MATLAB and run the following command to manage your MATLAB path: 
+			\begin{lstlisting}
+				>> pathtool;
+			\end{lstlisting}
+			Then:
+			\begin{enumerate}
+				\item Click "Add with Subfolders..." button and 
+					select your GRETNA path, i.e. "/usr/local/software/GRETNA"
+				\item Save your change. If you do not have the permission to save your change in GRETNA folder, 
+					please save \textbf{pathdef.m} to another location where you will often launch MATLAB.
+			\end{enumerate}
+	\section{Toolbar}
+		\subsection{Save Default Configure}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Default.eps}
+				\end{center}
+			\end{figure}
+			You can save your customized configuration for \textbf{GRETNA}, 
+			it will be the configure you want every time you open \textbf{GRETNA}.
+		\subsection{Manual}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Manual.eps}
+				\end{center}
+			\end{figure}
+			Click to open this manual.
+		\subsection{Load Configure}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Load.eps}
+				\end{center}
+			\end{figure}
+			To load the configuration you save.
+		\subsection{Save Configure}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Save.eps}
+				\end{center}
+			\end{figure}
+			To save the current configuration.
+		\subsection{Run}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Run.eps}
+				\end{center}
+			\end{figure}
+			To run the pipeline.
+		\subsection{Refresh}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Refresh.eps}
+				\end{center}
+			\end{figure}
+			As usual, the status of pipeline will be refreshed automatically. 
+			If you found any error message in MATLAB's command-line window, 
+			that is \textbf{not} the errors for pipeline but the errors for the refresh process.
+			Please click this button to get the status of pipeline.
+		\subsection{Stop}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{Toolbar_Stop.eps}
+				\end{center}
+			\end{figure}
+			Before you close the interfaces of \textbf{GRETNA}, 
+			\textbf{please} click this button \textbf{if the pipeline is still running}.
+	\section{Input Format}
+		For \textbf{GRETNA}, you can import functional image sequences to get network matrices, 
+		or you can import network matrices directly. 
+		\subsection{Brain Image}
+			\textbf{GRETNA} support fMRI sequences with raw DICOM data from scanners or 3D/4D NIfTI-1 format.
+			You need select the directory where you store all subjects, 
+			and also the \textbf{key word} as what you do in SPM8.
+
+			These fMRI data should be stored in 4 given rule:
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{InputImage.eps}
+				\end{center}
+			\end{figure}
+			\begin{enumerate}
+				\item The sub-folders of subjects for DICOM.
+				\item The sub-folders of subjects for 3D NIfTI-1 files.
+				\item The sub-folders of subjects for 4D NIfTI-1 files.
+				\item 4D NIfTI-1 files with subjects' name.
+			\end{enumerate}		
+		\subsection{Network Matrix}
+			\textbf{GRETNA} support network matrix with MATLAB's MAT-file or TEXT file.
+			For MAT-file, you can use MATLAB's norm or sparse matrix to save your network.
+			You can check your data by double-click in GRETNA's interface.
+
+			These files should be stored in 3 given rule:
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{NetInput.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item The network matrices with different field name in MAT-file.
+				\item The N $\times$ 1 cell of network metrices in MAT-file
+				\item The network matrices in TEXT file.
+			\end{itemize}		
+	\section{Network Construction}
+		For \textbf{Slice Timing, Realign, Normalization, Smooth}, you can read SPM manual to know more details.
+		\subsection{DICOM to NIfTI}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{DCM2NII.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Time Point}: The number of time points for your data.
+			\end{itemize}
+		\subsection{Delete Images}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{DeleteImage.eps}
+				\end{center}
+			\end{figure}
+			The first n volumes can be discarded for the signal equilibrium and participants' adaptation to the scanning noise.
+			\begin{itemize}
+				\item \textbf{The delete type}: Select "Delete" or "Retain" by double-click to choose the type for delete images.
+				\begin{itemize}
+					\item Select the \textbf{number of image sequences} to delete or retain by double-click.
+				\end{itemize}
+			\end{itemize}
+		\subsection{Slice Timing}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{SliceTiming.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Number of Slices}: The number of slices in one volumn.
+				\item \textbf{TR (s)}: The time of repeat of fMRI signal.
+				\item \textbf{Slice Order}: The sequence of Slice, e.g. interleaved (bottom $->$ up) [1:2:nslices 2:2:nslices].
+				\item \textbf{Reference Slice}: The slice number as reference.
+			\end{itemize}
+		\subsection{Realign}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=50em]{HM.eps}
+				\end{center}
+			\end{figure}
+			You can check subjects' head motion parameter in the "GretnaLogs/HeadMotion" folder.
+		\subsection{Normalize EPI}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{NormalizeEPI.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Source Image Path}: The subjects' parent directory of image that is warped to match the templates.
+				\item \textbf{Source Image Prefix}: The prefix of image that is warped to match the templates.
+			\end{itemize}
+			\begin{itemize}
+				\item \textbf{Voxel Sizes (mm)}: The voxel size of the written normalised images.
+				\item \textbf{Bounding Box}: The bounding box (in mm) of the volume which is to be written. 
+			\end{itemize}
+		\subsection{Normalize T1}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{Normalize.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{T1 Path}: The subjects' parent directory of T1 image.
+				\item \textbf{DICOM to NIfTI}: Execute DICOM to NIfTI or not.
+				\item \textbf{Coregister}: Execute coregister T1 image to image that is warped to match the templates or not.
+				\item \textbf{Segment}: Execute segment T1 image or not.
+					\begin{itemize}
+						\item \textbf{Source Image Path}: The subjects' parent directory of image that is warped to match the templates.
+						\item \textbf{Source Image Prefix}: The prefix of image that is warped to match the templates.
+						\item \textbf{T1 Image Prefix}: The prefix of T1 image.
+						\item \textbf{Affine Regularisation}: Select "mni" or "estern".
+					\end{itemize}
+				\item \textbf{Mat Suffix}: The suffix of transation matrix.
+			\end{itemize}
+			\begin{itemize}
+				\item \textbf{Voxel Sizes (mm)}: The voxel size of the written normalised images.
+				\item \textbf{Bounding Box}: The bounding box (in mm) of the volume which is to be written. 
+			\end{itemize}
+		\subsection{Smooth}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{Smooth.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{FWHM (mm)}: The full width half maximum of kernel.
+			\end{itemize}
+		\subsection{Detrend}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{Detrend.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{The Degree of Polynomial Curve fitting}: The degree of trend.
+				\item \textbf{Remain Mean}: Remain the mean of time courses or not.
+			\end{itemize}
+		\subsection{Filter}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{Filter.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{TR (s)}: The time of repeat of fMRI signal.
+				\item \textbf{Band (Hz)}: The frequency band for temporal filtering.
+			\end{itemize}
+		\subsection{Covariates Regression}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{Regressout.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Global Signal}: Regress out global signal or not.
+					\begin{itemize}
+						\item \textbf{Brain Mask}: The mask of whole brain.
+					\end{itemize}
+				\item \textbf{White Matter Signal}: Regress out white matter signal or not.
+					\begin{itemize}
+						\item \textbf{White Mask}: The mask of white matter.
+					\end{itemize}
+				\item \textbf{CSF Signal}: Regress out cerebrospinal fluid signal or not.
+					\begin{itemize}
+						\item \textbf{CSF Mask}: The mask of cerebrospinal fluid.
+					\end{itemize}
+				\item \textbf{Head Motion}: Regress out head motion parameters or not.
+					\begin{itemize}
+						\item \textbf{Text Parent Path}: The subjects' parent directory of head motion parameters' text file.
+						\item \textbf{Text Prefix}: The prefix of head motion parameters' text file.
+						\item \textbf{Add Derivative (12)}: Regress out derivative head motion or not.
+					\end{itemize}
+			\end{itemize}
+		\subsection{Voxel-based Degree}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{VoxelDegree.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Degree Mask}: The mask that include all network nodes you want.
+				\item \textbf{Connectional Threshold}: The threshold for correlation coefficient.
+				\item \textbf{Connectional Distance}: The euclidean distance between nodes.
+			\end{itemize}
+		\subsection{Functional Connectivity Matrix}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{FC.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Label Mask}: The template of brain which have different number for different region, e.g. AAL90.
+			\end{itemize}
+	\section{Network Metrics}
+		\subsection{Network Configurations}
+			\begin{figure}
+				\begin{center}
+					\includegraphics[width=80em]{NetworkMetric.eps}
+				\end{center}
+			\end{figure}
+			\begin{itemize}
+				\item \textbf{Network Type}: Select "weighted" or "binarize" network.
+				\item \textbf{Network Cut}: Remove the negative value in matrix or use the absolute value.
+				\item \textbf{Threshold Type}: Select the method to cut the network matrices, "sparsity" or "correlation coefficient". 
+					If DTI's network matrix, select "correlation coefficient" and input the threshold of fiber number.
+				\item \textbf{Threshold Region}: Select the region of threshold, it could be one value or a sequence.
+				\item \textbf{Random Network}: The number of random network.
+			\end{itemize}
+		\subsection{Network - Small World}
+		\subsection{Network - Efficiency}
+		\subsection{Network - Modularity}
+		\subsection{Network - Assortativity}
+		\subsection{Network - Hierarchy}
+		\subsection{Network - Synchronization}
+		\subsection{Node - Degree}
+		\subsection{Node - Efficiency}
+		\subsection{Node - Betweenness}
+	\section{Network Results}
+		All results of network metric will be stored with MAT-file and TEXT-file both. 
+		You can pick these metrics from subjects' diretory (e.g. "MAT\_TestMatrix\_VAR\_A") one by one or use the integrated results (Results\_*).
+		\begin{figure}
+			\begin{center}
+				\includegraphics[width=80em]{Results.eps}
+			\end{center}
+		\end{figure}
+		\subsection{Individual Results}
+			\subsubsection{Network - Small World}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{SWMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "SWMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Cp}: Clustering coefficient of network.
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{Lp}: Shortest path length of network.
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{nodalCp}: Clustering coefficient of node.
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{nodalLp}: Shortest path length of node.
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{Cpzscore}: The z-score of clustering coefficient of network, 
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Cpzscore=\frac{Cp-mean(Cprand)}{std(Cprand)}$$
+						Cprand is a R$\times$1 array, R is the number of randomized network. 
+						It is the clustering coefficient of randomized network.
+					\item \textbf{Lpzscore}: The z-score of shortest path length of network,
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Lpzscore=\frac{Lp-mean(Lprand)}{std(Lprand)}$$
+						Lprand is a R$\times$1 array, R is the number of randomized network. 
+						It is the shortest path length of randomized network.
+					\item \textbf{Gamma}: Gamma is the ratio of Cp and mean value of Cprand,
+						1$\times$N array, N is the number of threshold sequence.
+					
+						The formula is following:
+						$$Gamma=\frac{Cp}{mean(Cprand)}$$
+					\item \textbf{Lambda}: Lambda is the ratio of Lp and mean value of Lprand,
+						1$\times$N array, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$Lambda=\frac{Lp}{mean(Lprand)}$$
+					\item \textbf{Sigma}: Sigma is the ratio of Gamma and Lambda.
+						1$\times$N array, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$Sigma=\frac{Gamma}{Lambda}$$
+					\item \textbf{aCp}: The AUC of Cp.
+					\item \textbf{aLp}: The AUC of Lp.
+					\item \textbf{anodalCp}: The AUC of nodalCp.
+						M$\times$1 array, M is the number of node.
+					\item \textbf{anodalLp}: The AUC of nodalLp.
+						M$\times$1 array, M is the number of node.
+					\item \textbf{aCpzscore}: The AUC of Cpzscore.
+					\item \textbf{aLpzscore}: The AUC of Lpzscore.
+					\item \textbf{aGamma}: The AUC of Gamma.
+					\item \textbf{aLambda}: The AUC of Lambda.
+					\item \textbf{aSigma}: The AUC of Sigma.
+				\end{itemize}
+			\subsubsection{Network - Efficiency}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{EFFMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "EFFMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Eloc}: Local efficiency of network.
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{Eg}: Global efficiency of network.
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{nodalEloc}: Local efficiency of node.
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{nodalEg}: Global efficiency of node.
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{Eloczscore}: The z-score of local efficiency of network, 
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Eloczscore=\frac{Eloc-mean(Elocrand)}{std(Elocrand)}$$
+						Cprand is a R$\times$1 array, R is the number of randomized network. 
+						It is the local efficiency of randomized network.
+					\item \textbf{Egzscore}: The z-score of global efficiency of network,
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Egzscore=\frac{Eg-mean(Egrand)}{std(Egrand)}$$
+						Egrand is a R$\times$1 array, R is the number of randomized network. 
+						It is the global efficiency of randomized network.
+					\item \textbf{EGamma}: EGamma is the ratio of Eloc and mean value of Elocrand,
+						1$\times$N array, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$EGamma=\frac{Eloc}{mean(Elocrand)}$$
+					\item \textbf{ELambda}: ELambda is the ratio of Eg and mean value of Egrand,
+						1$\times$N array, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$ELambda=\frac{Eg}{mean(Egrand)}$$
+					\item \textbf{ESigma}: ESigma is the ratio of EGamma and ELambda.
+						1$\times$N array, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$ESigma=\frac{EGamma}{ELambda}$$
+					\item \textbf{aEloc}: The AUC of Eloc.
+					\item \textbf{aEg}: The AUC of Eg.
+					\item \textbf{anodalEloc}: The AUC of nodalEloc.
+						M$\times$1 array, M is the number of node.
+					\item \textbf{anodalEg}: The AUC of nodalEg.
+						M$\times$1 array, M is the number of node.
+					\item \textbf{aEloczscore}: The AUC of Eloczscore.
+					\item \textbf{aEgzscore}: The AUC of Egzscore.
+					\item \textbf{aEGamma}: The AUC of EGamma.
+					\item \textbf{aELambda}: The AUC of ELambda.
+					\item \textbf{aESigma}: The AUC of ESigma.
+				\end{itemize}
+			\subsubsection{Network - Modularity}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{MODMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "MODMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{community\_index}: The community (listed for each node),
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{number\_of\_module}: The number of module in network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{modularity}: Modularity value of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{modularity\_zscore}: The z-score of modularity of network,
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$modularity\_zscore=\frac{modularity-mean(modrand)}{std(modrand)}$$
+						modrand is a R$\times$1 array, R is the number of randomized network. 
+						It is the modularity of randomized network.
+				\end{itemize}
+			\subsubsection{Network - Assortativity}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{ASSMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "ASSMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{r}: Assortativity of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{rzscore}: The z-score of assortativity of network,
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$rzscore=\frac{r-mean(rrand)}{std(rrand)}$$
+						rrand is a R$\times$1 array, R is the number of randomized network. 
+						It is the assortativity of randomized network.
+				\end{itemize}
+			\subsubsection{Network - Hierarchy}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{HIEMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "HIEMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{b}: Hierarchy of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{bzscore}: The z-score of hierarchy of network,
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$bzscore=\frac{b-mean(brand)}{std(brand)}$$
+						brand is a R$\times$1 array, R is the number of randomized network. 
+						It is the hierarchy of randomized network.
+				\end{itemize}
+			\subsubsection{Network - Synchronization}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{SYNMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "SYNMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{s}: Synchronization of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{szscore}: The z-score of synchronization of network,
+						1$\times$N array, N is the number of threshold sequence.
+
+						The formula is following:
+						$$szscore=\frac{s-mean(srand)}{std(srand)}$$
+						srand is a R$\times$1 array, R is the number of randomized network. 
+						It is the synchronization of randomized network.
+				\end{itemize}
+			\subsubsection{Node - Degree}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{NodeDMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "NodeDMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Deg}: The degree of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{nodalDeg}: The degree of node,
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{aDeg}: The AUC of Deg,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{anodalDeg}: The AUC of nodalDeg,
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+				\end{itemize}
+			\subsubsection{Node - Efficiency}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{NodeEMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "NodeEMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Eg}: The global efficiency of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{nodalEg}: The global efficiency of node,
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{aEg}: The AUC of Eg,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{anodalEg}: The AUC of nodalEg,
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+				\end{itemize}
+			\subsubsection{Node - Betweenness}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{NodeBMat.eps}
+					\end{center}
+				\end{figure}
+				You can load "NodeBMat.mat" to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Be}: The betweenness of network,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{nodalBe}: The betweenness of node,
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+					\item \textbf{aBe}: The AUC of Be,
+						1$\times$N array, N is the number of threshold sequence.
+					\item \textbf{anodalBe}: The AUC of nodalBe,
+						M$\times$N array, M is the number of node, N is the number of threshold sequence.
+				\end{itemize}
+		\subsection{Integrated Results}
+			\subsubsection{Network - Small World}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllSW.eps}
+					\end{center}
+				\end{figure}
+				You can load "SmallWorld.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Cp}: Clustering coefficient of network.
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{Lp}: Shortest path length of network.
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalCp\_Node*}: Clustering coefficient of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalLp\_Node*}: Shortest path length of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{Cpzscore}: The z-score of clustering coefficient of network, 
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Cpzscore=\frac{Cp-mean(Cprand)}{std(Cprand)}$$
+						Cprand is a R$\times$1 array, R is the number of randomized network. 
+						It is the clustering coefficient of randomized network.
+					\item \textbf{Lpzscore}: The z-score of shortest path length of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Lpzscore=\frac{Lp-mean(Lprand)}{std(Lprand)}$$
+						Lprand is a R$\times$1 array, R is the number of randomized network. 
+						It is the shortest path length of randomized network.
+					\item \textbf{Gamma}: Gamma is the ratio of Cp and mean value of Cprand,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$Gamma=\frac{Cp}{mean(Cprand)}$$
+					\item \textbf{Lambda}: Lambda is the ratio of Lp and mean value of Lprand,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$Lambda=\frac{Lp}{mean(Lprand)}$$
+					\item \textbf{Sigma}: Sigma is the ratio of Gamma and Lambda.
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$Sigma=\frac{Gamma}{Lambda}$$
+					\item \textbf{aCp}: The AUC of Cp.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aLp}: The AUC of Lp.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalCp\_Node*}: The AUC of nodalCp, "*" is the label of node.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalLp\_Node*}: The AUC of nodalLp, "*" is the label of node.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aCpzscore}: The AUC of Cpzscore.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aLpzscore}: The AUC of Lpzscore.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aGamma}: The AUC of Gamma.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aLambda}: The AUC of Lambda.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aSigma}: The AUC of Sigma.
+						M$\times$1 array, M is the number of subject.
+				\end{itemize}
+			\subsubsection{Network - Efficiency}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllEFF.eps}
+					\end{center}
+				\end{figure}
+				You can load "Efficiency.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Eloc}: Local efficiency of network.
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{Eg}: Global efficiency of network.
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalEloc\_Node*}: Local efficiency of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalEg\_Node*}: Global efficiency of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{Eloczscore}: The z-score of local efficiency of network, 
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Eloczscore=\frac{Eloc-mean(Elocrand)}{std(Elocrand)}$$
+						Cprand is a R$\times$1 array, R is the number of randomized network. 
+						It is the local efficiency of randomized network.
+					\item \textbf{Egzscore}: The z-score of global efficiency of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$Egzscore=\frac{Eg-mean(Egrand)}{std(Egrand)}$$
+						Egrand is a R$\times$1 array, R is the number of randomized network. 
+						It is the global efficiency of randomized network.
+					\item \textbf{EGamma}: EGamma is the ratio of Eloc and mean value of Elocrand,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$EGamma=\frac{Eloc}{mean(Elocrand)}$$
+					\item \textbf{ELambda}: ELambda is the ratio of Eg and mean value of Egrand,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+						
+						The formula is following:
+						$$ELambda=\frac{Eg}{mean(Egrand)}$$
+					\item \textbf{ESigma}: ESigma is the ratio of EGamma and ELambda.
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$ESigma=\frac{EGamma}{ELambda}$$
+					\item \textbf{aEloc}: The AUC of Eloc.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aEg}: The AUC of Eg.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalEloc\_Node*}: The AUC of nodalEloc.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalEg\_Node*}: The AUC of nodalEg.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aEloczscore}: The AUC of Eloczscore.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aEgzscore}: The AUC of Egzscore.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aEGamma}: The AUC of EGamma.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aELambda}: The AUC of ELambda.
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{aESigma}: The AUC of ESigma.
+						M$\times$1 array, M is the number of subject.
+				\end{itemize}
+			\subsubsection{Network - Modularity}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllMOD.eps}
+					\end{center}
+				\end{figure}
+				You can load "Modularity.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{community\_index\_Thres*}: The community (listed for each node), "*" is the number of threshold sequence,
+						M$\times$N array, M is the number of subject, N is the number of node.
+					\item \textbf{number\_of\_module}: The number of module in network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{modularity}: Modularity value of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{modularity\_zscore}: The z-score of modularity of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$modularity\_zscore=\frac{modularity-mean(modrand)}{std(modrand)}$$
+						modrand is a R$\times$1 array, R is the number of randomized network. 
+						It is the modularity of randomized network.
+				\end{itemize}
+			\subsubsection{Network - Assortativity}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllASS.eps}
+					\end{center}
+				\end{figure}
+				You can load "Assortativity.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{r}: Assortativity of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{rzscore}: The z-score of assortativity of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$rzscore=\frac{r-mean(rrand)}{std(rrand)}$$
+						rrand is a R$\times$1 array, R is the number of randomized network. 
+						It is the assortativity of randomized network.
+				\end{itemize}
+			\subsubsection{Network - Hierarchy}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllHIE.eps}
+					\end{center}
+				\end{figure}
+				You can load "Hierarchy.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{b}: Hierarchy of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{bzscore}: The z-score of hierarchy of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$bzscore=\frac{b-mean(brand)}{std(brand)}$$
+						brand is a R$\times$1 array, R is the number of randomized network. 
+						It is the hierarchy of randomized network.
+				\end{itemize}
+			\subsubsection{Network - Synchronization}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllSYN.eps}
+					\end{center}
+				\end{figure}
+				You can load "Synchronization.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{s}: Synchronization of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{szscore}: The z-score of synchronization of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+
+						The formula is following:
+						$$szscore=\frac{s-mean(srand)}{std(srand)}$$
+						srand is a R$\times$1 array, R is the number of randomized network. 
+						It is the synchronization of randomized network.
+				\end{itemize}
+			\subsubsection{Node - Degree}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllNodeD.eps}
+					\end{center}
+				\end{figure}
+				You can load "NodeDegree.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Deg}: The degree of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalDeg\_Node*}: The degree of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{aDeg}: The AUC of Deg,
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalDeg\_Node*}: The AUC of nodalDeg, "*" is the label of node,
+						M$\times$1 array, M is the number of subject.
+				\end{itemize}
+			\subsubsection{Node - Efficiency}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllNodeE.eps}
+					\end{center}
+				\end{figure}
+				You can load "NodeEfficiency.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Eg}: The global efficiency of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalEg\_Node*}: The global efficiency of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{aEg}: The AUC of Eg,
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalEg\_Node*}: The AUC of nodalEg, "*" is the label of node,
+						M$\times$1 array, M is the number of subject.
+				\end{itemize}
+			\subsubsection{Node - Betweenness}
+				\begin{figure}
+					\begin{center}
+						\includegraphics[width=80em]{AllNodeB.eps}
+					\end{center}
+				\end{figure}
+				You can load "NodeBetweenness.mat" or TEXT file which have the same names of metric to get the following metrics.
+				\begin{itemize}
+					\item \textbf{Be}: The betweenness of network,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{nodalBe\_Node*}: The betweenness of node, "*" is the label of node,
+						M$\times$N array, M is the number of subject, N is the number of threshold sequence.
+					\item \textbf{aBe}: The AUC of Be,
+						M$\times$1 array, M is the number of subject.
+					\item \textbf{anodalBe\_Node*}: The AUC of nodalBe, "*" is the label of node,
+						M$\times$1 array, M is the number of subject.
+				\end{itemize}
+\end{document}

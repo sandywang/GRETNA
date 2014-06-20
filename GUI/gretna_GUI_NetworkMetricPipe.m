@@ -23,6 +23,8 @@ if strcmpi(Para.CutType, 'positive')
     PType='p';
 elseif strcmpi(Para.CutType, 'absolute')
     PType='a';
+elseif strcmpi(Para.CutType, 'negative')
+    PType='n';
 end
 command='gretna_GUI_SegmentThres(opt.Matrix, opt.PType, opt.NType, opt.TType, opt.Thres, opt.TempDir)';
 Pipeline.(sprintf('%s_SegmentThres', SubjName)).command=command;

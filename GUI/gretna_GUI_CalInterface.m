@@ -264,7 +264,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 ConfigText={sprintf('%d' , handles.Para.NumRandNet)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Threshold Region'))
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Threshold Range'))
                 ThresRegion=str2num(handles.Para.ThresRegion);
                 ConfigText={sprintf('%1.3f ' , ThresRegion)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
@@ -281,17 +281,25 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Network Cut'))
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Network Member'))
                 if strcmpi(handles.Para.CutType , 'positive');
                     ConfigText={'*positive';...
+                        'negative';...
                         'absolute'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
-                else
+                elseif strcmpi(handles.Para.CutType, 'negative')
                     ConfigText={'positive';...
+                        '*negative';...
+                        'absolute'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 2);    
+                elseif strcmpi(handles.Para.CutType, 'absolute')
+                    ConfigText={'positive';...
+                        'negative';...
                         '*absolute'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
+                    set(handles.ConfigListbox , 'Value'  , 3);
                 end    
             elseif ~isempty(strfind(CalText{SelectValue} , 'Network Type'))
                 if strcmpi(handles.Para.NetType , 'binarize');
@@ -366,9 +374,9 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Threshold Region'))
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Threshold Range'))
                 ThresRegion=inputdlg('Enter the Threshold:',...
-                    'Threshold Region',...
+                    'Threshold Range',...
                     1,...
                     {handles.Para.ThresRegion});
                 if ~isempty(ThresRegion)
@@ -406,19 +414,31 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end                
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Network Cut'))
-                if strcmp(handles.Para.CutType , 'absolute')
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Network Member'))
+                CutType=questdlg('Choose network member',...
+                    'Network Member',...
+                    'Positive', 'Negative', 'Absolute', 'Absolute');
+                if strcmpi(CutType , 'positive')
                     handles.Para.CutType='positive';
                     ConfigText=[{'*positive'};...
+                        {'negative'};...
                         {'absolute'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    handles.Para.CutType='absolute';
+                elseif strcmpi(CutType, 'negative')
+                    handles.Para.CutType='negative';
                     ConfigText=[{'positive'};...
-                        {'*absolute'}];
+                        {'*negative'};...
+                        {'absolute'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
+                elseif strcmpi(CutType, 'absolute')
+                    handles.Para.CutType='absolute';
+                    ConfigText=[{'positive'};...
+                        {'negative'};...
+                        {'*absolute'}];
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 3);    
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'modularity algorithm'))
                 if strcmp(handles.Para.ModulAlorithm , 'greedy optimization')
@@ -499,9 +519,9 @@ function Result=CalListbox(AHandle)
     Result=[Result ; ...
         {'Network Metrics:'};...
         {sprintf('. Network Type:  %s' , AHandle.Para.NetType)};...
-        {sprintf('. Network Cut:  %s' , AHandle.Para.CutType)};...
+        {sprintf('. Network Member:  %s' , AHandle.Para.CutType)};...
         {sprintf('. Threshold Type:  %s' , AHandle.Para.ThresType)};...        
-        {sprintf('. Threshold Region:  %s' , AHandle.Para.ThresRegion)};...        
+        {sprintf('. Threshold Range:  %s' , AHandle.Para.ThresRegion)};...        
         {sprintf('. Random Networks (n):  %d' , AHandle.Para.NumRandNet)};...
         {'Selected Mode:'}];
     if isempty(AHandle.CalList)

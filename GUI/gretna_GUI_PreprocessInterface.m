@@ -1448,9 +1448,13 @@ function handles=UpdateInputListbox(handles)
         Prefix=get(handles.PrefixEntry , 'String');
         InputListbox=[];
         Subj=dir(ParentDir);
+        drawnow;
         if isempty(Prefix)
             Prefix=inputdlg({'Enter key of files searched'},...
                 'Key Words', 1 , {'*'});
+            if isempty(Prefix)
+                return
+            end
             Prefix=Prefix{1};
             set(handles.PrefixEntry , 'String' , Prefix);
         end
@@ -2560,3 +2564,46 @@ function PreprocessInterface_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to PreprocessInterface (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in ExtractButton.
+function ExtractButton_Callback(hObject, eventdata, handles)
+% hObject    handle to ExtractButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+DataList=handles.DataList;
+if isempty(DataList)
+    errordlg('No Subjects');
+    return
+end
+
+OldDir=fileparts(get(handles.InputEntry, 'String'));
+ParentPath=uigetdir(OldDir, 'Pick Output Directory');
+
+if isnumeric(ParentPath)
+    return
+end
+
+SubjField=fieldnames(DataList);
+for i=1:numel(SubjField)
+    if iscell(DataList.(SubjField{i}))
+        OneSubj=DataList.(SubjField{i});
+    else
+        OneSubj={DataList.(SubjField{i})};
+    end
+    Path=fileparts(OneSubj{1});
+    [Path, Subj]=fileparts(Path);
+    SubjPath=fullfile(ParentPath, Subj);
+    if exist(SubjPath, 'dir')~=7
+        mkdir(SubjPath);
+    end
+    cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubj);
+    if strfind(OneSubj{1}, 'img')
+        OneSubjHdr=strrep(OneSubj, '.img', '.hdr');
+    end
+    cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubjHdr);
+    
+end
+
+handles=UpdateInputListbox(handles);
+guidata(hObject, handles);

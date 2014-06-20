@@ -8,6 +8,8 @@ if strcmpi(PType, 'p')
     Matrix=Matrix.*(Matrix > 0);
 elseif strcmpi(PType, 'a')
     Matrix=abs(Matrix);
+elseif strcmpi(PType, 'n')
+    Matrix=abs(Matrix.*(Matrix < 0));
 else
     error('gretna_GUI_SegmentThres: cannot tell Pos or Abs');
 end

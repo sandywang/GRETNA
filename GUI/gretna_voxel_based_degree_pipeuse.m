@@ -66,7 +66,7 @@ XYZ = XYZ(:,Index)';
 [I J K] = ind2sub(size(Ymask),Index);
 
 Vin = spm_vol(Data_List);
-Ydata = spm_get_data(Vin,[I J K]');
+Ydata = spm_get_data(Data_List,[I J K]');
 
 numSample = size(Ydata,1);
 Ydata = Ydata - repmat(mean(Ydata), numSample, 1);

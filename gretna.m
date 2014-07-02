@@ -99,6 +99,8 @@ switch Value
         return;
     case 2
         gretna_GUI_StatInterface;
+    case 3
+        gretna_GUI_EdgeInterface;
 end
 % Hints: contents = cellstr(get(hObject,'String')) returns UtilitiesPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from UtilitiesPopup

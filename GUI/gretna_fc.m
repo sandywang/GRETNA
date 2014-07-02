@@ -19,8 +19,15 @@ function gretna_fc(DataList ,  LabMask , OutputName)
         TimeCourse(:,i)=MeanTC;
     end
     r=corrcoef(TimeCourse);
+    r=(r+r')/2;%Add by Sandy
     r(isnan(r))=0;
+    r(r>=1)=1-1e-16;
+    
+    z=(0.5 * log((1 + r)./(1 - r)));
+    
     [Path , File , Ext]=fileparts(OutputName);
     save([Path , filesep , 'TimeCourse_' , File , Ext] ,...
         'TimeCourse' , '-ASCII', '-DOUBLE','-TABS');
     save(OutputName , 'r' , '-ASCII', '-DOUBLE','-TABS');
+    save(fullfile(Path, ['z_', File, Ext]),...
+        'z', '-ASCII', '-DOUBLE', '-TABS');

@@ -2119,6 +2119,11 @@ if isempty(handles.DataList)
     CheckWarning(handles.InputListbox);
     return;
 end
+set(handles.RunButton       , 'Enable' , 'Off');
+set(handles.RunPushtool     , 'Enable' , 'Off');
+set(handles.StopPushtool    , 'Enable' , 'On');
+set(handles.RefreshPushtool , 'Enable' , 'On');
+set(handles.InputListbox , 'Enable' , 'inactive');
 
 handles.Para.EPIPath=get(handles.InputEntry , 'String');
 ParentDir=handles.Para.EPIPath;
@@ -2255,13 +2260,7 @@ if strcmp(handles.Para.T1D2NBool , 'TRUE') && strcmp(handles.Para.NormType , 'T1
     handles.Para.T1NiiDir=T1NiiDir;
 end
 
-set(handles.RunButton       , 'Enable' , 'Off');
-set(handles.RunPushtool     , 'Enable' , 'Off');
-set(handles.StopPushtool    , 'Enable' , 'On');
-set(handles.RefreshPushtool , 'Enable' , 'On');
-set(handles.InputListbox , 'Enable' , 'inactive');
-
-handles.PipelineLog=[LogDir , 'pipeline_logs'];
+handles.PipelineLog=[LogDir , 'Preprocess_logs'];
 
 %MatOutput
 

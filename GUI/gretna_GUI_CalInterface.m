@@ -560,6 +560,21 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
     DataText=get(handles.DataListbox , 'String'); 
     
     Info=DataText{SelectedValue};
+    if exist(Info, 'file')==2
+        Index=0;
+        for i=1:numel(handles.DataList)
+            if strcmpi(handles.DataList{i}, Info)
+                Index=i;
+                break
+            end
+        end
+        if Index
+            handles.DataList(Index)=[];
+        end
+        handles=GenDataListbox(handles);
+        guidata(hObject, handles);
+        return
+    end
     Tok=regexp(Info, '--->#(.*?)_.*', 'tokens');
     
     if isempty(Tok)
@@ -581,7 +596,13 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
         NAME=Tok{1}{1};
         if ~isfield(TempMat, NAME)
             Tok=regexp(Info, '--->#MAT_.*_VAR_(.*)_CELL_.*:.*', 'tokens');
-            NAME=Tok{1}{1};
+            %NAME=Tok{1}{1};
+            if isempty(Tok)
+                Tok=regexp(Info, '--->#MAT_.*_VAR_(.*)_STRUCT_.*:.*', 'tokens');
+                NAME=Tok{1}{1};
+            else
+                NAME=Tok{1}{1};
+            end
         end
         VAR=TempMat.(NAME);
         if isnumeric(VAR)
@@ -593,7 +614,14 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
             Tok=regexp(Info, '--->#MAT_.*_VAR_.*_CELL_(.*):.*', 'tokens');
             NUM=str2num(Tok{1}{1});
             Net=VAR{NUM};
-            figure('Name', sprintf('%s(VAR: %s --> %s)', PathName, NAME, NUM),...
+            figure('Name', sprintf('%s(VAR: %s --> %.4d)', PathName, NAME, NUM),...
+                'Numbertitle', 'Off'),
+            imagesc(Net);
+        elseif isstruct(VAR)
+            Tok=regexp(Info, '--->#MAT_.*_VAR_.*_STRUCT_(.*):.*', 'tokens');
+            SUB=Tok{1}{1};
+            Net=VAR.(SUB);
+            figure('Name', sprintf('%s(VAR: %s --> %s)', PathName, NAME, SUB),...
                 'Numbertitle', 'Off'),
             imagesc(Net);
         end
@@ -602,59 +630,6 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
         figure('Name', sprintf('%s', PathName), 'Numbertitle' , 'Off'),
         imagesc(Net);
     end
-    
-%     ShowMatrix=0;
-%     if isempty(SelectedValue)
-%         return;
-%     end
-%     while SelectedValue
-%         if ~isempty(strfind(DataText{SelectedValue} , '--->#'))
-%             ShowMatrix=ShowMatrix+1;
-%         else
-%             break;
-%         end
-%         SelectedValue=SelectedValue-1;
-%     end
-%     
-%     if ShowMatrix
-%         [Path Name Ext]=fileparts(DataText{SelectedValue});
-%         if strcmp(Ext , '.mat')
-%             TempStruct=load([Path , filesep , Name , Ext]);
-%             F=fieldnames(TempStruct);
-%             TempMat=getfield(TempStruct , F{1});
-%             if size(TempMat , 2)~=1
-%                 TempMat={TempMat};
-%             end
-%         else
-%             TempMat=load([Path , filesep , Name , Ext]);
-%             TempMat={TempMat};
-%         end
-%         figure('Name', sprintf('%s%s%s%s  $%.4d',...
-%             Path , filesep , Name , Ext  , ShowMatrix), ...
-%             'NUmbertitle' , 'Off'),...
-%             imagesc(TempMat{ShowMatrix});
-%         daspect([1,1,1]);
-%         colorbar;
-%     else
-%         SelectedFile=DataText{SelectedValue};
-%         temp_order=0;
-%         for i=1:size(handles.DataList , 1)
-%             if strcmp(handles.DataList{i} , SelectedFile)
-%                 temp_order=i;
-%                 break;
-%             else
-%                 continue;
-%             end
-%         end
-%         handles.DataList(temp_order)=[];
-%         handles=DataListbox(handles);
-%         if isempty(handles.DataList)
-%             set(handles.DataListbox , 'Value' , 0);
-%         else
-%             set(handles.DataListbox , 'Value' , 1);
-%         end
-%     end
-%     guidata(hObject , handles);
 end
 % Hints: contents = cellstr(get(hObject,'String')) returns DataListbox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from DataListbox
@@ -709,11 +684,11 @@ function DataButton_Callback(hObject, eventdata, handles)
             set(handles.DataListbox , 'Value' , 1);
         end
         
-        handles=DataListbox(handles);
+        handles=GenDataListbox(handles);
         guidata(hObject , handles);
     end
     
-function handles=DataListbox(handles)
+function handles=GenDataListbox(handles)
     present_list=[];
     if ~isempty(handles.DataList)
         for i=1:numel(handles.DataList)
@@ -740,6 +715,14 @@ function handles=DataListbox(handles)
                                 {sprintf('--->#MAT_%s_VAR_%s_CELL_%.4d: (%d -- %d)',...
                                 Name, FieldNames{j}, k,...
                                 size(TempMat{k}, 1), size(TempMat{k}, 2))}];
+                        end
+                    elseif isstruct(TempMat)
+                        SubField=fieldnames(TempMat);
+                        for k=1:numel(SubField)
+                            present_list=[present_list ; ...
+                                {sprintf('--->#MAT_%s_VAR_%s_STRUCT_%s: (%d -- %d)',...
+                                Name, FieldNames{j}, SubField{k},...
+                                size(TempMat.(SubField{k}), 1), size(TempMat.(SubField{k}), 2))}];
                         end
                     else
                         present_list=[present_list ; ...
@@ -812,6 +795,11 @@ function RunEvent(hObject , handles)
         CheckWarning(handles.DataListbox);
         return;
     end
+    set(handles.DataListbox , 'Enable' , 'inactive');
+    set(handles.RunButton       , 'Enable' , 'Off');
+    set(handles.RunPushtool     , 'Enable' , 'Off');
+    set(handles.StopPushtool    , 'Enable' , 'On');
+    set(handles.RefreshPushtool , 'Enable' , 'On');
     
     MatrixList=[];
     AliasList=[];
@@ -832,6 +820,13 @@ function RunEvent(hObject , handles)
                     for k=1:numel(TempMat)
                         AliasList=[AliasList;{sprintf('MAT_%s_VAR_%s_CELL_%.4d',...
                             Name, FieldNames{j}, k)}];
+                    end
+                elseif isstruct(TempMat)
+                    SubField=fieldnames(TempMat);
+                    for k=1:numel(SubField)
+                        MatrixList=[MatrixList; {TempMat.(SubField{k})}];
+                        AliasList=[AliasList;{sprintf('MAT_%s_VAR_%s_STRUCT_%s',...
+                            Name, FieldNames{j}, SubField{k})}];                   
                     end
                 else
                     MatrixList=[MatrixList;{TempMat}];
@@ -936,12 +931,6 @@ function RunEvent(hObject , handles)
     handles.PipelineLog=opt.path_logs;
     handles.AliasList=[AliasList;{'ResultSettle'}];
     guidata(hObject , handles);
-    
-    set(handles.DataListbox , 'Enable' , 'inactive');
-    set(handles.RunButton       , 'Enable' , 'Off');
-    set(handles.RunPushtool     , 'Enable' , 'Off');
-    set(handles.StopPushtool    , 'Enable' , 'On');
-    set(handles.RefreshPushtool , 'Enable' , 'On');
     
     if ismac
         opt.mode='background';
@@ -1242,5 +1231,5 @@ StopFlag=dir([handles.PipelineLog , filesep , 'PIPE.lock']);
 if ~isempty(StopFlag)
     delete([handles.PipelineLog , filesep , 'PIPE.lock']);
 end
-handles=DataListbox(handles);
+handles=GenDataListbox(handles);
 guidata(hObject, handles);

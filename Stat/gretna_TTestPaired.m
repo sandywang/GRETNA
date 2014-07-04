@@ -47,6 +47,6 @@ Contrast(1)=1;
 [b_OLS_metric, t_OLS_metric, TTest1_T, r_OLS_metric] = gretna_GroupAnalysis(DependentMatrix, Regressors, Contrast, 'T');
 
 DOF=NumOfSample-size(Regressors, 2);
-TTest1_P=2*(1-tcdf(TTest1_T, DOF));
+TTest1_P=2*(1-tcdf(abs(TTest1_T), DOF));
 
 fprintf('\n\tPaired T Test Calculation finished.\n');

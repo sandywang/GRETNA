@@ -73,6 +73,9 @@ if ~isfield(handles , 'Para')
     if exist(ParaFile , 'file')
         Para=load(ParaFile);
         Para=Para.Para;
+        if strcmpi(Para.ThresType, 'correlation coefficient')
+            Para.ThresType='similarity threshold';
+        end
     else
         Para=[];
     end
@@ -85,7 +88,11 @@ if ~isfield(handles , 'Para')
     	Para.NetType='weighted';
         Para.ClustCoeffAlorithm='Onnela';
     	Para.ModulAlorithm='greedy optimization';
-        save(ParaFile , 'Para');
+        try
+            save(ParaFile , 'Para');
+        catch
+            warning('Cannot write CalPara.mat');
+        end
     end
     handles.Para=Para;
 end
@@ -270,13 +277,13 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Threshold Type'))
-                if strcmpi(handles.Para.ThresType , 'correlation coefficient');
-                    ConfigText={'*correlation coefficient';...
+                if strcmpi(handles.Para.ThresType , 'similarity threshold');
+                    ConfigText={'*similarity threshold';...
                         'sparsity'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 else
-                    ConfigText={'correlation coefficient';...
+                    ConfigText={'similarity threshold';...
                         '*sparsity'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
@@ -387,15 +394,15 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Threshold Type'))
-                if strcmp(handles.Para.ThresType , 'correlation coefficient')
+                if strcmp(handles.Para.ThresType , 'similarity threshold')
                     handles.Para.ThresType='sparsity';
-                    ConfigText=[{'correlation coefficient'};...
+                    ConfigText=[{'similarity threshold'};...
                         {'*sparsity'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
                 else
-                    handles.Para.ThresType='correlation coefficient';
-                    ConfigText=[{'*correlation coefficient'};...
+                    handles.Para.ThresType='similarity threshold';
+                    ConfigText=[{'*similarity threshold'};...
                         {'sparsity'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
@@ -800,6 +807,7 @@ function RunEvent(hObject , handles)
     set(handles.RunPushtool     , 'Enable' , 'Off');
     set(handles.StopPushtool    , 'Enable' , 'On');
     set(handles.RefreshPushtool , 'Enable' , 'On');
+    drawnow;
     
     MatrixList=[];
     AliasList=[];

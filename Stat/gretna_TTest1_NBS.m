@@ -3,7 +3,10 @@ function [TMap, PMap, Comnet, P_com, NumofEdge_real, max_NumofEdge_rand] = gretn
 % 1.Zalesky et al. (2010): Network-based statistic: Identifying differences
 %   in brain networks. Neuroimage.
 %
-% Xindi WANG, NKLCNL, BNU, BeiJing, 2014/07/02, sandywang.rest@gmail.com
+% Written by Xindi WANG
+% State Key Laboratory of Cognitive Neuroscience and Learning & IDG/McGovern 
+% Institute for Brain Research, Beijing Normal University, Beijing, China
+% sandywang.rest@gmail.com
 %==========================================================================
 I=PMap < PThr;
 N=size(I, 1);    

@@ -13,7 +13,7 @@ else
 end
 
 Thres=Para.ThresRegion;
-if strcmpi(Para.ThresType , 'correlation coefficient')
+if strcmpi(Para.ThresType , 'similarity threshold')
     TType='r';
 elseif strcmpi(Para.ThresType, 'sparsity')
     TType='s';

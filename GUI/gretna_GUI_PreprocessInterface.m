@@ -2124,6 +2124,7 @@ set(handles.RunPushtool     , 'Enable' , 'Off');
 set(handles.StopPushtool    , 'Enable' , 'On');
 set(handles.RefreshPushtool , 'Enable' , 'On');
 set(handles.InputListbox , 'Enable' , 'inactive');
+drawnow;
 
 handles.Para.EPIPath=get(handles.InputEntry , 'String');
 ParentDir=handles.Para.EPIPath;

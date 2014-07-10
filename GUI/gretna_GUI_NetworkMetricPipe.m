@@ -8,7 +8,7 @@ TempDir=fullfile(OutputDir, 'GretnaNetworkResults', SubjName);
 %% Segment Thresholds' Network
 if strcmp(Para.NetType , 'weighted')
     NType='w';
-else
+elseif strcmp(Para.NetType, 'binary')
     NType='b';
 end
 

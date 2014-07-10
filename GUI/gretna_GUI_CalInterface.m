@@ -88,11 +88,11 @@ if ~isfield(handles , 'Para')
     	Para.NetType='weighted';
         Para.ClustCoeffAlorithm='Onnela';
     	Para.ModulAlorithm='greedy optimization';
-        try
-            save(ParaFile , 'Para');
-        catch
-            warning('Cannot write CalPara.mat');
-        end
+        %try
+        %    save(ParaFile , 'Para');
+        %catch
+        %    warning('Cannot write CalPara.mat');
+        %end
     end
     handles.Para=Para;
 end
@@ -309,13 +309,13 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'Value'  , 3);
                 end    
             elseif ~isempty(strfind(CalText{SelectValue} , 'Network Type'))
-                if strcmpi(handles.Para.NetType , 'binarize');
-                    ConfigText={'*binarize';...
+                if strcmpi(handles.Para.NetType , 'binary');
+                    ConfigText={'*binary';...
                         'weighted'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 else
-                    ConfigText={'binarize';...
+                    ConfigText={'binary';...
                         '*weighted'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
@@ -409,14 +409,14 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Network Type'))
                 if strcmp(handles.Para.NetType , 'weighted')
-                    handles.Para.NetType='binarize';
-                    ConfigText=[{'*binarize'};...
+                    handles.Para.NetType='binary';
+                    ConfigText=[{'*binary'};...
                         {'weighted'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 else
                     handles.Para.NetType='weighted';
-                    ConfigText=[{'binarize'};...
+                    ConfigText=[{'binary'};...
                         {'*weighted'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);

@@ -2293,7 +2293,7 @@ for i=1:size(handles.AliasList, 1)
 %         %pipeline.([SubjField{i} , '_NetworkMetrics']).files_out={sprintf('%s%s%s.out' , TempDir , filesep , ['_',SubjField{i}(6:end)])};
 %     end
 end
-opt.path_logs = [LogDir , 'pipeline_logs'];
+opt.path_logs = [LogDir , 'Preprocess_logs'];
 opt.mode = 'batch';
 opt.mode_pipeline_manager = 'batch';
 if ismac

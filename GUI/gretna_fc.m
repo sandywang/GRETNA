@@ -24,6 +24,7 @@ function gretna_fc(DataList ,  LabMask , OutputName)
     r(r>=1)=1-1e-16;
     
     z=(0.5 * log((1 + r)./(1 - r)));
+    z(isinf(z))=0;
     
     [Path , File , Ext]=fileparts(OutputName);
     save([Path , filesep , 'TimeCourse_' , File , Ext] ,...

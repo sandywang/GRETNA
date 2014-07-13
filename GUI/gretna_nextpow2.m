@@ -35,7 +35,7 @@ for x=1:length(tbl)
     end
     if mod(p,3*5) == 0
         y = p/(3*5);
-        [f,~] = log2(y);
+        [f,E] = log2(y);
         if ~isempty(f) && f == 0.5   %Copy from nextpow2.m
             return;
         end

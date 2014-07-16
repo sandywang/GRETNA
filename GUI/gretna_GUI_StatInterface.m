@@ -460,6 +460,12 @@ switch Value
     case 5 %ANCOVA Repeat
         [T, P]=gretna_ANCOVA1_Repeated(S, TextCell);
     case 6 %Corr
+        SeedFile=get(handles.CorrSeedListbox);
+        if iscell(SeedFile)
+            SeedFile=SeedFile{1};
+        end
+        SeedSeries={load(SeedFile)};        
+        [T, P]=gretna_Correlation(S, SeedSeries, TextCell);
 end
 
 Correct=get(handles.CorrectPopup, 'Value');

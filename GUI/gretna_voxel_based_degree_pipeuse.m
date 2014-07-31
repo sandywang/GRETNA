@@ -79,6 +79,10 @@ R_pos_bin_short = zeros(size(Ymask));
 R_pos_wei = zeros(size(Ymask));
 R_pos_wei_long = zeros(size(Ymask));
 R_pos_wei_short = zeros(size(Ymask));
+%Add Z by Sandy
+Z_pos_wei = zeros(size(Ymask));
+Z_pos_wei_long = zeros(size(Ymask));
+Z_pos_wei_short = zeros(size(Ymask));
 
 R_abs_bin = zeros(size(Ymask));
 R_abs_bin_long = zeros(size(Ymask));
@@ -87,25 +91,35 @@ R_abs_bin_short = zeros(size(Ymask));
 R_abs_wei = zeros(size(Ymask));
 R_abs_wei_long = zeros(size(Ymask));
 R_abs_wei_short = zeros(size(Ymask));
+%Add Z by Sandy
+Z_abs_wei = zeros(size(Ymask));
+Z_abs_wei_long = zeros(size(Ymask));
+Z_abs_wei_short = zeros(size(Ymask));
 
 if Dis==0
     for ii = 1:length(Index)
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
-
+        r(r>=1)=1-1e-16;
+        z = 0.5.*(log((r+1)./(r-1)));
+        
         tmp = find(r >= R_thr);
         R_pos_bin(Index(ii))   = length(tmp) - 1;
         R_pos_wei(Index(ii))   = sum(r(tmp)) - 1;
-
+        Z_pos_wei(Index(ii))   = sum(z(tmp)) - 1;
+        
         tmp = find(abs(r) >= R_thr);
         R_abs_bin(Index(ii))   = length(tmp) - 1;
         R_abs_wei(Index(ii))   = sum(abs(r(tmp))) - 1;
+        Z_abs_wei(Index(ii))   = sum(abs(z(tmp))) - 1;
     end
 else
     for ii = 1:length(Index)
         D = gretna_pdist2(XYZ(ii,:),XYZ);
 
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
-
+        r(r>=1)=1-1e-16;
+        z = 0.5.*(log((r+1)./(r-1)));
+        
         tmp = find(r >= R_thr);
         R_pos_bin(Index(ii))   = length(tmp) - 1;
         R_pos_bin_long(Index(ii))  = length(find(D(tmp) >= Dis));
@@ -113,7 +127,11 @@ else
         R_pos_wei(Index(ii))   = sum(r(tmp)) - 1;
         R_pos_wei_long(Index(ii))  = sum(r(tmp(D(tmp) >= Dis)));
         R_pos_wei_short(Index(ii)) = sum(r(tmp(D(tmp) < Dis))) - 1;
-
+        %Z
+        Z_pos_wei(Index(ii))   = sum(z(tmp)) - 1;
+        Z_pos_wei_long(Index(ii))  = sum(z(tmp(D(tmp) >= Dis)));
+        Z_pos_wei_short(Index(ii)) = sum(z(tmp(D(tmp) < Dis))) - 1;
+        
         tmp = find(abs(r) >= R_thr);
         R_abs_bin(Index(ii))   = length(tmp) - 1;
         R_abs_bin_long(Index(ii))  = length(find(D(tmp) >= Dis));
@@ -121,6 +139,10 @@ else
         R_abs_wei(Index(ii))   = sum(abs(r(tmp))) - 1;
         R_abs_wei_long(Index(ii))  = sum(abs(r(tmp(D(tmp) >= Dis))));
         R_abs_wei_short(Index(ii)) = sum(abs(r(tmp(D(tmp) < Dis)))) - 1;
+        %Z
+        Z_abs_wei(Index(ii))   = sum(abs(z(tmp))) - 1;
+        Z_abs_wei_long(Index(ii))  = sum(abs(z(tmp(D(tmp) >= Dis))));
+        Z_abs_wei_short(Index(ii)) = sum(abs(z(tmp(D(tmp) < Dis)))) - 1;        
     end
 end
     
@@ -131,9 +153,12 @@ if Dis>0
 end
 
 R_neg_wei   = R_abs_wei - R_pos_wei;
+Z_neg_wei   = Z_abs_wei - Z_pos_wei;
 if Dis>0
     R_neg_wei_long  = R_abs_wei_long - R_pos_wei_long;
     R_neg_wei_short = R_abs_wei_short - R_pos_wei_short;
+    Z_neg_wei_long  = Z_abs_wei_long - Z_pos_wei_long;
+    Z_neg_wei_short = Z_abs_wei_short - Z_pos_wei_short;    
 end
 
 Vout = Vin{1};
@@ -156,6 +181,15 @@ if Dis>0
     Vout.fname = [Output_path 'degree_pos_wei_short_' name '.nii'];
     Vout = spm_write_vol(Vout, R_pos_wei_short);
 end
+%Z
+Vout.fname = [Output_path 'degree_pos_wei_' name '_Z.nii'];
+Vout = spm_write_vol(Vout, Z_pos_wei);
+if Dis>0
+    Vout.fname = [Output_path 'degree_pos_wei_long_' name '_Z.nii'];
+    Vout = spm_write_vol(Vout, Z_pos_wei_long);
+    Vout.fname = [Output_path 'degree_pos_wei_short_' name '_Z.nii'];
+    Vout = spm_write_vol(Vout, Z_pos_wei_short);
+end
 
 Vout.fname = [Output_path 'degree_neg_bin_' name '.nii'];
 Vout = spm_write_vol(Vout, R_neg_bin);
@@ -174,6 +208,15 @@ if Dis>0
     Vout.fname = [Output_path 'degree_neg_wei_short_' name '.nii'];
     Vout = spm_write_vol(Vout, R_neg_wei_short);
 end
+%Z
+Vout.fname = [Output_path 'degree_neg_wei_' name '_Z.nii'];
+Vout = spm_write_vol(Vout, Z_neg_wei);
+if Dis>0
+    Vout.fname = [Output_path 'degree_neg_wei_long_' name '_Z.nii'];
+    Vout = spm_write_vol(Vout, Z_neg_wei_long);
+    Vout.fname = [Output_path 'degree_neg_wei_short_' name '_Z.nii'];
+    Vout = spm_write_vol(Vout, Z_neg_wei_short);
+end
 
 Vout.fname = [Output_path 'degree_abs_bin_' name '.nii'];
 Vout = spm_write_vol(Vout, R_abs_bin);
@@ -191,4 +234,13 @@ if Dis>0
     Vout = spm_write_vol(Vout, R_abs_wei_long);
     Vout.fname = [Output_path 'degree_abs_wei_short_' name '.nii'];
     spm_write_vol(Vout, R_abs_wei_short);
+end
+%Z
+Vout.fname = [Output_path 'degree_abs_wei_' name '_Z.nii'];
+Vout = spm_write_vol(Vout, Z_abs_wei);
+if Dis>0
+    Vout.fname = [Output_path 'degree_abs_wei_long_' name '_Z.nii'];
+    Vout = spm_write_vol(Vout, Z_abs_wei_long);
+    Vout.fname = [Output_path 'degree_abs_wei_short_' name '_Z.nii'];
+    spm_write_vol(Vout, Z_abs_wei_short);
 end

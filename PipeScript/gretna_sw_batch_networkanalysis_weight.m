@@ -200,7 +200,7 @@ if Thres_type == 's'
             fprintf ('Sparsity threshold = %.2f \n', Thres(thres_j));
             
             bin = gretna_R2b(Ws{sub},'s',Thres(thres_j));
-            wei = bin.*Ws{sub};
+            wei = bin.*abs(Ws{sub});
             
             % clustering coefficient
             [net.Cp(thres_j,sub), node.Cp(thres_j,sub,:)] = gretna_node_clustcoeff_weight(wei, '2');

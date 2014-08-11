@@ -100,7 +100,7 @@ if Dis==0
     for ii = 1:length(Index)
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
         r(r>=1)=1-1e-16;
-        z = 0.5.*(log((r+1)./(r-1)));
+        z = 0.5.*(log((1+r)./(1-r)));
         
         tmp = find(r >= R_thr);
         R_pos_bin(Index(ii))   = length(tmp) - 1;
@@ -118,7 +118,7 @@ else
 
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
         r(r>=1)=1-1e-16;
-        z = 0.5.*(log((r+1)./(r-1)));
+        z = 0.5.*(log((1+r)./(1-r)));
         
         tmp = find(r >= R_thr);
         R_pos_bin(Index(ii))   = length(tmp) - 1;

@@ -122,8 +122,8 @@ end
 [sw.Cp, sw.nodalCp] = gretna_node_clustcoeff(A);
 
 % shortest path length
-D = gretna_distance(A);
-[sw.Lp, sw.nodalLp] = gretna_node_shortestpathlength(D);
+% D = gretna_distance(A);
+[sw.Lp, sw.nodalLp] = gretna_node_shortestpathlength(A);
 
 % properties of random networks
 if n~=0
@@ -136,8 +136,8 @@ if n~=0
         end
         [sw.Cprand(i), sw.nodalCprand(i,:)] = gretna_node_clustcoeff(Arand);
         
-        D = gretna_distance(Arand);
-        [sw.Lprand(i), sw.nodalLprand(i,:)] = gretna_node_shortestpathlength(D);
+        %D = gretna_distance(Arand);
+        [sw.Lprand(i), sw.nodalLprand(i,:)] = gretna_node_shortestpathlength(Arand);
     end
     
     sw.Gamma     = sw.Cp/mean(sw.Cprand);

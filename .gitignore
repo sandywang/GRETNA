@@ -17,3 +17,5 @@ profile
 DerivedData
 .idea/
 *.m~
+.*.un~
+*~

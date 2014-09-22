@@ -472,7 +472,7 @@ switch Type
                 Matrix=abs(Matrix);
         end
         ThresType=get(handles.CorrectPopup, 'Value');
-        ThresValue=str2double(get(handles.PEntry, 'String'));
+        ThresValue=str2double(get(handles.PEntry, 'String')); %Fixed a bug, thanks Michielse Stijn! 
         switch ThresType
             case 1 %r
                 T='r';

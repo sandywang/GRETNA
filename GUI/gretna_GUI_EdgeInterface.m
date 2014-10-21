@@ -598,7 +598,7 @@ switch Type
             AllMatrix2(:,:,i)=Matrix;
         end        
         [n11, n12, n13]=size(AllMatrix1);
-        [n21, n22, n23]=size(AllMatrix2, 3);
+        [n21, n22, n23]=size(AllMatrix2);
         %Group1
         AllMatrix1=reshape(AllMatrix1, [], n13);
         MIndex=triu(true(n11, n12), 1); 

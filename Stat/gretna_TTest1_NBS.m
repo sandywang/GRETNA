@@ -42,7 +42,6 @@ for num = 1:M
     RandIndex = randperm(NumOfSample);
     RandGroup1 = {RandMat(RandIndex(1:NumOfSample), :)};
         
-    
     [T_rand, P_rand]=gretna_TTest1(RandGroup1, CovCells, Base); 
     %TMap_rand=zeros(N*N, 1);
     PMap_rand=zeros(N*N, 1);

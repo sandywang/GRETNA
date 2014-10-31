@@ -507,8 +507,15 @@ switch Type
         CorrectValue=get(handles.CorrectPopup, 'Value');
         PorQ=str2double(get(handles.PEntry, 'String'));
         if CorrectValue==1 %None
+            Index=P<PorQ;
+            P(~Index)=0;
+            T(~Index)=0;
         elseif CorrectValue==2 %FDR
             PThr=gretna_FDR(P, PorQ);
+            if isempty(PThr)
+                msgbox('No Edge Left'); 
+                return
+            end
             Index=P<PThr;
             P(~Index)=0;
             T(~Index)=0;
@@ -609,8 +616,8 @@ switch Type
         AllMatrix2=AllMatrix2(MIndex(:), :);
         
         GroupMatrix=cell(2, 1);
-        GroupMatrix{1, 1}={AllMatrix1'};
-        GroupMatrix{2, 1}={AllMatrix2'};
+        GroupMatrix{1, 1}=AllMatrix1';
+        GroupMatrix{2, 1}=AllMatrix2';
         CovCells=handles.CovCells;
         for i=1:numel(CovCells)
             CovCells{i}=load(CovCells{i});
@@ -620,8 +627,15 @@ switch Type
         CorrectValue=get(handles.CorrectPopup, 'Value');
         PorQ=str2double(get(handles.PEntry, 'String'));
         if CorrectValue==1 %None
+            Index=P<PorQ;
+            P(~Index)=0;
+            T(~Index)=0;
         elseif CorrectValue==2 %FDR
             PThr=gretna_FDR(P, PorQ);
+            if isempty(PThr)
+                msgbox('No Edge Left'); 
+                return
+            end
             Index=P<PThr;
             P(~Index)=0;
             T(~Index)=0;

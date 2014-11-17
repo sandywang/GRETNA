@@ -203,7 +203,7 @@ if Dis>0
     Vout = spm_write_vol(Vout, R_pos_bin_short);
 	%Z Score
 	Vout.fname = [Output_path 'degree_pos_bin_short_' name '_ZScore.nii'];
-	Vout = spm_write_vol(Vout, ZScore_pos_bin_short;
+	Vout = spm_write_vol(Vout, ZScore_pos_bin_short);
 end
 
 Vout.fname = [Output_path 'degree_pos_wei_' name '.nii'];

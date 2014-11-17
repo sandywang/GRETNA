@@ -22,7 +22,7 @@ function [A, rthr] = gretna_R2b(W, type, thr)
 %
 % Outputs:
 %         A:
-%               The resulting binary matrix
+%               The resulting binary matrix.
 %         rthr:
 %               The corresponding correlation value used to threshold the
 %               weighted network at "thr" under "type".
@@ -34,6 +34,7 @@ function [A, rthr] = gretna_R2b(W, type, thr)
 N = length(W);
 W = abs(W);
 W = W - diag(diag(W)); % removing the self-correlation
+A = zeros(N);
 
 if type == 's'
     if thr > 1 || thr <= 0
@@ -63,10 +64,10 @@ else
 end
 
 if rthr == 0
-    A = W > rthr;
+    A(W > rthr) = 1;
     warning('The non-zero mimimum in the matrix is larger than that determined by the specificed parameter!')
 else
-    A = W >= rthr;
+    A(W >= rthr) = 1;
 end
 
 return

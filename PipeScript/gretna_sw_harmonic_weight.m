@@ -15,9 +15,9 @@ function [N, K, sw] = gretna_sw_harmonic_weight(W, wCptype, n, randtype)
 %
 %           wCptype:
 %                   The type of weighted clustering coefficient.
-%                   '1': Calculate weighted clustering coefficient according
+%                   1: Calculate weighted clustering coefficient according
 %                   to Barrat et al.'s paper(PNAS 2004);
-%                   '2': Calculate weighted clustering coefficient according
+%                   2: Calculate weighted clustering coefficient according
 %                   to Onnela et al.'s paper (Physical Review E 2005)
 %                   (default).
 %
@@ -136,11 +136,7 @@ end
 
 % Properites of real network G
 % clustering coefficient
-if wCptype == 1
-    [sw.Cp sw.nodalCp] = gretna_node_clustcoeff_weight(W,'1');
-else
-    [sw.Cp sw.nodalCp] = gretna_node_clustcoeff_weight(W,'2');
-end
+[sw.Cp sw.nodalCp] = gretna_node_clustcoeff_weight(W,wCptype);
 
 % shortest path length
 [sw.Lp sw.nodalLp] = gretna_node_shortestpathlength_weight(W);

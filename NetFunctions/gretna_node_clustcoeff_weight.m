@@ -10,10 +10,10 @@ function [avercc cci] = gretna_node_clustcoeff_weight(W, Algorithm)
 %       W:
 %          The weighted adjacency matrix (N*N, symmetric).
 %       Algorithm:
-%          '1':
+%          1:
 %              Ref--Barrat et al., 2009, The architecture of complex weighted
 %                   networks.
-%          '2':
+%          2:
 %              Ref--Onnela et al., 2005, Intensity and coherence of motifs
 %                   in weighted complex networks.
 % Outputs:
@@ -25,7 +25,7 @@ function [avercc cci] = gretna_node_clustcoeff_weight(W, Algorithm)
 % Jinhui WANG, NKLCNL, BNU, BeiJing, 2011/10/23, Jinhui.Wang.1982@gmail.com
 %==========================================================================
 
-if strcmpi(Algorithm, '1') % Barrat's algorithm
+if Algorithm == 1 % Barrat's algorithm
     A = W;
     N = size(A,1);
     cci = zeros(1,N);
@@ -41,7 +41,7 @@ if strcmpi(Algorithm, '1') % Barrat's algorithm
         end
     end
     avercc = mean(cci);
-elseif  strcmpi(Algorithm, '2') % Onnela's algorithm
+elseif Algorithm == 2 % Onnela's algorithm
     W = W/(max(max(W)));
     A=W ~= 0;                     %adjacency matrix
     S = W.^(1/3)+(W.').^(1/3);	%symmetrized weights matrix ^1/3

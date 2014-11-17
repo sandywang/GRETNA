@@ -32,7 +32,7 @@ N = length(Topo);
 K = sum(sum(Topo))/2;
 
 if K == N*(N-1)/2
-    warning('The inputed matrix/network is fully connected, please use gretna_gen_random_network2_weight to generate random networks')
+    error('The inputed matrix/network is fully connected, please use gretna_gen_random_network2_weight.m to generate random networks')
 else
 
     nrew = 0;

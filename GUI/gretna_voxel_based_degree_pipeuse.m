@@ -46,7 +46,7 @@ function gretna_voxel_based_degree_pipeuse(Data_List, Output_path, Data_mask, R_
 %   abs_xxx.nii/hdr:
 %   Absolute degree,   i.e., |R| > R_thr;
 %
-% Jinhui WANG, NKLCNL, BNU, BeiJing, 2011/10/23, Jinhui.Wang.1982@gmail.com
+% Based on Jinhui WANG, NKLCNL, BNU, BeiJing, 2011/10/23, Jinhui.Wang.1982@gmail.com
 %==========================================================================
 % Modified by Sandy to Add FisherZ and ZScore to all results
 
@@ -147,38 +147,74 @@ else
     end
 end
     
-ZScore_abs_bin = (R_abs_bin-mean(R_abs_bin(:)))/std(R_abs_bin(:));
-ZScore_pos_bin = (R_pos_bin-mean(R_pos_bin(:)))/std(R_pos_bin(:));
-R_neg_bin   = R_abs_bin - R_pos_bin;
-ZScore_neg_bin = (R_neg_bin-mean(R_neg_bin(:)))/std(R_neg_bin(:));
-if Dis>0
-	ZScore_abs_bin_long = (R_abs_bin_long-mean(R_abs_bin_long(:)))/std(R_abs_bin_long(:));
-	ZScore_pos_bin_long = (R_pos_bin_long-mean(R_pos_bin_long(:)))/std(R_pos_bin_long(:));
-    R_neg_bin_long  = R_abs_bin_long - R_pos_bin_long;
-    ZScore_neg_bin_long = (R_neg_bin_long-mean(R_neg_bin_long(:)))/std(R_neg_bin_long(:));
+ZScore_abs_bin = zeros(size(Ymask));
+ZScore_abs_bin(Index) = (R_abs_bin(Index)-mean(R_abs_bin(Index)))/std(R_abs_bin(Index));
 
-	ZScore_abs_bin_short = (R_abs_bin_short-mean(R_abs_bin_short(:)))/std(R_abs_bin_short(:));
-	ZScore_pos_bin_short = (R_pos_bin_short-mean(R_pos_bin_short(:)))/std(R_pos_bin_short(:));
+ZScore_pos_bin = zeros(size(Ymask));
+ZScore_pos_bin(Index) = (R_pos_bin(Index)-mean(R_pos_bin(Index)))/std(R_pos_bin(Index));
+
+R_neg_bin   = R_abs_bin - R_pos_bin;
+
+ZScore_neg_bin = zeros(size(Ymask));
+ZScore_neg_bin(Index) = (R_neg_bin(Index)-mean(R_neg_bin(Index)))/std(R_neg_bin(Index));
+if Dis>0
+    ZScore_abs_bin_long = zeros(size(Ymask));
+	ZScore_abs_bin_long(Index) = (R_abs_bin_long(Index)-mean(R_abs_bin_long(Index)))/std(R_abs_bin_long(Index));
+	
+    ZScore_pos_bin_long = zeros(size(Ymask));
+    ZScore_pos_bin_long(Index) = (R_pos_bin_long(Index)-mean(R_pos_bin_long(Index)))/std(R_pos_bin_long(Index));
+    
+    R_neg_bin_long  = R_abs_bin_long - R_pos_bin_long;
+    
+    ZScore_neg_bin_long = zeros(size(Ymask));
+    ZScore_neg_bin_long(Index) = (R_neg_bin_long(Index)-mean(R_neg_bin_long(Index)))/std(R_neg_bin_long(Index));
+
+    ZScore_abs_bin_short = zeros(size(Ymask));
+	ZScore_abs_bin_short(Index) = (R_abs_bin_short(Index)-mean(R_abs_bin_short(Index)))/std(R_abs_bin_short(Index));
+	
+    ZScore_pos_bin_short = zeros(size(Ymask));
+    ZScore_pos_bin_short(Index) = (R_pos_bin_short(Index)-mean(R_pos_bin_short(Index)))/std(R_pos_bin_short(Index));
+    
     R_neg_bin_short = R_abs_bin_short - R_pos_bin_short;
-    ZScore_neg_bin_short = (R_neg_bin_short-mean(R_neg_bin_short(:)))/std(R_neg_bin_short(:));
+    
+    ZScore_neg_bin_short = zeros(size(Ymask));
+    ZScore_neg_bin_short(Index) = (R_neg_bin_short(Index)-mean(R_neg_bin_short(Index)))/std(R_neg_bin_short(Index));
 end
 
-ZScore_abs_wei = (R_abs_wei-mean(R_abs_wei(:)))/std(R_abs_wei(:));
-ZScore_pos_wei = (R_pos_wei-mean(R_pos_wei(:)))/std(R_pos_wei(:));
+ZScore_abs_wei = zeros(size(Ymask));
+ZScore_abs_wei(Index) = (R_abs_wei(Index)-mean(R_abs_wei(Index)))/std(R_abs_wei(Index));
+
+ZScore_pos_wei = zeros(size(Ymask));
+ZScore_pos_wei(Index) = (R_pos_wei(Index)-mean(R_pos_wei(Index)))/std(R_pos_wei(Index));
+
 R_neg_wei   = R_abs_wei - R_pos_wei;
-ZScore_neg_wei = (R_neg_wei-mean(R_neg_wei(:)))/std(R_neg_wei(:));
+
+ZScore_neg_wei = zeros(size(Ymask));
+ZScore_neg_wei(Index) = (R_neg_wei(Index)-mean(R_neg_wei(Index)))/std(R_neg_wei(Index));
 
 FisherZ_neg_wei   = FisherZ_abs_wei - FisherZ_pos_wei;
 if Dis>0
-	ZScore_abs_wei_long = (R_abs_wei_long-mean(R_abs_wei_long(:)))/std(R_abs_wei_long(:));
-	ZScore_pos_wei_long = (R_pos_wei_long-mean(R_pos_wei_long(:)))/std(R_pos_wei_long(:));
+    ZScore_abs_wei_long = zeros(size(Ymask));
+	ZScore_abs_wei_long(Index) = (R_abs_wei_long(Index)-mean(R_abs_wei_long(Index)))/std(R_abs_wei_long(Index));
+	
+    ZScore_pos_wei_long = zeros(size(Ymask));
+    ZScore_pos_wei_long(Index) = (R_pos_wei_long(Index)-mean(R_pos_wei_long(Index)))/std(R_pos_wei_long(Index));
+    
     R_neg_wei_long  = R_abs_wei_long - R_pos_wei_long;
-    ZScore_neg_wei_long = (R_neg_wei_long-mean(R_neg_wei_long(:)))/std(R_neg_wei_long(:));
+    
+    ZScore_neg_wei_long = zeros(size(Ymask));
+    ZScore_neg_wei_long(Index) = (R_neg_wei_long(Index)-mean(R_neg_wei_long(Index)))/std(R_neg_wei_long(Index));
 
-	ZScore_abs_wei_short = (R_abs_wei_short-mean(R_abs_wei_short(:)))/std(R_abs_wei_short(:));
-	ZScore_pos_wei_short = (R_pos_wei_short-mean(R_pos_wei_short(:)))/std(R_pos_wei_short(:));
+    ZScore_abs_wei_short = zeros(size(Ymask));
+	ZScore_abs_wei_short(Index) = (R_abs_wei_short(Index)-mean(R_abs_wei_short(Index)))/std(R_abs_wei_short(Index));
+    
+	ZScore_pos_wei_short = zeros(size(Ymask));
+    ZScore_pos_wei_short(Index) = (R_pos_wei_short(Index)-mean(R_pos_wei_short(Index)))/std(R_pos_wei_short(Index));
+    
     R_neg_wei_short = R_abs_wei_short - R_pos_wei_short;
-    ZScore_neg_wei_short = (R_neg_wei_short-mean(R_neg_wei_short(:)))/std(R_neg_wei_short(:));
+    
+    ZScore_neg_wei_short = zeros(size(Ymask));
+    ZScore_neg_wei_short(Index) = (R_neg_wei_short(Index)-mean(R_neg_wei_short(Index)))/std(R_neg_wei_short(Index));
 
     FisherZ_neg_wei_long  = FisherZ_abs_wei_long - FisherZ_pos_wei_long;
     FisherZ_neg_wei_short = FisherZ_abs_wei_short - FisherZ_pos_wei_short;    

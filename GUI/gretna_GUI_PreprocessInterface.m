@@ -166,7 +166,7 @@ if ~isfield(handles , 'Para')
         Para.HMDerivBool='FALSE';
     %Voxel-wise Degree
         Para.DCMask=[GUIPath , filesep ,...
-            'mask' , filesep , 'BrainMask_05_61x73x61.img'];
+            'Templates' , filesep , 'greymatter_02_mask_with_AAL90.nii'];
         Para.DCRthr=0.3;
         Para.DCDis=75;
     %Queue Size

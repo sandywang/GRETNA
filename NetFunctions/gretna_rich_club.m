@@ -22,6 +22,7 @@ function [Phi, NodeIndex]=gretna_rich_club(M, KThr)
 % Written by Wang Xindi, 20141027.
 % sandywang.rest@gmail.com
 %==========================================================================
+% It is just a test version now!!!
 N=size(M, 1);
 M=abs(M);
 M=M-diag(diag(M));

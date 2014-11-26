@@ -80,7 +80,7 @@ function [N, K, sw] = gretna_sw_harmonic_weight(W, wCptype, n, randtype)
 %    formation is a small world, not scale-free, network. Proc R Soc Lond B
 %    Biol Sci, 273:503-511.
 % 4. Newman MEJ. The structure and function of complex networks. Siam
-%    Rev 2003;45(2):167¨C256.
+%    Rev 2003;45(2):167ï¿½C256.
 % 5. Barrat A, Barthelemy M, Pastor-Satorras R, Vespignani A (2004) The
 %    architecture of complex weighted networks. Proc Natl Acad Sci U S A
 %    101:3747-3752.
@@ -153,9 +153,9 @@ if n ~= 0
         
         % clustering coefficient
         if wCptype == 1
-            [sw.Cprand(i), sw.nodalCprand(i,:)] = gretna_node_clustcoeff_weight(Wrand,'1');
+            [sw.Cprand(i), sw.nodalCprand(i,:)] = gretna_node_clustcoeff_weight(Wrand, 1); %Change Char to Number by Sandy
         else
-            [sw.Cprand(i), sw.nodalCprand(i,:)] = gretna_node_clustcoeff_weight(Wrand,'2');
+            [sw.Cprand(i), sw.nodalCprand(i,:)] = gretna_node_clustcoeff_weight(Wrand, 2);
         end
         
         % shortest path length

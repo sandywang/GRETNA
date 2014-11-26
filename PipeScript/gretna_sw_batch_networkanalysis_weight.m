@@ -203,7 +203,7 @@ if Thres_type == 's'
             wei = bin.*abs(Ws{sub});
             
             % clustering coefficient
-            [net.Cp(thres_j,sub), node.Cp(thres_j,sub,:)] = gretna_node_clustcoeff_weight(wei, '2');
+            [net.Cp(thres_j,sub), node.Cp(thres_j,sub,:)] = gretna_node_clustcoeff_weight(wei, 2);
             
             % shortest path length
             [net.Lp(thres_j,sub), node.Lp(thres_j,sub,:)] = gretna_node_shortestpathlength_weight(wei);
@@ -232,7 +232,7 @@ if Thres_type == 's'
                     Wrand = gretna_gen_random_network1_weight(wei);
                     
                     % clustering coefficient
-                    [net.Cprand(thres_j,sub,nrand), node.Cprand(thres_j,sub,:,nrand)] = gretna_node_clustcoeff_weight(Wrand, '2');
+                    [net.Cprand(thres_j,sub,nrand), node.Cprand(thres_j,sub,:,nrand)] = gretna_node_clustcoeff_weight(Wrand, 2);
                     
                     % shortest path length
                     [net.Lprand(thres_j,sub,nrand), node.Lprand(thres_j,sub,:,nrand)] = gretna_node_shortestpathlength_weight(Wrand);
@@ -326,7 +326,7 @@ else
             wei = bin.*Ws{sub};
             
             % clustering coefficient
-            [net.Cp(thres_j,sub), node.Cp(thres_j,sub,:)] = gretna_node_clustcoeff_weight(wei, '2');
+            [net.Cp(thres_j,sub), node.Cp(thres_j,sub,:)] = gretna_node_clustcoeff_weight(wei, 2);
             
             % shortest path length
             [net.Lp(thres_j,sub), node.Lp(thres_j,sub,:)] = gretna_node_shortestpathlength_weight(wei);
@@ -355,7 +355,7 @@ else
                     Wrand = gretna_gen_random_network1_weight(wei);
                     
                     % clustering coefficient
-                    [net.Cprand(thres_j,sub,nrand), node.Cprand(thres_j,sub,:,nrand)] = gretna_node_clustcoeff_weight(Wrand, '2');
+                    [net.Cprand(thres_j,sub,nrand), node.Cprand(thres_j,sub,:,nrand)] = gretna_node_clustcoeff_weight(Wrand, 2); %Chang all Char to Number by Sandy
                     
                     % shortest path length
                     [net.Lprand(thres_j,sub,nrand), node.Lprand(thres_j,sub,:,nrand)] = gretna_node_shortestpathlength_weight(Wrand);

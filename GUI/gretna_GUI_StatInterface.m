@@ -683,7 +683,12 @@ function CorrectPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to CorrectPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+Value=get(handles.CorrectPopup, 'Value');
+PorQString='p';
+if Value==2 %FDR
+    PorQString='q';
+end
+set(handles.PLabel, 'String', PorQString);
 % Hints: contents = cellstr(get(hObject,'String')) returns CorrectPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from CorrectPopup
 

@@ -538,7 +538,7 @@ switch Type
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix, MIndex, CovCells, Base, PorQ, 0.05,TMap, PMap, M);
+            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix, MIndex, CovCells, Base, 0.05, PorQ,TMap, PMap, M);
             fprintf('\n\tNBS: Done.\n');
             switch NetCut
                 case 1 %Origin
@@ -658,7 +658,7 @@ switch Type
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, PorQ, 0.05,TMap, PMap, M);
+            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, 0.05, PorQ,TMap, PMap, M);
             fprintf('\n\tNBS: Done.\n');
             switch NetCut
                 case 1 %Origin

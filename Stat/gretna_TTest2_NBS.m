@@ -38,9 +38,9 @@ max_NumofEdge_rand = zeros(M,1);
 for num = 1:M
     fprintf('NBS-->Iteration: %d\n', num);
     RandIndex = randperm(NumOfSample1+NumOfSample2);
-    RandGroup=cell{2, 1};
+    RandGroup=cell(2, 1);
     RandGroup{1, 1} = RandMat(RandIndex(1:NumOfSample1), :);
-    RandGroup{2, 1} = RandMat(RandIndex(NumOfSample1+1:NumOfSample2), :);
+    RandGroup{2, 1} = RandMat(RandIndex(NumOfSample1+1:(NumOfSample1+NumOfSample2)), :);
     
     [T_rand, P_rand]=gretna_TTest2(RandGroup, CovCells);    
     %TMap_rand=zeros(N*N, 1);

@@ -585,7 +585,7 @@ switch Type
         save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
     case 3 %Two Sample T-test
-        [MatrixGroup2, AliasList2]=GetGroupData(handles.Group1Cells);
+        [MatrixGroup2, AliasList2]=GetGroupData(handles.Group2Cells);
         fprintf('Group2:\n');
         for i=1:numel(AliasList2)
             fprintf('\t%s\n', AliasList2{i});
@@ -658,7 +658,7 @@ switch Type
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, 0.05, PorQ,TMap, PMap, M);
+            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, 0.05, PorQ, TMap, PMap, M);
             fprintf('\n\tNBS: Done.\n');
             switch NetCut
                 case 1 %Origin

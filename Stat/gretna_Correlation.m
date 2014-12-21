@@ -40,7 +40,7 @@ end
 [NumOfSample, NumOfMetric]=size(DependentMatrix);
 
 Regressors = ones(NumOfSample, 1);
-Regressors = [SeedSeries, Regressors, CovariatesMatrix];
+Regressors = [SeedSeries{1}, Regressors, CovariatesMatrix];
 
 
 Contrast = zeros(1,size(Regressors,2));
@@ -50,7 +50,7 @@ Contrast(1) = 1;
 
 DOF=NumOfSample-size(Regressors, 2);
 
-Corr_R=TTest1_T./(sqrt(Df_E+TTest1_T.*TTest1_T));
+Corr_R=TTest1_T./(sqrt(DOF+TTest1_T.*TTest1_T));
 %r = t./(sqrt(Df_E+t.*t))
 Corr_P=2*(1-tcdf(abs(TTest1_T), DOF));
 

@@ -9,11 +9,11 @@ for j=1:numel(FieldNames)
     n1=size(TempMat.(f), 1);
     n2=size(TempMat.(f), 2);
     if n1>1 && n2>1 %&& ~strcmpi(f, 'community_index')
-        for i=1:n1
-            Result.(sprintf('%s_Node%.4d', f, i))=...
-                cell2mat(cellfun(@(m) GetVariable(m, f, i), MatList,...
-                    'UniformOutput', false));
-        end
+        %for i=1:n1
+        %    Result.(sprintf('%s_Node%.4d', f, i))=...
+        %        cell2mat(cellfun(@(m) GetVariable(m, f, i), MatList,...
+        %            'UniformOutput', false));
+        %end
         
         for i=1:n2
             Result.(sprintf('%s_Thres%.4d', f, i))=...

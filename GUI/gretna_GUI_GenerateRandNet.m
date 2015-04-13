@@ -4,13 +4,16 @@ A=SegMat.A;
 Rand=cellfun(@(a) GenerateRandCell(a, NType, RType, RandNum), A,...
     'UniformOutput', false);
 RandMat=fullfile(TempDir, 'RandMat.mat');
+
 if exist(RandMat, 'file')~=2
-    save(RandMat, 'Rand');
+    save(RandMat, 'Rand', '-v7.3'); %Fixed a bug when Rand Mat were huge!
 else
-    save(RandMat, 'Rand', '-append');
+    save(RandMat, 'Rand', '-append', '-v7.3'); %Fixed a bug when Rand Mat were huge!
 end
 
-
+%RandDone=fullfile(TempDir, 'RandMat.done');
+%fid=fopen(RandDone, 'w');
+%fclose(fid);
 
 function Rand=GenerateRandCell(A, NType, RType, RandNum)
 Rand=cell(RandNum, 1);

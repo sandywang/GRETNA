@@ -824,6 +824,7 @@ function RunEvent(hObject , handles)
             for j=1:numel(FieldNames)
                 TempMat=TempStruct.(FieldNames{j});
                 if iscell(TempMat)
+                    TempMat=reshape(TempMat, [], 1);
                     MatrixList=[MatrixList; TempMat];
                     for k=1:numel(TempMat)
                         AliasList=[AliasList;{sprintf('MAT_%s_VAR_%s_CELL_%.4d',...

@@ -243,7 +243,7 @@ Value=get(handles.TypePopup, 'Value');
 switch Value
     case 1 %Average
         CorrectLabelString='Threshold Type';
-        CorrectPopupString={'Correlation Coefficient';'Sparsity'};
+        CorrectPopupString={'Similarity threshold';'Sparsity'};
         CorrectPupupValue=2;
         PLabelString='Threshold';
         PEntryString='0.05';

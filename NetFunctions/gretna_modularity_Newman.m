@@ -68,7 +68,7 @@ while isSplit(1)
             %end
             Qit=Qmax-4*Sit.*(Bsub*Sit); % Reference: BCT's modularity_und.m
             [Qmax, imax]=max(Qit.*indSub);
-            imax=(Qit==Qmax); % Added by Sandy ###
+            %imax=((Qit.*indSub)==Qmax); % Added by Sandy ###
             Sit(imax)=-Sit(imax);
             indSub(imax)=nan;
             if Qmax>dQ
@@ -100,10 +100,3 @@ S=CommunityIndex(:,ones(1,N));
 Q=~(S-S.').*B/m;
 Q=sum(Q(:));
             
-        
-        
-    
-    
-    
-
-

@@ -30,7 +30,7 @@ end
 function b=Hierarchy(Matrix, NType)
 if strcmpi(NType, 'w')
     [deg, ki]=gretna_node_degree_weight(Matrix);
-    [Cp, nodalCp]=gretna_node_clustcoeff_weight(Matrix, '2');   
+    [Cp, nodalCp]=gretna_node_clustcoeff_weight(Matrix, 2);   
 elseif strcmpi(NType, 'b')
     [deg, ki]=gretna_node_degree(Matrix);
     [Cp, nodalCp]=gretna_node_clustcoeff(Matrix);

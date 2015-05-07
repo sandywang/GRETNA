@@ -255,7 +255,7 @@ switch Value
         CorrectLabelString='Correct Method';
         CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
         CorrectPupupValue=1;
-        PLabelString='p/q(FDR)';
+        PLabelString='uncorrected p';
         PEntryString='0.05';
         G2Flag='Off'; 
         CFlag='On';
@@ -264,8 +264,8 @@ switch Value
     case 3 %Two Sample T-test
         CorrectLabelString='Correct Method';
         CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
-        CorrectPupupValue=2;
-        PLabelString='p/q(FDR)';
+        CorrectPupupValue=1;
+        PLabelString='uncorrected p';
         PEntryString='0.05';
         G2Flag='On';
         CFlag='On';
@@ -336,14 +336,19 @@ function CorrectPopup_Callback(hObject, eventdata, handles)
 Value=get(handles.CorrectPopup, 'Value');
 switch Value
     case 1 %None
+        PLabelString='uncorrected p';
         Flag='Off';
     case 2 %FDR
+        PLabelString='q';
         Flag='Off';
     case 3 %Bonferroni
+        PLabelString='uncorrected p';
         Flag='Off';
     case 4 %NBS
+        PLabelString='uncorrected p';
         Flag='On';
 end
+set(handles.PLabel, 'String', PLabelString);
 set(handles.IterLabel, 'VIsible', Flag);
 set(handles.IterEntry, 'Visible', Flag);
 % Hints: contents = cellstr(get(hObject,'String')) returns CorrectPopup contents as cell array
@@ -493,7 +498,16 @@ switch Type
         end
         [n1, n2, n3]=size(AllMatrix);
         AllMatrix=reshape(AllMatrix, [], n3);
-        MIndex=triu(true(n1, n2), 1); 
+%         MIndex=false(n1, n2);
+%         MIndex=reshape(MIndex, [], 1);
+%         for i=1:size(AllMatrix, 1)
+%             if any(AllMatrix(i, :))
+%                 MIndex(i)=true;
+%             end
+%         end
+%         MIndex=reshape(MIndex, [n1, n2]);
+%         MIndex=triu(MIndex, 1);
+        MIndex=triu(true(n1, n2), 1);
         AllMatrix=AllMatrix(MIndex(:), :);
         
         Group1Matrix={AllMatrix'};
@@ -538,7 +552,8 @@ switch Type
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix, MIndex, CovCells, Base, 0.05, PorQ,TMap, PMap, M);
+            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix,...
+                MIndex, CovCells, Base, 0.05, PorQ, TMap, PMap, M);
             fprintf('\n\tNBS: Done.\n');
             switch NetCut
                 case 1 %Origin

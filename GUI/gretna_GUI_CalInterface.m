@@ -22,7 +22,7 @@ function varargout = gretna_GUI_CalInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_CalInterface
 
-% Last Modified by GUIDE v2.5 19-Jan-2014 00:03:16
+% Last Modified by GUIDE v2.5 08-May-2015 00:36:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -616,26 +616,30 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
             Net=VAR;
             figure('Name', sprintf('%s(VAR: %s)', PathName, NAME),...
                 'Numbertitle', 'Off'),
-            imagesc(Net);
+            imagesc(Net); colorbar;
+            title(sprintf('%s(VAR: %s)', PathName, NAME));
         elseif iscell(VAR)
             Tok=regexp(Info, '--->#MAT_.*_VAR_.*_CELL_(.*):.*', 'tokens');
             NUM=str2num(Tok{1}{1});
             Net=VAR{NUM};
             figure('Name', sprintf('%s(VAR: %s --> %.4d)', PathName, NAME, NUM),...
                 'Numbertitle', 'Off'),
-            imagesc(Net);
+            imagesc(Net); colorbar;
+            title(sprintf('%s(VAR: %s --> %.4d)', PathName, NAME, NUM));
         elseif isstruct(VAR)
             Tok=regexp(Info, '--->#MAT_.*_VAR_.*_STRUCT_(.*):.*', 'tokens');
             SUB=Tok{1}{1};
             Net=VAR.(SUB);
             figure('Name', sprintf('%s(VAR: %s --> %s)', PathName, NAME, SUB),...
                 'Numbertitle', 'Off'),
-            imagesc(Net);
+            imagesc(Net); colorbar;
+            title(sprintf('%s(VAR: %s --> %s)', PathName, NAME, SUB));
         end
     elseif strcmpi(Flag, 'TXT')
         Net=load(PathName);
         figure('Name', sprintf('%s', PathName), 'Numbertitle' , 'Off'),
-        imagesc(Net);
+        imagesc(Net); colorbar;
+        title(sprintf('%s', PathName));
     end
 end
 % Hints: contents = cellstr(get(hObject,'String')) returns DataListbox contents as cell array
@@ -1242,3 +1246,58 @@ if ~isempty(StopFlag)
 end
 handles=GenDataListbox(handles);
 guidata(hObject, handles);
+
+
+% --- Executes on button press in ShowAllButton.
+function ShowAllButton_Callback(hObject, eventdata, handles)
+% hObject    handle to ShowAllButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if isempty(handles.DataList)
+    return
+end
+H=figure('Numbertitle', 'Off');
+A=axes;
+T=get(A, 'Title');
+set(A, 'YDir', 'Reverse')
+I=imagesc();
+axis image
+colorbar;
+
+DataList=handles.DataList;
+for i=1:numel(DataList)
+    [Path, Name, Ext]=fileparts(DataList{i});
+    if strcmpi(Ext, '.TXT')
+        Net=load(DataList{i});
+        set(I, 'CData', Net);
+        set(T, 'String', sprintf('%s', fullfile(Path, Name)));
+        drawnow;
+        pause(0.1);
+    elseif strcmpi(Ext, '.MAT')
+      	TempStruct=load(fullfile(Path, [Name, Ext]));
+        FieldNames=fieldnames(TempStruct);
+
+        for j=1:numel(FieldNames)
+            TempMat=TempStruct.(FieldNames{j});
+            if iscell(TempMat)
+                for k=1:numel(TempMat)
+                    Net=TempMat{k};
+                    set(I, 'CData', Net);
+                    drawnow; pause(0.1);
+                    
+                end
+            elseif isstruct(TempMat)
+                SubField=fieldnames(TempMat);
+                for k=1:numel(SubField)
+                    Net=TempMat.(SubField{k});
+                    set(I, 'CData', Net);
+                    drawnow; pause(0.1);         
+                end
+            else
+                Net=TempMat;
+                set(I, 'CData', Net);
+                drawnow; pause(0.1);
+            end
+        end
+    end
+end

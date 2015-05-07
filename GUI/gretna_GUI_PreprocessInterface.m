@@ -83,11 +83,12 @@ if ~isfield(handles , 'Para')
     if exist(ParaFile , 'file')
         Para=load([GUIPath , filesep , 'PreprocessPara.mat']);
         Para=Para.Para;
-        if ~isfield(Para, 'DCMask') ||...
-            ~isfield(Para, 'DCRthr') ||...
-            ~isfield(Para, 'DCDis') ||...
-            ~isfield(Para, 'QueueSize') ||...
-            ~isfield(Para, 'HMDerivBool')
+        if ~isfield(Para, 'DCMask')       ||...
+            ~isfield(Para, 'DCRthr')      ||...
+            ~isfield(Para, 'DCDis')       ||...
+            ~isfield(Para, 'QueueSize')   ||...
+            ~isfield(Para, 'HMDerivBool') ||...
+            ~isfield(Para, 'DFCBool')
             Para=[];
         end
         
@@ -174,6 +175,9 @@ if ~isfield(handles , 'Para')
     %FC
         Para.LabMask=[GUIPath , filesep ,...
             'Templates' , filesep , 'AAL_90_3mm.nii'];
+        Para.DFCBool='TRUE';
+        Para.DFCWin=50;
+        Para.DFCStep=2;
         %save(ParaFile , 'Para');
     end
     set(handles.QueueEntry, 'String', num2str(Para.QueueSize));
@@ -203,9 +207,9 @@ function ModeListbox_Callback(hObject, eventdata, handles)
 % hObject    handle to ModeListbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmp(get(gcf , 'SelectionType') , 'normal')
+if strcmpi(get(gcf , 'SelectionType') , 'normal')
     return;
-elseif strcmp(get(gcf , 'SelectionType') , 'open')
+elseif strcmpi(get(gcf , 'SelectionType') , 'open')
     ModeList=get(handles.ModeListbox , 'String');
     if ~isempty(ModeList)
         SelectValue=get(handles.ModeListbox , 'Value');
@@ -218,7 +222,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
         end
         set(handles.ModeListbox , 'String' , ModeList);
         for i=size(handles.CalList , 1):-1:1
-            if strcmp(handles.CalList{i} , 'DICOM to NIFTI')
+            if strcmpi(handles.CalList{i} , 'DICOM to NIFTI')
                 handles.CalList(i)=[];
                 handles.CalList=[ {'DICOM to NIFTI'} ; handles.CalList];
                 break;
@@ -226,7 +230,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
         end
     
         for i=size(handles.CalList , 1):-1:1
-            if strcmp(handles.CalList{i} , 'Functional Connectivity Matrix')
+            if strcmpi(handles.CalList{i} , 'Functional Connectivity Matrix')
                 handles.CalList(i)=[];
                 handles.CalList=[handles.CalList ; {'Functional Connectivity Matrix'}];
                 break;
@@ -272,7 +276,7 @@ function ToRightButton_Callback(hObject, eventdata, handles)
         end
         set(handles.ModeListbox , 'String' , ModeList);
         for i=size(handles.CalList , 1):-1:1
-            if strcmp(handles.CalList{i} , 'DICOM to NIFTI')
+            if strcmpi(handles.CalList{i} , 'DICOM to NIFTI')
                 handles.CalList(i)=[];
                 handles.CalList=[ {'DICOM to NIFTI'} ; handles.CalList];
                 break;
@@ -280,7 +284,7 @@ function ToRightButton_Callback(hObject, eventdata, handles)
         end
     
         for i=size(handles.CalList , 1):-1:1
-            if strcmp(handles.CalList{i} , 'Functional Connectivity Matrix')
+            if strcmpi(handles.CalList{i} , 'Functional Connectivity Matrix')
                 handles.CalList(i)=[];
                 handles.CalList=[handles.CalList ; {'Functional Connectivity Matrix'}];
                 break;
@@ -303,7 +307,7 @@ function ToLeftButton_Callback(hObject, eventdata, handles)
         ModeList=get(handles.ModeListbox , 'String');
         IsMode=0;
         for i=1:size(handles.CalList, 1)
-            if strcmp(CalText{SelectValue} , handles.CalList{i})
+            if strcmpi(CalText{SelectValue} , handles.CalList{i})
                 IsMode=1;
                 break;
             end
@@ -314,7 +318,7 @@ function ToLeftButton_Callback(hObject, eventdata, handles)
         
         ModeList=[ModeList ; CalText{SelectValue}];
         for i=1:size(handles.CalList , 1)
-        	if strcmp([handles.CalList{i}] , CalText{SelectValue})
+        	if strcmpi([handles.CalList{i}] , CalText{SelectValue})
             	temp_order=i;
             else
             	continue;
@@ -339,13 +343,13 @@ function CalListbox_Callback(hObject, eventdata, handles)
 % hObject    handle to CalListbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmp(get(gcf , 'SelectionType') , 'normal')
+if strcmpi(get(gcf , 'SelectionType') , 'normal')
     CalText=get(handles.CalListbox , 'String');
     if ~isempty(CalText)
         SelectValue=get(handles.CalListbox , 'Value');
         IsMode=0;
         for i=1:size(handles.CalList, 1)
-            if strcmp(CalText{SelectValue} , handles.CalList{i})
+            if strcmpi(CalText{SelectValue} , handles.CalList{i})
                 IsMode=1;
                 break;
             end
@@ -356,7 +360,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'The delete type:'))
-                if strcmp(handles.Para.DeleteType , 'Delete')
+                if strcmpi(handles.Para.DeleteType , 'Delete')
                     ConfigText=[{'*Delete'};...
                         {'Retain'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -389,7 +393,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Normlize Method:'))
-                if strcmp(handles.Para.NormType , 'EPI')
+                if strcmpi(handles.Para.NormType , 'EPI')
                     ConfigText=[{'*EPI'};...
                         {'T1'}];
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -421,7 +425,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'DICOM to Nifti:'))
-                if strcmp(handles.Para.T1D2NBool , 'TRUE');
+                if strcmpi(handles.Para.T1D2NBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -433,7 +437,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Coregister:'))
-                if strcmp(handles.Para.CorBool , 'TRUE');
+                if strcmpi(handles.Para.CorBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -445,7 +449,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Segment:'))
-                if strcmp(handles.Para.SegBool , 'TRUE');
+                if strcmpi(handles.Para.SegBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -465,7 +469,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Affine Regularisation:'))
-                if strcmp(handles.Para.T1Template , 'mni')
+                if strcmpi(handles.Para.T1Template , 'mni')
                     ConfigText={'*mni';...
                         'estern'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -497,7 +501,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Remain Mean'))
-                if strcmp(handles.Para.RemainMean , 'TRUE');
+                if strcmpi(handles.Para.RemainMean , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -514,7 +518,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Global signal:'))
-                if strcmp(handles.Para.GSBool , 'TRUE');
+                if strcmpi(handles.Para.GSBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -530,7 +534,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'White matter signal:'))
-                if strcmp(handles.Para.WMBool , 'TRUE');
+                if strcmpi(handles.Para.WMBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -546,7 +550,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'CSF signal:'))
-                if strcmp(handles.Para.CSFBool , 'TRUE');
+                if strcmpi(handles.Para.CSFBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -562,7 +566,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Head Motion:'))
-                if strcmp(handles.Para.HMBool , 'TRUE');
+                if strcmpi(handles.Para.HMBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -586,7 +590,7 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Add Derivative (12):'))
-                if strcmp(handles.Para.HMDerivBool , 'TRUE');
+                if strcmpi(handles.Para.HMDerivBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
                     set(handles.ConfigListbox , 'String' , ConfigText);
@@ -626,14 +630,14 @@ if strcmp(get(gcf , 'SelectionType') , 'normal')
         end
         return;
     end
-elseif strcmp(get(gcf , 'SelectionType') , 'open')
+elseif strcmpi(get(gcf , 'SelectionType') , 'open')
     CalText=get(handles.CalListbox , 'String');
     if ~isempty(CalText)
         SelectValue=get(handles.CalListbox , 'Value');
         ModeList=get(handles.ModeListbox , 'String');
         IsMode=0;
         for i=1:size(handles.CalList, 1)
-            if strcmp(CalText{SelectValue} , handles.CalList{i})
+            if strcmpi(CalText{SelectValue} , handles.CalList{i})
                 IsMode=1;
                 break;
             end
@@ -651,7 +655,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'The delete type:'))
-                if strcmp(handles.Para.DeleteType , 'Delete')
+                if strcmpi(handles.Para.DeleteType , 'Delete')
                     handles.Para.DeleteType='Retain';
                     ConfigText=[{'Delete'};...
                         {'*Retain'}];
@@ -721,7 +725,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Normlize Method:'))
-                if strcmp(handles.Para.NormType , 'EPI')
+                if strcmpi(handles.Para.NormType , 'EPI')
                     handles.Para.NormType='T1';
                     ConfigText=[{'EPI'};...
                         {'*T1'}];
@@ -762,7 +766,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'DICOM to Nifti:'))
-                if strcmp(handles.Para.T1D2NBool , 'TRUE');
+                if strcmpi(handles.Para.T1D2NBool , 'TRUE');
                     handles.Para.T1D2NBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -776,7 +780,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Coregister:'))
-                if strcmp(handles.Para.CorBool , 'TRUE')
+                if strcmpi(handles.Para.CorBool , 'TRUE')
                     handles.Para.CorBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -790,7 +794,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end    
             elseif ~isempty(strfind(CalText{SelectValue} , 'Segment:'))
-                if strcmp(handles.Para.SegBool , 'TRUE')
+                if strcmpi(handles.Para.SegBool , 'TRUE')
                     handles.Para.SegBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -826,7 +830,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Affine Regularisation:'))
-                if strcmp(handles.Para.T1Template , 'mni')
+                if strcmpi(handles.Para.T1Template , 'mni')
                     handles.Para.T1Template='eastern';
                     ConfigText={'mni';...
                         '*estern'};
@@ -888,7 +892,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Remain Mean'))
-                if strcmp(handles.Para.RemainMean , 'TRUE')
+                if strcmpi(handles.Para.RemainMean , 'TRUE')
                     handles.Para.RemainMean='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -914,7 +918,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Global signal:'))
-                if strcmp(handles.Para.GSBool , 'TRUE')
+                if strcmpi(handles.Para.GSBool , 'TRUE')
                     handles.Para.GSBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -938,7 +942,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'White matter signal:'))
-                if strcmp(handles.Para.WMBool , 'TRUE')
+                if strcmpi(handles.Para.WMBool , 'TRUE')
                     handles.Para.WMBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -962,7 +966,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'CSF signal:'))
-                if strcmp(handles.Para.CSFBool , 'TRUE')
+                if strcmpi(handles.Para.CSFBool , 'TRUE')
                     handles.Para.CSFBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -986,7 +990,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Head Motion:'))
-                if strcmp(handles.Para.HMBool , 'TRUE')
+                if strcmpi(handles.Para.HMBool , 'TRUE')
                     handles.Para.HMBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -1019,7 +1023,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
             elseif ~isempty(strfind(CalText{SelectValue} , 'Add Derivative (12):'))
-                if strcmp(handles.Para.HMDerivBool , 'TRUE')
+                if strcmpi(handles.Para.HMDerivBool , 'TRUE')
                     handles.Para.HMDerivBool='FALSE';
                     ConfigText={'TRUE';...
                         '*FALSE'};
@@ -1093,7 +1097,7 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
         
         ModeList=[ModeList ; CalText{SelectValue}];
         for i=1:size(handles.CalList , 1)
-        	if strcmp([handles.CalList{i}] , CalText{SelectValue})
+        	if strcmpi([handles.CalList{i}] , CalText{SelectValue})
             	temp_order=i;
             else
             	continue;
@@ -1148,7 +1152,7 @@ function Result=CalListbox(AHandle)
                 Result=[Result ; ...
                     {Mode};...
                     {sprintf('. The delete type:  %s', AHandle.Para.DeleteType)}];
-                if strcmp(AHandle.Para.DeleteType , 'Delete')    
+                if strcmpi(AHandle.Para.DeleteType , 'Delete')    
                     Result=[Result ; ...
                         {sprintf('. . %s first %d time points' , AHandle.Para.DeleteType,...
                         AHandle.Para.ImageNum)}];
@@ -1171,15 +1175,15 @@ function Result=CalListbox(AHandle)
                 Result=[Result ; ...
                     {Mode} ; ...
                     {sprintf('. Normlize Method:  %s' , AHandle.Para.NormType)}];
-                if strcmp(AHandle.Para.NormType , 'T1')
+                if strcmpi(AHandle.Para.NormType , 'T1')
                     Result=[Result ; ...
                         {sprintf('. . T1 Path   <-X  %s' , AHandle.Para.T1Path)} ; ...
                         {sprintf('. . DICOM to Nifti:  %s' , AHandle.Para.T1D2NBool)}];
                     Result=[Result ; ...
                         {sprintf('. . Coregister:  %s' , AHandle.Para.CorBool)} ; ...
                         {sprintf('. . Segment:  %s' , AHandle.Para.SegBool)}];
-                    if strcmp(AHandle.Para.CorBool , 'TRUE') || strcmp(AHandle.Para.SegBool , 'TRUE')
-                        if strcmp(AHandle.Para.CorBool , 'TRUE')
+                    if strcmpi(AHandle.Para.CorBool , 'TRUE') || strcmpi(AHandle.Para.SegBool , 'TRUE')
+                        if strcmpi(AHandle.Para.CorBool , 'TRUE')
                             if isempty(AHandle.Para.RefPath)
                                 Result=[Result ; ...
                                     {'    - Source Image Path:  Same with Functional Dataset'}];
@@ -1192,7 +1196,7 @@ function Result=CalListbox(AHandle)
                         end
                         Result=[Result ; ...
                             {sprintf('    - T1 Images Prefix:  %s' , AHandle.Para.T1Prefix)}];
-                        if strcmp(AHandle.Para.SegBool , 'TRUE')
+                        if strcmpi(AHandle.Para.SegBool , 'TRUE')
                             Result=[Result ; ...
                                 {sprintf('    - Affine Regularisation:  %s' , AHandle.Para.T1Template)}];
                         end
@@ -1231,28 +1235,28 @@ function Result=CalListbox(AHandle)
                 Result=[Result ; ...
                     {Mode} ; ...
                     {sprintf('. Global signal:  %s' , AHandle.Para.GSBool)}];
-                if strcmp(AHandle.Para.GSBool , 'TRUE')
+                if strcmpi(AHandle.Para.GSBool , 'TRUE')
                     [Path , Name , Ext]=fileparts(AHandle.Para.GSMask);
                     Result=[Result ;...
                         {sprintf('. . Brain Mask:  %s' , [Name , Ext])}];
                 end
                 Result=[Result ; ...
                     {sprintf('. White matter signal:  %s' , AHandle.Para.WMBool)}];
-                if strcmp(AHandle.Para.WMBool , 'TRUE')
+                if strcmpi(AHandle.Para.WMBool , 'TRUE')
                     [Path , Name , Ext]=fileparts(AHandle.Para.WMMask);
                     Result=[Result ;...
                         {sprintf('. . White Mask:  %s' , [Name , Ext])}];
                 end
                 Result=[Result ; ...
                     {sprintf('. CSF signal:  %s' , AHandle.Para.CSFBool)}];
-                if strcmp(AHandle.Para.CSFBool , 'TRUE')
+                if strcmpi(AHandle.Para.CSFBool , 'TRUE')
                     [Path , Name , Ext]=fileparts(AHandle.Para.CSFMask);
                     Result=[Result ;...
                         {sprintf('. . CSF Mask:  %s' , [Name , Ext])}];
                 end
                 Result=[Result ; ...
                     {sprintf('. Head Motion:  %s' , AHandle.Para.HMBool)}];
-                if strcmp(AHandle.Para.HMBool , 'TRUE')
+                if strcmpi(AHandle.Para.HMBool , 'TRUE')
                     if isempty(AHandle.Para.HMPath)
                     	Result=[Result ;...
                             {'. . Text Parent Path:  Same with Functional Dataset'};...
@@ -1270,7 +1274,13 @@ function Result=CalListbox(AHandle)
                     {Mode}];
                 [Path , Name , Ext]=fileparts(AHandle.Para.LabMask);
                 Result=[Result ;...
-                    {sprintf('. Label Mask:  %s' , [Name , Ext])} ];
+                    {sprintf('. Label Mask:  %s' , [Name , Ext])};...
+                    {sprintf('. Dynamical FC:  %s', AHandle.Para.DFCBool)}];
+                if strcmpi(AHandle.Para.DFCBool, 'TRUE')
+                    Result=[Result ;...
+                        {sprintf('. . Sliding Window Length:  %d' , AHandle.Para.DFCWin)};...
+                        {sprintf('. . Sliding Step Length:  %d' , AHandle.Para.DFCStep)}];
+                end
             case 'VOXEL-BASED DEGREE'
                 Result=[Result ;...
                     {Mode}];
@@ -1460,20 +1470,20 @@ function handles=UpdateInputListbox(handles)
         end
         
         if ~isempty(handles.CalList)
-            if strcmp(handles.CalList{1} , 'DICOM to NIFTI')
+            if strcmpi(handles.CalList{1} , 'DICOM to NIFTI')
                 for i=1:size(Subj , 1)
                     if Subj(i).isdir && ...
-                            ~strcmp(Subj(i).name , '.') &&...
-                            ~strcmp(Subj(i).name , '..') &&...
-                            ~strcmp(Subj(i).name , '.DS_Store')
+                            ~strcmpi(Subj(i).name , '.') &&...
+                            ~strcmpi(Subj(i).name , '..') &&...
+                            ~strcmpi(Subj(i).name , '.DS_Store')
                         SubjImage=dir([ParentDir , filesep , Subj(i).name,...
                             filesep , Prefix]);
                         ImageList=[];
-                        if strcmp(SubjImage(1).name , '.')
+                        if strcmpi(SubjImage(1).name , '.')
                            SubjImage(1)=[];
-                        	if strcmp(SubjImage(1).name , '..')
+                        	if strcmpi(SubjImage(1).name , '..')
                                 SubjImage(1)=[];
-                                if strcmp(SubjImage(1).name , '.DS_Store')
+                                if strcmpi(SubjImage(1).name , '.DS_Store')
                                    SubjImage(1)=[];
                                 end
                             end
@@ -1481,8 +1491,8 @@ function handles=UpdateInputListbox(handles)
                         FileNum=size(SubjImage , 1);
                         [Path , Name , Ext]=fileparts([ParentDir , filesep , Subj(i).name,...
                             filesep , SubjImage(1).name]);
-                        if ~strcmp(Ext , '.nii') && ~strcmp(Ext , '.img') ...
-                                && ~strcmp(Ext , '.hdr') && ~strcmp(Ext , '.gz')
+                        if ~strcmpi(Ext , '.nii') && ~strcmpi(Ext , '.img') ...
+                                && ~strcmpi(Ext , '.hdr') && ~strcmpi(Ext , '.gz')
                             ImageList=[Path , filesep , Name , Ext];
                         end
     
@@ -1516,8 +1526,8 @@ function handles=UpdateInputListbox(handles)
         end
         
         for i=1:size(Subj , 1)
-            if ~strcmp(Subj(i).name , '.') && ~strcmp(Subj(i).name , '..')...
-                    && ~strcmp(Subj(i).name , '.DS_Store')
+            if ~strcmpi(Subj(i).name , '.') && ~strcmpi(Subj(i).name , '..')...
+                    && ~strcmpi(Subj(i).name , '.DS_Store')
                 if Subj(i).isdir
                     SubjImage=dir([ParentDir , filesep , Subj(i).name,...
                         filesep , Prefix , '.img']);
@@ -1585,14 +1595,14 @@ function handles=UpdateInputListbox(handles)
         %find 4DNii
         Subj=dir([ParentDir , filesep , Prefix]);
         for i=1:size(Subj , 1)
-            if ~strcmp(Subj(i).name , '.') && ~strcmp(Subj(i).name , '..')...
-                    && ~strcmp(Subj(i).name , '.DS_Store')
+            if ~strcmpi(Subj(i).name , '.') && ~strcmpi(Subj(i).name , '..')...
+                    && ~strcmpi(Subj(i).name , '.DS_Store')
                 if Subj(i).isdir
                     continue;
                 else
                     [Path , Name , Ext]=...
                     fileparts([ParentDir , filesep , Subj(i).name]);
-                    if strcmp(Ext , '.nii') || strcmp(Ext , '.img')
+                    if strcmpi(Ext , '.nii') || strcmpi(Ext , '.img')
                         NiiName=[Path , filesep , Name , Ext];
                         
                         Nii=nifti(fullfile(Path, [Name, Ext]));
@@ -1636,9 +1646,9 @@ function InputListbox_Callback(hObject, eventdata, handles)
 % hObject    handle to InputListbox (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmp(get(gcf , 'SelectionType') , 'normal')
+if strcmpi(get(gcf , 'SelectionType') , 'normal')
     return;
-elseif strcmp(get(gcf , 'SelectionType') , 'open')
+elseif strcmpi(get(gcf , 'SelectionType') , 'open')
     InputListbox=get(handles.InputListbox , 'String');
     SelectedValue=get(handles.InputListbox , 'Value');
     if isempty(SelectedValue)
@@ -1721,7 +1731,7 @@ end
                 pipeline.([FieldName , DelMsg , '_Dcm2Nii']).files_out=DataFile;
                 Para.EPIPath=Para.NiiDir;
             case 'DELETE IMAGES'
-                if strcmp(Para.DeleteType , 'Delete')
+                if strcmpi(Para.DeleteType , 'Delete')
                     ImageNum=Para.ImageNum;
                 else
                     if iscell(DataFile)
@@ -1792,7 +1802,7 @@ end
                 end
                 [FileList , files_in , files_out , DataFile]=...
                 	UpdateDataList('w' , DataFile , TimePoint);
-                if strcmp(Para.NormType , 'EPI')
+                if strcmpi(Para.NormType , 'EPI')
                     SPMJOB=load([GUIPath , filesep ,...
                         'Jobsman' , filesep , 'gretna_Normalization_EPI.mat']);
                     SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.eoptions.template=...
@@ -1814,7 +1824,7 @@ end
                     end
                 else
                     %DICOM TO NII
-                    if strcmp(Para.T1D2NBool , 'TRUE')
+                    if strcmpi(Para.T1D2NBool , 'TRUE')
                         Output=[Para.T1NiiDir , filesep , FieldName(6:end)];
                         if ~(exist(Output,'dir')==7)
                             mkdir(Output);
@@ -1836,7 +1846,7 @@ end
                     end
                     
                     %Coregister
-                    if strcmp(Para.CorBool , 'TRUE')
+                    if strcmpi(Para.CorBool , 'TRUE')
                         if isempty(T1Image)
                             T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , FieldName(6:end));
                         end
@@ -1859,7 +1869,7 @@ end
                         T1Image={[Path , filesep , 'co' , File , Ext]};
                     end
                     %Segment
-                    if strcmp(Para.SegBool , 'TRUE')
+                    if strcmpi(Para.SegBool , 'TRUE')
                         if isempty(T1Image)
                             T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , FieldName(6:end));
                         end
@@ -2023,14 +2033,26 @@ end
                 if ~(exist(MatOutput , 'dir')==7)
                     mkdir(MatOutput);
                 end
-                OutputName=[MatOutput , filesep ,  FieldName(6:end) , '.txt'];
-                command='gretna_fc(opt.FileList , opt.LabMask , opt.OutputName)';
+                
+                OutputRMatName=fullfile(MatOutput, [FieldName(6:end), '.txt']);
+                OutputZMatName=fullfile(MatOutput, ['z_', FieldName(6:end), '.txt']);                
+                OutputTCName=fullfile(MatOutput, ['TimeCourse_', FieldName(6:end), '.txt']);
+                OutputCell={OutputRMatName; OutputZMatName; OutputTCName};
+                
+                DFCStruct=[];
+                if strcmpi(Para.DFCBool, 'TRUE')
+                    DFCStruct.DFCWin=Para.DFCWin;
+                    DFCStruct.DFCStep=Para.DFCStep;
+                end
+                
+                command='gretna_fc(opt.FileList , opt.LabMask , opt.OutputName, opt.DFCStruct)';
                 pipeline.([FieldName , DelMsg , '_FC']).command=command;
                 pipeline.([FieldName , DelMsg , '_FC']).opt.FileList=FileList;
                 pipeline.([FieldName , DelMsg , '_FC']).opt.LabMask=Para.LabMask;
-                pipeline.([FieldName , DelMsg , '_FC']).opt.OutputName=OutputName;
+                pipeline.([FieldName , DelMsg , '_FC']).opt.OutputName=OutputRMatName;
+                pipeline.([FieldName , DelMsg , '_FC']).opt.DFCStruct=DFCStruct;
                 pipeline.([FieldName , DelMsg , '_FC']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_FC']).files_out={OutputName};
+                pipeline.([FieldName , DelMsg , '_FC']).files_out=OutputCell;
                 if ~isempty(DelMsg)
                     DelMsg=[];
                 end
@@ -2070,11 +2092,11 @@ function DcmFile=GetNeedDcmFile(ParentDir , SubjName)
             else
                 SubjFile=dir(SubjDir);
                 if ~isempty(SubjFile)
-                    if strcmp(SubjFile(1).name , '.')
+                    if strcmpi(SubjFile(1).name , '.')
                         SubjFile(1)=[];
-                        if strcmp(SubjFile(2).name , '..')
+                        if strcmpi(SubjFile(2).name , '..')
                             SubjFile(1)=[];
-                            if strcmp(SubjFile(1).name , '.DS_Store')
+                            if strcmpi(SubjFile(1).name , '.DS_Store')
                                 SubjFile(1)=[];
                             end
                         end
@@ -2128,10 +2150,10 @@ drawnow;
 
 handles.Para.EPIPath=get(handles.InputEntry , 'String');
 ParentDir=handles.Para.EPIPath;
-if strcmp(ParentDir(end) , filesep)
+if strcmpi(ParentDir(end) , filesep)
     ParentDir=ParentDir(1:end-1);
 end
-while ~strcmp(ParentDir(end) , filesep)
+while ~strcmpi(ParentDir(end) , filesep)
   	ParentDir=ParentDir(1:end-1);
 end
 handles.Para.ParentDir=ParentDir;
@@ -2238,7 +2260,7 @@ fclose(fid);
 
 handles.Para.LogDir=LogDir;
 
-if strcmp(handles.CalList{1} , 'DICOM to NIFTI')
+if strcmpi(handles.CalList{1} , 'DICOM to NIFTI')
     NiiDir=[ParentDir , 'GretnaNifti'];
     if ~(exist(NiiDir , 'dir')==7)
         mkdir(NiiDir);
@@ -2246,12 +2268,12 @@ if strcmp(handles.CalList{1} , 'DICOM to NIFTI')
     handles.Para.NiiDir=NiiDir;
 end
 
-if strcmp(handles.Para.T1D2NBool , 'TRUE') && strcmp(handles.Para.NormType , 'T1')
+if strcmpi(handles.Para.T1D2NBool , 'TRUE') && strcmpi(handles.Para.NormType , 'T1')
 	T1ParentDir=handles.Para.T1Path;
-    if strcmp(T1ParentDir(end) , filesep)
+    if strcmpi(T1ParentDir(end) , filesep)
         T1ParentDir=T1ParentDir(1:end-1);
     end
-    while ~strcmp(T1ParentDir(end) , filesep)
+    while ~strcmpi(T1ParentDir(end) , filesep)
     	T1ParentDir=T1ParentDir(1:end-1);
     end
     T1NiiDir=[T1ParentDir , 'GretnaT1Nifti'];

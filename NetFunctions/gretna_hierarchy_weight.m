@@ -31,7 +31,7 @@ function [beta] = gretna_hierarchy_weight(W, NumofRandom)
 %==========================================================================
 
 [~, ki] = gretna_node_degree_weight(W);
-[~, cci] = gretna_node_clustcoeff_weight(W,'2');
+[~, cci] = gretna_node_clustcoeff_weight(W, 2);
 
 if all(cci == 0) || all(ki == 0)
     beta.real = nan;
@@ -52,7 +52,7 @@ if NumofRandom ~= 0
         [Wrand] = gretna_gen_random_network1_weight(W);
         
         [~, ki_rand] = gretna_node_degree_weight(Wrand);
-        [~, cci_rand] = gretna_node_clustcoeff_weight(Wrand, '2');
+        [~, cci_rand] = gretna_node_clustcoeff_weight(Wrand, 2);
         
         if all(cci_rand == 0) || all(ki_rand == 0)
             beta.rand(n) = nan;

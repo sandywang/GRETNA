@@ -2600,10 +2600,10 @@ for i=1:numel(SubjField)
     cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubj);
     if strfind(OneSubj{1}, 'img')
         OneSubjHdr=strrep(OneSubj, '.img', '.hdr');
+        cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubjHdr);
     end
-    cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubjHdr);
-    
 end
 
 handles=UpdateInputListbox(handles);
+fprintf('Done\n')
 guidata(hObject, handles);

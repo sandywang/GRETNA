@@ -1,4 +1,4 @@
-function [TMap, PMap, Comnet, P_com, NumofEdge_real, max_NumofEdge_rand] = gretna_TTest1_NBS(GroupMatrix, MIndex, CovCells, Base, PThr, PThr_Corrected,TMap, PMap, M)
+function [TMap, PMap, Comnet, P_com, NumofEdge_real, max_NumofEdge_rand] = gretna_TTest1_NBS(GroupMatrix, MIndex, CovCells, Base, PThr, PThr_UnCorrected,TMap, PMap, M)
 % Reference
 % 1.Zalesky et al. (2010): Network-based statistic: Identifying differences
 %   in brain networks. Neuroimage.
@@ -74,7 +74,7 @@ end
 
 Net=zeros(N);
 for i = 1:N_com
-    if P_com(i)<PThr_Corrected
+    if P_com(i)<PThr_UnCorrected
         Net=Net+Comnet{i};
     end
 end

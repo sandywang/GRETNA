@@ -566,6 +566,9 @@ elseif strcmp(get(gcf , 'SelectionType') , 'open')
     end
     DataText=get(handles.DataListbox , 'String'); 
     
+    if isempty(DataText)
+        return
+    end
     Info=DataText{SelectedValue};
     if exist(Info, 'file')==2
         Index=0;
@@ -965,12 +968,24 @@ OldCell='Init';
 while 1
     Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
     Name=fieldnames(Struct);
+    if isempty(Name)
+        pause(3);
+        continue;
+    end
     Cell=cellfun(@(h) Struct.(h), Name, 'UniformOutput', false);
     if ~ischar(OldCell)
         List=get(ListboxObject , 'String');
         if exist(List{1}, 'file')==2
             break
         end
+        
+        %try
+        %    CellFlag=strcmpi(Cell, OldCell);
+        %catch
+        %    pause(3);
+        %    continue;
+        %end
+        
         if all(strcmpi(Cell, OldCell))
             pause(3);
             continue;

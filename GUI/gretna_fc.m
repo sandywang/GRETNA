@@ -32,8 +32,14 @@ function gretna_fc(DataList, LabMask, OutputName, DFCStruct)
         
         WinNum=floor((TimePoint-DFCWin)./DFCStep)+1;
         
+        dr_struct=[];
+        dTC_struct=[];
+        dz_struct=[];
         for s=1:WinNum
-            WinInd=((s-1)*DFCStep+1:(s-1)*DFCStep+DFCWin)';
+            First=(s-1)*DFCStep+1;
+            Last=(s-1)*DFCStep+DFCWin;
+            WinInd=(First:Last)';
+            Tag=sprintf('W_%.4d_%.4d', First, Last);
             dTC=TimeCourse(WinInd, :);
             dr=corrcoef(dTC);
             dr=(dr+dr')/2;%Add by Sandy
@@ -41,13 +47,21 @@ function gretna_fc(DataList, LabMask, OutputName, DFCStruct)
             dr(dr>=1)=1-1e-16;
     
             dz=(0.5 * log((1 + dr)./(1 - dr)));
-            save(fullfile(Path, ['TimeCourse_', File, sprintf('_Win%.4d', s), Ext]),...
-                'dTC' , '-ASCII', '-DOUBLE','-TABS');
-            save(fullfile(Path, [File, sprintf('_Win%.4d', s), Ext]),...
-                'dr', '-ASCII', '-DOUBLE','-TABS');
-            save(fullfile(Path, ['z_', File, sprintf('_Win%.4d', s), Ext]),...
-                'dz', '-ASCII', '-DOUBLE', '-TABS');            
+            
+            dr_struct.(Tag)=dr;
+            %dTC_struct.(Tag)=dTC;
+            dz_struct.(Tag)=dz;
+            
+            %save(fullfile(Path, ['TimeCourse_', Tag, '_', File, Ext]),...
+            %    'dTC' , '-ASCII', '-DOUBLE','-TABS');
+            %save(fullfile(Path, [Tag, '_', File, Ext]),...
+            %    'dr', '-ASCII', '-DOUBLE','-TABS');
+            %save(fullfile(Path, ['z_', Tag, '_', File, Ext]),...
+            %    'dz', '-ASCII', '-DOUBLE', '-TABS');            
         end
+        save(fullfile(Path, ['TimeCourse_W-All_', File, '.mat']), 'dr_struct');        
+        save(fullfile(Path, ['W-All_', File, '.mat']), 'dr_struct');
+        save(fullfile(Path, ['z_W-All_', File, '.mat']), 'dz_struct');        
     end
     
     save(fullfile(Path, ['TimeCourse_', File, Ext]),...

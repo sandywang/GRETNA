@@ -2,7 +2,7 @@ function [Arand] = gretna_gen_random_network1(A)
 
 %==========================================================================
 % This function is used to generate a random network with the same number 
-% of noes, number of edges and degree distribution as a real binary network
+% of nodes, number of edges and degree distribution as a real binary network
 % G using Maslovs wiring algorithm (Maslov et al. 2002). This function is
 % slightly revised according to Maslov's wiring program
 % (http://www.cmth.bnl.gov/~maslov/).

@@ -605,6 +605,26 @@ if strcmpi(get(gcf , 'SelectionType') , 'normal')
                 ConfigText={sprintf('%s' , handles.Para.LabMask)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Dynamical FC:'))
+                if strcmpi(handles.Para.DFCBool , 'TRUE');
+                    ConfigText={'*TRUE';...
+                        'FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                else
+                    ConfigText={'TRUE';...
+                        '*FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 2);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Window Length:'))
+                ConfigText={sprintf('%d' , handles.Para.DFCWin)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Step Length:'))
+                ConfigText={sprintf('%d' , handles.Para.DFCStep)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);
             elseif ~isempty(strfind(CalText{SelectValue} , 'Output Directory:')) 
                 ConfigText={sprintf('%s' , handles.Para.MatOutput)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
@@ -1043,6 +1063,42 @@ elseif strcmpi(get(gcf , 'SelectionType') , 'open')
                 if ischar(File)
                     handles.Para.LabMask=[Path , File];
                     ConfigText={sprintf('%s' , handles.Para.LabMask)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Dynamical FC:'))
+                if strcmpi(handles.Para.DFCBool , 'TRUE')
+                    handles.Para.DFCBool='FALSE';
+                    ConfigText={'TRUE';...
+                        '*FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 2);
+                else
+                    handles.Para.DFCBool='TRUE';
+                    ConfigText={'*TRUE';...
+                        'FALSE'};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Window Length:'))
+                DFCWin=inputdlg('Enter window of sliding window:',...
+                    'The window length',...
+                    1,...
+                    {num2str(handles.Para.DFCWin)});
+                if ~isempty(DFCWin)
+                    handles.Para.DFCWin=str2num(DFCWin{1});
+                    ConfigText={sprintf('%d' , handles.Para.DFCWin)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Step Length:'))
+                DFCStep=inputdlg('Enter step of sliding window:',...
+                    'The step length',...
+                    1,...
+                    {num2str(handles.Para.DFCStep)});
+                if ~isempty(DFCStep)
+                    handles.Para.DFCStep=str2num(DFCStep{1});
+                    ConfigText={sprintf('%d' , handles.Para.DFCStep)};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
@@ -2338,12 +2394,24 @@ OldCell='Init';
 while 1
     Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
     Name=fieldnames(Struct);
+    if isempty(Name)
+        pause(3);
+        continue;
+    end
     Cell=cellfun(@(h) Struct.(h), Name, 'UniformOutput', false);
     if ~ischar(OldCell)
         List=get(ListboxObject , 'String');
         if exist(List{1}, 'file')==2
             break
         end
+        
+        %try
+        %    CellFlag=strcmpi(Cell, OldCell);
+        %catch
+        %    pause(3);
+        %    continue;
+        %end
+        
         if all(strcmpi(Cell, OldCell))
             pause(3);
             continue;

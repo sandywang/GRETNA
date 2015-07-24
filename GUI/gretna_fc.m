@@ -3,20 +3,30 @@ function gretna_fc(DataList, LabMask, OutputName, DFCStruct)
     TimePoint=size(P , 1);
     PMask=spm_vol(LabMask);
     Mask=spm_read_vols(PMask);
+    [n1, n2, n3]=size(Mask);
     Mask=reshape(Mask , [] , 1);
-    Node=max(Mask , [] ,  1);
- 
+    NodeNum=max(Mask , [] ,  1);
+     
     Volume=spm_read_vols(cell2mat(P));
     Volume=reshape(Volume , [] , TimePoint);   
     
-    
-    TimeCourse=zeros(TimePoint , Node);      
-    for i=1:Node
-        Pos= Mask==i;
-        OneNodeTC=Volume(Pos , :);
+    TimeCourse=zeros(TimePoint , NodeNum);      
+    NodePos=zeros(NodeNum, 3);
+    for n=1:NodeNum
+        Ind= Mask==n;
+        [I, J, K]=ind2sub([n1, n2, n3], find(Ind));
+        I=mean(I);
+        J=mean(J);
+        K=mean(K);
+        TmpIJK=[I; J; K; 1];
+        
+        TmpXYZ=PMask.mat*TmpIJK;
+        NodePos(n, :)=TmpXYZ(1:3);
+        
+        OneNodeTC=Volume(Ind , :);
         
         MeanTC=mean(OneNodeTC , 1);
-        TimeCourse(:,i)=MeanTC;
+        TimeCourse(:,n)=MeanTC;
     end
     r=corrcoef(TimeCourse);
     r=(r+r')/2;%Add by Sandy
@@ -25,7 +35,20 @@ function gretna_fc(DataList, LabMask, OutputName, DFCStruct)
     
     z=(0.5 * log((1 + r)./(1 - r)));
 
-    [Path , File , Ext]=fileparts(OutputName);    
+    [Path , File , Ext]=fileparts(OutputName);
+    
+    %Output the node file of lab mask
+    [LabPath, LabFile, LabExt]=fileparts(LabMask);
+    NodeFile=fullfile(Path, [LabFile, '_Example.node']);
+    if exist(NodeFile, 'file')~=2
+        NodeColor=ones(NodeNum, 1);
+        NodeSize=ones(NodeNum, 1);
+        NodeLab=cell(NodeNum, 1);
+        NodeLab=cellfun(@ (l) '-', NodeLab, 'UniformOutput', false);
+    
+        gretna_gen_node_file(NodePos, NodeColor, NodeSize, NodeLab, NodeFile);
+    end
+    
     if ~isempty(DFCStruct)
         DFCWin=DFCStruct.DFCWin;
         DFCStep=DFCStruct.DFCStep;
@@ -69,3 +92,4 @@ function gretna_fc(DataList, LabMask, OutputName, DFCStruct)
     save(OutputName , 'r' , '-ASCII', '-DOUBLE','-TABS');
     save(fullfile(Path, ['z_', File, Ext]),...
         'z', '-ASCII', '-DOUBLE', '-TABS');
+    

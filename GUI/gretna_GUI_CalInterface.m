@@ -930,6 +930,8 @@ function RunEvent(hObject , handles)
     
     Pipeline=[];
     
+    AliasList=CutOffAlias(AliasList);
+    
     for i=1:size(MatrixList , 1)
         Pipeline=gretna_GUI_NetworkMetricPipe(...
             MatrixList{i},...
@@ -948,7 +950,7 @@ function RunEvent(hObject , handles)
     handles.AliasList=[AliasList;{'ResultSettle'}];
     guidata(hObject , handles);
     
-    if ismac
+    if ismac || ispc
         opt.mode='background';
         opt.mode_pipeline_manager='background';
     else
@@ -1045,23 +1047,42 @@ while 1
         break;
     end
 end
-  
+
+function List=CutOffAlias(List)
+%Cut off the alias longer than 64
+for n=1:numel(List)
+    C=List{n};
+    Len=length(C);
+    warning on all
+    warning off backtrace
+    warning off verbose
+    if Len>64
+        warning('String:TooLong',...
+            '"%s" is longer than 63, truncate string...', C);
+        CutNum=Len-40;
+        CutPos=floor(Len/2)-floor(CutNum/2);
+        C=[C(1:CutPos), '___', C(CutPos+CutNum+1:end)];
+        List{n}=C;
+    end
+end
+
 function CheckWarning(UIcontrol)
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'White');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);       
-        set(UIcontrol , 'BackgroundColor' , 'White');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);       
-        set(UIcontrol , 'BackgroundColor' , 'White');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);       
-        set(UIcontrol , 'BackgroundColor' , 'White');        
+% Warning Flash
+set(UIcontrol , 'BackgroundColor' , 'Red');
+pause(0.08);
+set(UIcontrol , 'BackgroundColor' , 'White');
+pause(0.08);
+set(UIcontrol , 'BackgroundColor' , 'Red');
+pause(0.08);       
+set(UIcontrol , 'BackgroundColor' , 'White');
+pause(0.08);
+set(UIcontrol , 'BackgroundColor' , 'Red');
+pause(0.08);       
+set(UIcontrol , 'BackgroundColor' , 'White');
+pause(0.08);
+set(UIcontrol , 'BackgroundColor' , 'Red');
+pause(0.08);       
+set(UIcontrol , 'BackgroundColor' , 'White');        
 
 
 % --- Executes on selection change in PopupMenu.

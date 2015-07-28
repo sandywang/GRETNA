@@ -179,10 +179,11 @@ if any(strcmpi(CalList, 'Network - Modularity'))
     else
         MType='2';
     end
-    command='gretna_GUI_Modularity(opt.SegMat, opt.RandMat, opt.MType, opt.TempDir)';
+    command='gretna_GUI_Modularity(opt.SegMat, opt.RandMat, opt.NType, opt.MType, opt.TempDir)';
     Pipeline.(sprintf('%s_Modularity', SubjName)).command=command;
     Pipeline.(sprintf('%s_Modularity', SubjName)).opt.SegMat=SegMat;
     Pipeline.(sprintf('%s_Modularity', SubjName)).opt.RandMat=RandMat;
+    Pipeline.(sprintf('%s_Modularity', SubjName)).opt.NType=NType;
     Pipeline.(sprintf('%s_Modularity', SubjName)).opt.MType=MType;
     Pipeline.(sprintf('%s_Modularity', SubjName)).opt.TempDir=TempDir;
     %In

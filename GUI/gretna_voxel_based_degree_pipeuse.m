@@ -147,6 +147,7 @@ else
     end
 end
     
+%% Bin
 ZScore_abs_bin = zeros(size(Ymask));
 ZScore_abs_bin(Index) = (R_abs_bin(Index)-mean(R_abs_bin(Index)))/std(R_abs_bin(Index));
 
@@ -181,6 +182,7 @@ if Dis>0
     ZScore_neg_bin_short(Index) = (R_neg_bin_short(Index)-mean(R_neg_bin_short(Index)))/std(R_neg_bin_short(Index));
 end
 
+%% Wei
 ZScore_abs_wei = zeros(size(Ymask));
 ZScore_abs_wei(Index) = (R_abs_wei(Index)-mean(R_abs_wei(Index)))/std(R_abs_wei(Index));
 
@@ -192,8 +194,20 @@ R_neg_wei   = R_abs_wei - R_pos_wei;
 ZScore_neg_wei = zeros(size(Ymask));
 ZScore_neg_wei(Index) = (R_neg_wei(Index)-mean(R_neg_wei(Index)))/std(R_neg_wei(Index));
 
+%Add FisherZ and Z Score
+FisherZ_ZScore_abs_wei = zeros(size(Ymask));
+FisherZ_ZScore_abs_wei(Index) = (FisherZ_abs_wei(Index)-mean(FisherZ_abs_wei(Index)))/std(FisherZ_abs_wei(Index));
+
+FisherZ_ZScore_pos_wei = zeros(size(Ymask));
+FisherZ_ZScore_pos_wei(Index) = (FisherZ_pos_wei(Index)-mean(FisherZ_pos_wei(Index)))/std(FisherZ_pos_wei(Index));
+
 FisherZ_neg_wei   = FisherZ_abs_wei - FisherZ_pos_wei;
+
+FisherZ_ZScore_neg_wei = zeros(size(Ymask));
+FisherZ_ZScore_neg_wei(Index) = (FisherZ_neg_wei(Index)-mean(FisherZ_neg_wei(Index)))/std(FisherZ_neg_wei(Index));
+
 if Dis>0
+    %Long
     ZScore_abs_wei_long = zeros(size(Ymask));
 	ZScore_abs_wei_long(Index) = (R_abs_wei_long(Index)-mean(R_abs_wei_long(Index)))/std(R_abs_wei_long(Index));
 	
@@ -205,6 +219,7 @@ if Dis>0
     ZScore_neg_wei_long = zeros(size(Ymask));
     ZScore_neg_wei_long(Index) = (R_neg_wei_long(Index)-mean(R_neg_wei_long(Index)))/std(R_neg_wei_long(Index));
 
+    %Short
     ZScore_abs_wei_short = zeros(size(Ymask));
 	ZScore_abs_wei_short(Index) = (R_abs_wei_short(Index)-mean(R_abs_wei_short(Index)))/std(R_abs_wei_short(Index));
     
@@ -215,9 +230,30 @@ if Dis>0
     
     ZScore_neg_wei_short = zeros(size(Ymask));
     ZScore_neg_wei_short(Index) = (R_neg_wei_short(Index)-mean(R_neg_wei_short(Index)))/std(R_neg_wei_short(Index));
-
+    
+    %Long
+    FisherZ_ZScore_abs_wei_long = zeros(size(Ymask));
+	FisherZ_ZScore_abs_wei_long(Index) = (FisherZ_abs_wei_long(Index)-mean(FisherZ_abs_wei_long(Index)))/std(FisherZ_abs_wei_long(Index));
+	
+    FisherZ_ZScore_pos_wei_long = zeros(size(Ymask));
+    FisherZ_ZScore_pos_wei_long(Index) = (FisherZ_pos_wei_long(Index)-mean(FisherZ_pos_wei_long(Index)))/std(FisherZ_pos_wei_long(Index));
+    
     FisherZ_neg_wei_long  = FisherZ_abs_wei_long - FisherZ_pos_wei_long;
-    FisherZ_neg_wei_short = FisherZ_abs_wei_short - FisherZ_pos_wei_short;    
+    
+    FisherZ_ZScore_neg_wei_long = zeros(size(Ymask));
+    FisherZ_ZScore_neg_wei_long(Index) = (FisherZ_neg_wei_long(Index)-mean(FisherZ_neg_wei_long(Index)))/std(FisherZ_neg_wei_long(Index));
+    
+    %Short
+    FisherZ_ZScore_abs_wei_short = zeros(size(Ymask));
+	FisherZ_ZScore_abs_wei_short(Index) = (FisherZ_abs_wei_short(Index)-mean(FisherZ_abs_wei_short(Index)))/std(FisherZ_abs_wei_short(Index));
+	
+    FisherZ_ZScore_pos_wei_short = zeros(size(Ymask));
+    FisherZ_ZScore_pos_wei_short(Index) = (FisherZ_pos_wei_short(Index)-mean(FisherZ_pos_wei_short(Index)))/std(FisherZ_pos_wei_short(Index));
+    
+    FisherZ_neg_wei_short  = FisherZ_abs_wei_short - FisherZ_pos_wei_short;
+    
+    FisherZ_ZScore_neg_wei_short = zeros(size(Ymask));
+    FisherZ_ZScore_neg_wei_short(Index) = (FisherZ_neg_wei_short(Index)-mean(FisherZ_neg_wei_short(Index)))/std(FisherZ_neg_wei_short(Index));
 end
 
 Vout = Vin{1};
@@ -264,11 +300,17 @@ end
 %FisherZ
 Vout.fname = [Output_path 'degree_pos_wei_' name '_FisherZ.nii'];
 Vout = spm_write_vol(Vout, FisherZ_pos_wei);
+Vout.fname = [Output_path 'degree_pos_wei_' name '_FisherZ_ZScore.nii'];
+Vout = spm_write_vol(Vout, FisherZ_ZScore_pos_wei);
 if Dis>0
     Vout.fname = [Output_path 'degree_pos_wei_long_' name '_FisherZ.nii'];
     Vout = spm_write_vol(Vout, FisherZ_pos_wei_long);
     Vout.fname = [Output_path 'degree_pos_wei_short_' name '_FisherZ.nii'];
     Vout = spm_write_vol(Vout, FisherZ_pos_wei_short);
+    Vout.fname = [Output_path 'degree_pos_wei_long_' name '_FisherZ_ZScore.nii'];
+    Vout = spm_write_vol(Vout, FisherZ_ZScore_pos_wei_long);
+    Vout.fname = [Output_path 'degree_pos_wei_short_' name '_FisherZ_ZScore.nii'];
+    Vout = spm_write_vol(Vout, FisherZ_ZScore_pos_wei_short);
 end
 
 Vout.fname = [Output_path 'degree_neg_bin_' name '.nii'];
@@ -312,11 +354,17 @@ end
 %FisherZ
 Vout.fname = [Output_path 'degree_neg_wei_' name '_FisherZ.nii'];
 Vout = spm_write_vol(Vout, FisherZ_neg_wei);
+Vout.fname = [Output_path 'degree_neg_wei_' name '_FisherZ_ZScore.nii'];
+Vout = spm_write_vol(Vout, FisherZ_ZScore_neg_wei);
 if Dis>0
     Vout.fname = [Output_path 'degree_neg_wei_long_' name '_FisherZ.nii'];
     Vout = spm_write_vol(Vout, FisherZ_neg_wei_long);
     Vout.fname = [Output_path 'degree_neg_wei_short_' name '_FisherZ.nii'];
     Vout = spm_write_vol(Vout, FisherZ_neg_wei_short);
+    Vout.fname = [Output_path 'degree_neg_wei_long_' name '_FisherZ_ZScore.nii'];
+    Vout = spm_write_vol(Vout, FisherZ_ZScore_neg_wei_long);
+    Vout.fname = [Output_path 'degree_neg_wei_short_' name '_FisherZ_ZScore.nii'];
+    Vout = spm_write_vol(Vout, FisherZ_ZScore_neg_wei_short);    
 end
 
 Vout.fname = [Output_path 'degree_abs_bin_' name '.nii'];
@@ -360,9 +408,15 @@ end
 %FisherZ
 Vout.fname = [Output_path 'degree_abs_wei_' name '_FisherZ.nii'];
 Vout = spm_write_vol(Vout, FisherZ_abs_wei);
+Vout.fname = [Output_path 'degree_abs_wei_' name '_FisherZ_ZScore.nii'];
+Vout = spm_write_vol(Vout, FisherZ_ZScore_abs_wei);
 if Dis>0
     Vout.fname = [Output_path 'degree_abs_wei_long_' name '_FisherZ.nii'];
     Vout = spm_write_vol(Vout, FisherZ_abs_wei_long);
     Vout.fname = [Output_path 'degree_abs_wei_short_' name '_FisherZ.nii'];
     spm_write_vol(Vout, FisherZ_abs_wei_short);
+    Vout.fname = [Output_path 'degree_abs_wei_long_' name '_FisherZ_ZScore.nii'];
+    Vout = spm_write_vol(Vout, FisherZ_ZScore_abs_wei_long);
+    Vout.fname = [Output_path 'degree_abs_wei_short_' name '_FisherZ_ZScore.nii'];
+    spm_write_vol(Vout, FisherZ_ZScore_abs_wei_short);    
 end

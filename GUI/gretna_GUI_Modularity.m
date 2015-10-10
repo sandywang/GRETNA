@@ -8,18 +8,24 @@ else
     Rand=[];
 end
 
-[number_of_module, community_index, modularity, size_of_maximum_component, module_property]=...
+[number_of_module, community_index, modularity, participant_coefficient, participant_coefficient_normalized, size_of_maximum_component, module_property]=...
     cellfun(@(a) Modularity(a, NType, MType, true), A, 'UniformOutput', false);
 number_of_module=cell2mat(number_of_module);
 community_index=cell2mat(community_index);
 modularity=cell2mat(modularity);
+participant_coefficient=cell2mat(participant_coefficient);
+participant_coefficient_normalized=cell2mat(participant_coefficient_normalized);
 size_of_maximum_component=cell2mat(size_of_maximum_component);
 
 MODMat=fullfile(TempDir, 'MODMat.mat');
 if exist(MODMat, 'file')~=2
-    save(MODMat, 'number_of_module', 'community_index', 'modularity', 'size_of_maximum_component', 'module_property');
+    save(MODMat, 'number_of_module', 'community_index', 'modularity',...
+        'participant_coefficient', 'participant_coefficient_normalized',...
+        'size_of_maximum_component', 'module_property');
 else
-    save(MODMat, 'number_of_module', 'community_index', 'modularity', 'size_of_maximum_component', 'module_property', '-append');
+    save(MODMat, 'number_of_module', 'community_index', 'modularity',...
+        'participant_coefficient', 'participant_coefficient_normalized',...
+        'size_of_maximum_component', 'module_property', '-append');
 end
 
 if ~isempty(Rand)
@@ -32,7 +38,7 @@ if ~isempty(Rand)
     save(MODMat, 'number_of_module_zscore', 'modularity_zscore', '-append');
 end
 
-function [ModNum, Ci, Q, SizeOfMaxComp, ModStruct]=Modularity(Matrix, NType, MType, RealFlag)
+function [ModNum, Ci, Q, PcOriginal, PcNormalized, SizeOfMaxComp, ModStruct]=Modularity(Matrix, NType, MType, RealFlag)
 SizeOfMaxComp=[];
 ModStruct=[];
 if ~RealFlag
@@ -55,6 +61,22 @@ if strcmpi(MType, '1')
 elseif strcmpi(MType, '2')
     [TmpCi, Q]=gretna_modularity_Newman(TmpMatrix);
 end
+% Calculate participant coefficient
+ModNum=size(unique(TmpCi), 1);
+ModCell=cell(1, ModNum);
+for m=1:ModNum
+    ModCell{1, m}=find(TmpCi==m);
+end
+PcStruct=gretna_parcoeff(TmpMatrix, ModCell);
+TmpPcOriginal=PcStruct.original';
+TmpPcNormalized=PcStruct.normalized';
+
+PcOriginal=zeros(N, 1);
+PcOriginal(CompIndex, 1)=TmpPcOriginal;
+
+PcNormalized=zeros(N, 1);
+PcNormalized(CompIndex, 1)=TmpPcNormalized;
+
 Ci=zeros(N, 1);
 Ci(CompIndex, 1)=TmpCi;
 ModNum=max(Ci);

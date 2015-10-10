@@ -3,13 +3,20 @@ function gretna_regressout(DataList , Prefix , CovConfig)
 
     if strcmpi(CovConfig.HMBool , 'TRUE')
         HMFile=gretna_GetNeedFile(CovConfig.HMPath , CovConfig.HMPrefix , CovConfig.Name);
-        TempMat=load(HMFile{1});
+        HMMat=load(HMFile{1});
+        Cov=[Cov, HMMat];
         if strcmpi(CovConfig.HMDeriv, 'TRUE')
-            HMDerivTC=[zeros(1, size(TempMat, 2));TempMat(1:end-1,:)];
-            TempMat=TempMat-HMDerivTC;
+            HMDerivTC=[zeros(1, size(HMMat, 2)); HMMat(1:end-1,:)];
+            TempMat=HMMat-HMDerivTC;
             TempMat(1,:)=zeros(1, size(TempMat, 2));
+            Cov=[Cov, TempMat];
         end
-        Cov=[Cov, TempMat];
+        
+        if strcmpi(CovConfig.HMFrison24, 'TRUE')
+            LagBehind=[zeros(1, size(HMMat, 2)); HMMat(1:end-1, :)];
+            TempMat=[LagBehind, HMMat.^2, LagBehind.^2];
+            Cov=[Cov, TempMat];
+        end
     end
     CovCell=CovConfig.CovCell;
 

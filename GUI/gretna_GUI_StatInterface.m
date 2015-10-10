@@ -457,8 +457,10 @@ switch Value
         [T, P]=gretna_TTestPaired(S, TextCell);      
     case 4 %ANCOVA
         [T, P]=gretna_ANCOVA1(S, TextCell);
+        OutputT=fullfile(OutputDir, [Prefix, '_F.txt']);
     case 5 %ANCOVA Repeat
         [T, P]=gretna_ANCOVA1_Repeated(S, TextCell);
+        OutputT=fullfile(OutputDir, [Prefix, '_F.txt']);
     case 6 %Corr
         SeedFile=get(handles.CorrSeedListbox, 'String');
         if iscell(SeedFile)
@@ -466,6 +468,7 @@ switch Value
         end
         SeedSeries={load(SeedFile)};        
         [T, P]=gretna_Correlation(S, SeedSeries, TextCell);
+        OutputT=fullfile(OutputDir, [Prefix, '_R.txt']);
 end
 
 Correct=get(handles.CorrectPopup, 'Value');
@@ -482,6 +485,12 @@ switch Correct
         P(~Index)=0;
     case 2 %FDR
         [pID, pN]=gretna_FDR(P, PThrd);
+        if isempty(pID)
+            warndlg('NO Corrected P Values');
+            %T=zeros(size(T));
+            %P=ones(size(P));
+            return
+        end
         Index = P < pID;
         T(~Index)=0;
         P(~Index)=0;

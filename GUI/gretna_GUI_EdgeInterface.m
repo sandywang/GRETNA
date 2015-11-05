@@ -522,7 +522,7 @@ switch Type
         PorQ=str2double(get(handles.PEntry, 'String'));
         if CorrectValue==1 %None
             Index=P<PorQ;
-            P(~Index)=0;
+            %P(~Index)=0;
             T(~Index)=0;
         elseif CorrectValue==2 %FDR
             PThr=gretna_FDR(P, PorQ);
@@ -531,14 +531,14 @@ switch Type
                 return
             end
             Index=P<PThr;
-            P(~Index)=0;
+            %P(~Index)=0;
             T(~Index)=0;
             fprintf('\n\tFDR: Done.\n');
         elseif CorrectValue==3 %Bonferroni
             N=length(P);
             PThr=PorQ/N;
             Index=P<PThr;
-            P(~Index)=0;
+            %P(~Index)=0;
             T(~Index)=0;
             fprintf('\n\tBonferroni: Done.\n');
         elseif CorrectValue==4 %NBS

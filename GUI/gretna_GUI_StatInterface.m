@@ -482,7 +482,7 @@ switch Correct
     case 1 %None
         Index = P < PThrd;
         T(~Index)=0;
-        P(~Index)=0;
+        %P(~Index)=0;
     case 2 %FDR
         [pID, pN]=gretna_FDR(P, PThrd);
         if isempty(pID)
@@ -493,13 +493,13 @@ switch Correct
         end
         Index = P < pID;
         T(~Index)=0;
-        P(~Index)=0;
+        %P(~Index)=0;
     case 3 %Bonferroni
         NumOfMetric=size(S{1}, 2);
         PThrd=PThrd/NumOfMetric;
         Index = P < PThrd;
         T(~Index)=0;
-        P(~Index)=0;
+        %P(~Index)=0;
 end
 
 save(OutputT, 'T', '-ASCII', '-DOUBLE', '-TABS');

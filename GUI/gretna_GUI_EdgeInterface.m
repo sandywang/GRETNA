@@ -243,7 +243,7 @@ Value=get(handles.TypePopup, 'Value');
 switch Value
     case 1 %Average
         CorrectLabelString='Threshold Type';
-        CorrectPopupString={'Similarity threshold';'Sparsity'};
+        CorrectPopupString={'Similarity threshold';'Sparsity';'LANS'};
         CorrectPupupValue=2;
         PLabelString='Threshold';
         PEntryString='0.05';
@@ -269,6 +269,15 @@ switch Value
         PEntryString='0.05';
         G2Flag='On';
         CFlag='On';
+        BFlag='Off';
+    case 4 %Backbone
+        CorrectLabelString='Threshold Type';
+        CorrectPopupString={'Edge Probability'};
+        CorrectPupupValue=1;  
+        PLabelString='percentage';
+        PEntryString='0.25';
+        G2Flag='Off';
+        CFlag='Off';
         BFlag='Off';
 end
 set(handles.BaseLabel, 'Visible', BFlag);
@@ -334,19 +343,34 @@ function CorrectPopup_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 Value=get(handles.CorrectPopup, 'Value');
-switch Value
-    case 1 %None
-        PLabelString='uncorrected p';
-        Flag='Off';
-    case 2 %FDR
-        PLabelString='q';
-        Flag='Off';
-    case 3 %Bonferroni
-        PLabelString='uncorrected p';
-        Flag='Off';
-    case 4 %NBS
-        PLabelString='uncorrected p';
-        Flag='On';
+TypeValue=get(handles.TypePopup, 'Value');
+if TypeValue==1
+    switch Value
+        case 1 %Similarity threshold
+            PLabelString='threshold';
+            Flag='Off';
+        case 2 %Sparity
+            PLabelString='threshold';
+            Flag='Off';            
+        case 3 %LANS
+            PLabelString='p';
+            Flag='Off';            
+    end
+else
+    switch Value
+        case 1 %None
+            PLabelString='uncorrected p';
+            Flag='Off';
+        case 2 %FDR
+            PLabelString='q';
+            Flag='Off';
+        case 3 %Bonferroni
+            PLabelString='uncorrected p';
+            Flag='Off';
+        case 4 %NBS
+            PLabelString='uncorrected p';
+            Flag='On';
+    end
 end
 set(handles.PLabel, 'String', PLabelString);
 set(handles.IterLabel, 'VIsible', Flag);

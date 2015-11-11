@@ -22,7 +22,7 @@ function varargout = gretna_GUI_CalInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_CalInterface
 
-% Last Modified by GUIDE v2.5 08-May-2015 00:36:12
+% Last Modified by GUIDE v2.5 11-Nov-2015 13:17:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -966,85 +966,75 @@ function RunEvent(hObject , handles)
     RefreshStatus(handles.AliasList, handles.DataListbox, handles.PipelineLog);
 
 function RefreshStatus(AliasList, ListboxObject, LogDir)
-OldCell='Init';
+handles=guidata(gcf);
 while 1
-    Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
-    Name=fieldnames(Struct);
-    if isempty(Name)
-        pause(3);
+    try 
+        Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
+    catch exception
         continue;
     end
-    Cell=cellfun(@(h) Struct.(h), Name, 'UniformOutput', false);
-    if ~ischar(OldCell)
-        List=get(ListboxObject , 'String');
-        if exist(List{1}, 'file')==2
-            break
-        end
-        
-        %try
-        %    CellFlag=strcmpi(Cell, OldCell);
-        %catch
-        %    pause(3);
-        %    continue;
-        %end
-        
-        if all(strcmpi(Cell, OldCell))
-            pause(3);
-            continue;
-        end
-    end
-    OldCell=Cell;
+    Name=fieldnames(Struct);
+    if ~isempty(Name)
+        Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
+            'UniformOutput', false);
+        Text=cell(size(AliasList));
     
-    Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
-        'UniformOutput', false);
-    Text=cell(size(AliasList));
-    
-    for i=1:numel(AliasList)
-        ExitCode=0;
+        for i=1:numel(AliasList)
+            ExitCode=0;
         
-        CurrName=Name(Index{i});
-        StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
-        
-        if sum(strcmpi('running', StateCell))
-            CurrIndex=strcmpi('running', StateCell);
-            CurrName=CurrName(CurrIndex);
-            StateText='';
-            for j=1:numel(CurrName)
-                StateText=[StateText,...
-                    sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+            CurrName=Name(Index{i});
+            if isempty(CurrName)
+                Text{i, 1}=sprintf('(%s/%s): %s)',...
+                    AliasList{i}, 'All', 'waiting');
+                continue;
             end
-            StateText=StateText(1:end-1);
-            Flag='running';
-        elseif sum(strcmpi('failed', StateCell))
-            CurrIndex=strcmpi('failed', StateCell);
-            CurrName=CurrName(CurrIndex);
-            StateText='';
-            for j=1:numel(CurrName)
-                StateText=[StateText,...
-                    sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+            StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
+        
+            if sum(strcmpi('running', StateCell))
+                CurrIndex=strcmpi('running', StateCell);
+                CurrName=CurrName(CurrIndex);
+                StateText='';
+                for j=1:numel(CurrName)
+                    StateText=[StateText,...
+                        sprintf('%s1,',CurrName{j}(length(AliasList{i})+2:end))];
+                end
+                if strcmpi(StateText(end), ',')
+                    StateText=StateText(1:end-1);
+                end
+                Flag='running';
+            elseif sum(strcmpi('failed', StateCell))
+                CurrIndex=strcmpi('failed', StateCell);
+                CurrName=CurrName(CurrIndex);
+                StateText='';
+                for j=1:numel(CurrName)
+                    StateText=[StateText,...
+                        sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+                end
+                if strcmpi(StateText(end), ',')
+                    StateText=StateText(1:end-1);
+                end
+                Flag='failed';
+                ExitCode=1;
+            elseif all(strcmpi('finished', StateCell))
+                StateText='All';
+                Flag='finished';
+                ExitCode=1;
+            elseif (strcmpi('none', StateCell))
+                StateText='All';
+                Flag='waiting';
+            else
+                StateText='';
+                Flag='waiting';
             end
-            StateText=StateText(1:end-1);
-            Flag='failed';
-            ExitCode=1;
-        elseif all(strcmpi('finished', StateCell))
-            StateText='All';
-            Flag='finished';
-            ExitCode=1;
-        elseif (strcmpi('none', StateCell))
-            StateText='All';
-            Flag='waiting';
-        else
-            StateText='';
-            Flag='waiting';
+            Text{i, 1}=sprintf('(%s/%s): %s)',...
+                AliasList{i}, StateText, Flag);
         end
-        Text{i, 1}=sprintf('(%s/%s): %s)',...
-            AliasList{i}, StateText, Flag);
-    end
-    
-    set(ListboxObject , 'String', Text, 'Value' , 1);
-    drawnow;
-    if ExitCode
-        break;
+        set(ListboxObject , 'String', Text, 'Value' , 1);
+        drawnow;
+        
+        if ExitCode || strcmpi(get(handles.RunPushtool, 'Enable'), 'On')
+            break;
+        end
     end
 end
 
@@ -1276,12 +1266,14 @@ set(handles.RunButton       , 'Enable' , 'On');
 set(handles.RunPushtool     , 'Enable' , 'On');
 set(handles.StopPushtool    , 'Enable' , 'Off');
 set(handles.RefreshPushtool , 'Enable' , 'Off');
+
 StopFlag=dir([handles.PipelineLog , filesep , 'PIPE.lock']);
 if ~isempty(StopFlag)
     delete([handles.PipelineLog , filesep , 'PIPE.lock']);
 end
 handles=GenDataListbox(handles);
 guidata(hObject, handles);
+drawnow;
 
 
 % --- Executes on button press in ShowAllButton.

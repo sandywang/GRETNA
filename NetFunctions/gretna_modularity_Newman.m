@@ -36,6 +36,10 @@ m=sum(M(:));  %m is the number of edges by 2
 B=M-(K'*K)/m;   %B is Modularity Matrix
 
 CommunityIndex=ones(N,1);
+if m==0
+    Q=nan;
+    return
+end
 numModule=1;
 isSplit=[1 0];
 

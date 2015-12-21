@@ -1003,18 +1003,23 @@ while 1
                 end
                 Flag='running';
             elseif sum(strcmpi('failed', StateCell))
+                LogStruct=load(fullfile(LogDir, 'PIPE_logs.mat'));
                 CurrIndex=strcmpi('failed', StateCell);
                 CurrName=CurrName(CurrIndex);
+                
                 StateText='';
                 for j=1:numel(CurrName)
                     StateText=[StateText,...
                         sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+                    LogString=LogStruct.(CurrName{j});
+                    fprintf('====================%s====================\n', CurrName{j});
+                    error('%s\n\n', LogString);
                 end
                 if strcmpi(StateText(end), ',')
                     StateText=StateText(1:end-1);
                 end
                 Flag='failed';
-                ExitCode=1;
+                ExitCode=1; 
             elseif all(strcmpi('finished', StateCell))
                 StateText='All';
                 Flag='finished';

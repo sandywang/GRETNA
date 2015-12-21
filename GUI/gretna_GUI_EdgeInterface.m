@@ -250,35 +250,41 @@ switch Value
         G2Flag='Off';
         CFlag='Off';
         BFlag='Off';
+        NFlag='On';
         handles.Group2Cells={};
-    case 2 %One Sample T-test
+    case 3 %One Sample T-test
         CorrectLabelString='Correct Method';
         CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
         CorrectPupupValue=1;
-        PLabelString='uncorrected p';
+        PLabelString='Edge P';
         PEntryString='0.05';
         G2Flag='Off'; 
         CFlag='On';
         BFlag='On';
+        NFlag='Off';
         handles.Group2Cells={};
-    case 3 %Two Sample T-test
+    case 4 %Two Sample T-test
         CorrectLabelString='Correct Method';
         CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
         CorrectPupupValue=1;
-        PLabelString='uncorrected p';
+        PLabelString='Edge P';
         PEntryString='0.05';
         G2Flag='On';
         CFlag='On';
         BFlag='Off';
-    case 4 %Backbone
+        NFlag='Off';
+        handles.Group2Cells={};        
+    case 2 %Backbone
         CorrectLabelString='Threshold Type';
         CorrectPopupString={'Edge Probability'};
         CorrectPupupValue=1;  
-        PLabelString='percentage';
+        PLabelString='Threshold';
         PEntryString='0.25';
         G2Flag='Off';
         CFlag='Off';
         BFlag='Off';
+        NFlag='Off';
+        handles.Group2Cells={};        
 end
 set(handles.BaseLabel, 'Visible', BFlag);
 set(handles.BaseEntry, 'Visible', BFlag);
@@ -286,6 +292,8 @@ set(handles.Group2Button, 'Visible', G2Flag);
 set(handles.CovAddButton, 'Enable', CFlag);
 set(handles.CovRemoveButton, 'Enable', CFlag);
 set(handles.CovListbox, 'Enable', CFlag, 'String', '');
+set(handles.NetCutLabel, 'Visible', NFlag);
+set(handles.NetCutPopup, 'Visible', NFlag);
 handles.CovCells={};
 handles=GenDataListbox(handles);
 
@@ -347,31 +355,47 @@ TypeValue=get(handles.TypePopup, 'Value');
 if TypeValue==1
     switch Value
         case 1 %Similarity threshold
-            PLabelString='threshold';
+            PLabelString='Threshold';
             Flag='Off';
+            NFlag='On';
         case 2 %Sparity
-            PLabelString='threshold';
-            Flag='Off';            
+            PLabelString='Threshold';
+            Flag='Off';
+            NFlag='On';
         case 3 %LANS
-            PLabelString='p';
-            Flag='Off';            
+            PLabelString='Alpha';
+            Flag='Off';
+            NFlag='Off';
     end
+elseif TypeValue==2
+    switch Value
+        case 1 % Edge Probability
+            PLabelString='Threshold';
+            Flag='Off';
+        case 2 % Sign Test
+            PLabelString='Edge P';
+            Flag='Off'; 
+    end
+    NFlag='Off';
 else
     switch Value
         case 1 %None
-            PLabelString='uncorrected p';
+            PLabelString='Edge P';
             Flag='Off';
         case 2 %FDR
-            PLabelString='q';
+            PLabelString='FDR Q';
             Flag='Off';
         case 3 %Bonferroni
-            PLabelString='uncorrected p';
+            PLabelString='Edge P';
             Flag='Off';
         case 4 %NBS
-            PLabelString='uncorrected p';
+            PLabelString='Edge P';
             Flag='On';
     end
+    NFlag='Off';
 end
+set(handles.NetCutLabel, 'Visible', NFlag);
+set(handles.NetCutPopup, 'Visible', NFlag);
 set(handles.PLabel, 'String', PLabelString);
 set(handles.IterLabel, 'VIsible', Flag);
 set(handles.IterEntry, 'Visible', Flag);
@@ -463,7 +487,7 @@ if isempty(handles.Group1Cells)
 end
 
 Type=get(handles.TypePopup, 'Value');
-if Type==3
+if Type==4
     if isempty(handles.Group2Cells)
         errordlg('Please import another group of network matrix');
         return;
@@ -491,29 +515,36 @@ switch Type
             AllMatrix(:,:,i)=Matrix;
         end
         Matrix=mean(AllMatrix, 3);
-        switch NetCut
-            case 1 %Origin
-            case 2 %Positive
-                Matrix=Matrix.*(Matrix>0);
-            case 3 %Negative
-                Matrix=Matrix.*(Matrix<0);
-            case 4 %Absolute
-                Matrix=abs(Matrix);
-        end
         ThresType=get(handles.CorrectPopup, 'Value');
         ThresValue=str2double(get(handles.PEntry, 'String')); %Fixed a bug, thanks Michielse Stijn! 
-        switch ThresType
-            case 1 %r
-                T='r';
-            case 2 %sparity
-                T='s';
+        if ThresType~=3
+            switch NetCut
+                case 1 %Origin
+                case 2 %Positive
+                    Matrix=Matrix.*(Matrix>0);
+                case 3 %Negative
+                    Matrix=Matrix.*(Matrix<0);
+                case 4 %Absolute
+                    Matrix=abs(Matrix);
+            end
+            switch ThresType
+                case 1 %r
+                    T='r';
+                case 2 %sparity
+                    T='s';
+            end
+            BMap=gretna_R2b(Matrix, T, ThresValue);
+            AMap=BMap.*Matrix;
+        else
+            BMap=gretna_LANS(Matrix, ThresValue, 'UND');
+            AMap=BMap.*Matrix;
         end
-        BMap=gretna_R2b(Matrix, T, ThresValue);
-        AMap=BMap.*Matrix;
 
         save(fullfile(OutputDir, [Prefix, '_Avg.txt']), 'AMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
-    case 2 %One Sample T-test
+    case 2 % Structural Backbone
+        a=1;
+    case 3 % One Sample T-test
         AllMatrix=zeros([size(MatrixGroup1{1}),numel(MatrixGroup1)]);
         for i=1:numel(MatrixGroup1)
             Matrix=MatrixGroup1{i};
@@ -577,17 +608,17 @@ switch Type
             M=str2double(get(handles.IterEntry, 'String'));
             
             [TMap, PMap, Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix,...
-                MIndex, CovCells, Base, 0.05, PorQ, TMap, PMap, M);
+                MIndex, CovCells, Base, PorQ, 0.05, TMap, PMap, M);
             fprintf('\n\tNBS: Done.\n');
-            switch NetCut
-                case 1 %Origin
-                case 2 %Positive
-                    TMap=TMap.*(TMap>0);
-                case 3 %Negative
-                    TMap=TMap.*(TMap<0);
-                case 4 %Absolute
-                    TMap=abs(TMap);
-            end
+%             switch NetCut
+%                 case 1 %Origin
+%                 case 2 %Positive
+%                     TMap=TMap.*(TMap>0);
+%                 case 3 %Negative
+%                     TMap=TMap.*(TMap<0);
+%                 case 4 %Absolute
+%                     TMap=abs(TMap);
+%             end
                     
             BMap=logical(TMap);
             PMap(~BMap)=0;
@@ -623,7 +654,7 @@ switch Type
         save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
-    case 3 %Two Sample T-test
+    case 4 %Two Sample T-test
         [MatrixGroup2, AliasList2]=GetGroupData(handles.Group2Cells);
         fprintf('Group2:\n');
         for i=1:numel(AliasList2)
@@ -697,17 +728,17 @@ switch Type
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, 0.05, PorQ, TMap, PMap, M);
+            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, PorQ, 0.05, TMap, PMap, M);
             fprintf('\n\tNBS: Done.\n');
-            switch NetCut
-                case 1 %Origin
-                case 2 %Positive
-                    TMap=TMap.*(TMap>0);
-                case 3 %Negative
-                    TMap=TMap.*(TMap<0);
-                case 4 %Absolute
-                    TMap=abs(TMap);
-            end
+%             switch NetCut
+%                 case 1 %Origin
+%                 case 2 %Positive
+%                     TMap=TMap.*(TMap>0);
+%                 case 3 %Negative
+%                     TMap=TMap.*(TMap<0);
+%                 case 4 %Absolute
+%                     TMap=abs(TMap);
+%             end
             BMap=logical(TMap);
             PMap(~BMap)=0;
             BMap=double(BMap);

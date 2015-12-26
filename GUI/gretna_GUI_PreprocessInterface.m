@@ -88,7 +88,8 @@ if ~isfield(handles , 'Para')
             ~isfield(Para, 'DCDis')       ||...
             ~isfield(Para, 'QueueSize')   ||...
             ~isfield(Para, 'HMDerivBool') ||...
-            ~isfield(Para, 'DFCBool')
+            ~isfield(Para, 'DFCBool') ||...
+            ~isfield(Para, 'CoregT1Prefix')
             Para=[];
         end
         
@@ -96,8 +97,9 @@ if ~isfield(handles , 'Para')
             Para=[];
             try
                 delete(fullfile(GUIPath, 'PreprocessPara.mat'));
-            catch
-                fprintf('Delete %s Failed', fullfile(GUIPath, 'PreprocessPara.mat'));
+            catch exception
+                %fprintf('Delete %s Failed', fullfile(GUIPath, 'PreprocessPara.mat'));
+                rethrow(exception);
             end
         end
     else
@@ -127,13 +129,26 @@ if ~isfield(handles , 'Para')
         Para.T1Path='';
         Para.T1D2NBool='FALSE';
         Para.T1NiiDir='';
+        % Coregister
         Para.CorBool='TRUE';
-        Para.SegBool='TRUE';
-        Para.T1Prefix='co*';
-        Para.T1Template='mni';
-        Para.MatSuffix='*_seg_sn.mat';
+        Para.CorT1Prefix='Nifti*';
         Para.RefPath='';
         Para.RefPrefix='mean*';
+        % Segment
+        Para.SegBool='TRUE';
+        Para.SegT1Prefix='coreg*';
+        Para.T1Template='mni';
+        Para.MatSuffix='*_seg_sn.mat';
+        SPMPath=fileparts(which('spm.m'));
+        Para.GreyTemplate=fullfile(SPMPath, 'tpm', 'grey.nii');
+        Para.WhiteTemplate=fullfile(SPMPath, 'tpm', 'white.nii');
+        Para.CSFTemplate=fullfile(SPMPath, 'tpm', 'csf.nii');
+        if exist(fullfile(SPMPath, 'tpm', 'grey.nii'), 'file')~=2 %spm12
+            Para.GreyTemplate=fullfile(SPMPath, 'toolbox', 'OldSeg', 'grey.nii');
+            Para.WhiteTemplate=fullfile(SPMPath, 'toolbox', 'OldSeg', 'white.nii');
+            Para.CSFTemplate=fullfile(SPMPath, 'toolbox', 'OldSeg', 'csf.nii');            
+        end
+        % Normalized Opt
         Para.VoxelSize='[3 3 3]';
         Para.BB='[-90 , -126 , -72 ; 90 , 90 , 108]';
     %Smooth
@@ -437,7 +452,7 @@ if strcmpi(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Coregister:'))
+            elseif ~isempty(strfind(CalText{SelectValue} , '. . Coregister:'))
                 if strcmpi(handles.Para.CorBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
@@ -449,7 +464,7 @@ if strcmpi(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Segment:'))
+            elseif ~isempty(strfind(CalText{SelectValue} , '. . Segment:'))
                 if strcmpi(handles.Para.SegBool , 'TRUE');
                     ConfigText={'*TRUE';...
                         'FALSE'};
@@ -461,10 +476,26 @@ if strcmpi(get(gcf , 'SelectionType') , 'normal')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 2);
                 end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix:'))
-                ConfigText={sprintf('%s' , handles.Para.T1Prefix)};
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Grey Matter Template:'))
+                ConfigText={sprintf('%s' , handles.Para.GreyTemplate)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
                 set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'White Matter Template:'))
+                ConfigText={sprintf('%s' , handles.Para.WhiteTemplate)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);   
+            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF Template:'))
+                ConfigText={sprintf('%s' , handles.Para.CSFTemplate)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);                 
+            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Coregister:'))
+                ConfigText={sprintf('%s' , handles.Para.CorT1Prefix)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);
+            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Segment:'))
+                ConfigText={sprintf('%s' , handles.Para.SegT1Prefix)};
+                set(handles.ConfigListbox , 'String' , ConfigText);
+                set(handles.ConfigListbox , 'Value'  , 1);                
             elseif ~isempty(strfind(CalText{SelectValue} , 'Mat Suffix:'))
                 ConfigText={sprintf('%s' , handles.Para.MatSuffix)};
                 set(handles.ConfigListbox , 'String' , ConfigText);
@@ -794,7 +825,7 @@ elseif strcmpi(get(gcf , 'SelectionType') , 'open')
                 T1Path=uigetdir(pwd , 'Pick a parent directory for T1 images');
                 if ischar(T1Path)
                     handles.Para.T1Path=T1Path;
-                    ConfigText={sprintf('%d' , handles.Para.T1Path)};
+                    ConfigText={sprintf('%s' , handles.Para.T1Path)};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
@@ -812,7 +843,7 @@ elseif strcmpi(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Coregister:'))
+            elseif ~isempty(strfind(CalText{SelectValue} , '. . Coregister:'))
                 if strcmpi(handles.Para.CorBool , 'TRUE')
                     handles.Para.CorBool='FALSE';
                     ConfigText={'TRUE';...
@@ -826,7 +857,7 @@ elseif strcmpi(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end    
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Segment:'))
+            elseif ~isempty(strfind(CalText{SelectValue} , '. . Segment:'))
                 if strcmpi(handles.Para.SegBool , 'TRUE')
                     handles.Para.SegBool='FALSE';
                     ConfigText={'TRUE';...
@@ -840,17 +871,58 @@ elseif strcmpi(get(gcf , 'SelectionType') , 'open')
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end    
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix:'))
-                T1Prefix=inputdlg('Enter T1 Images Prefix:',...
+            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Coregister:'))
+                CorT1Prefix=inputdlg('Enter T1 Images Prefix for Coregister:',...
                     'T1 Images Prefix',...
                     1,...
-                    {handles.Para.T1Prefix});
-                if ~isempty(T1Prefix)
-                    handles.Para.T1Prefix=T1Prefix{1};
-                    ConfigText={sprintf('%s' , handles.Para.T1Prefix)};
+                    {handles.Para.CorT1Prefix});
+                if ~isempty(CorT1Prefix)
+                    handles.Para.CorT1Prefix=CorT1Prefix{1};
+                    ConfigText={sprintf('%s' , handles.Para.CorT1Prefix)};
                     set(handles.ConfigListbox , 'String' , ConfigText);
                     set(handles.ConfigListbox , 'Value'  , 1);
                 end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Segment:'))
+                SegT1Prefix=inputdlg('Enter T1 Images Prefix for Segment:',...
+                    'T1 Images Prefix',...
+                    1,...
+                    {handles.Para.SegT1Prefix});
+                if ~isempty(SegT1Prefix)
+                    handles.Para.SegT1Prefix=SegT1Prefix{1};
+                    ConfigText={sprintf('%s' , handles.Para.SegT1Prefix)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'Grey Matter Template:'))
+                [Path , Name , Ext]=fileparts(handles.Para.GreyTemplate);
+                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
+                    'Pick grey matter template' , [Path , filesep , Name , Ext]);
+                if ischar(File)
+                    handles.Para.GreyTemplate=[Path , File];
+                    ConfigText={sprintf('%s' , handles.Para.GreyTemplate)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'White Matter Template:'))
+                [Path , Name , Ext]=fileparts(handles.Para.WhiteTemplate);
+                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
+                    'Pick white matter template' , [Path , filesep , Name , Ext]);
+                if ischar(File)
+                    handles.Para.WhiteTemplate=[Path , File];
+                    ConfigText={sprintf('%s' , handles.Para.WhiteTemplate)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end
+            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF Template:'))
+                [Path , Name , Ext]=fileparts(handles.Para.CSFTemplate);
+                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
+                    'Pick csf template' , [Path , filesep , Name , Ext]);
+                if ischar(File)
+                    handles.Para.CSFTemplate=[Path , File];
+                    ConfigText={sprintf('%s' , handles.Para.CSFTemplate)};
+                    set(handles.ConfigListbox , 'String' , ConfigText);
+                    set(handles.ConfigListbox , 'Value'  , 1);
+                end                    
             elseif ~isempty(strfind(CalText{SelectValue} , 'Mat Suffix:'))
                 MatSuffix=inputdlg('Enter the prefix of MAT:',...
                     'The prefix of MAT',...
@@ -1263,27 +1335,38 @@ function Result=CalListbox(AHandle)
                         {sprintf('. . T1 Path   <-X  %s' , AHandle.Para.T1Path)} ; ...
                         {sprintf('. . DICOM to Nifti:  %s' , AHandle.Para.T1D2NBool)}];
                     Result=[Result ; ...
-                        {sprintf('. . Coregister:  %s' , AHandle.Para.CorBool)} ; ...
-                        {sprintf('. . Segment:  %s' , AHandle.Para.SegBool)}];
-                    if strcmpi(AHandle.Para.CorBool , 'TRUE') || strcmpi(AHandle.Para.SegBool , 'TRUE')
-                        if strcmpi(AHandle.Para.CorBool , 'TRUE')
-                            if isempty(AHandle.Para.RefPath)
-                                Result=[Result ; ...
-                                    {'    - Source Image Path:  Same with Functional Dataset'}];
-                            else
-                                Result=[Result ; ...
-                                    {sprintf('    - Source Image Path:  %s' , AHandle.Para.RefPath)}];
-                            end
+                        {sprintf('. . Coregister:  %s' , AHandle.Para.CorBool)}];
+                    % Coregister
+                    if strcmpi(AHandle.Para.CorBool, 'TRUE')
+                        Result=[Result ; ...
+                            {sprintf('    - T1 Images Prefix for Coregister:  %s' , AHandle.Para.CorT1Prefix)}];                        
+                        if isempty(AHandle.Para.RefPath)
                             Result=[Result ; ...
-                                {sprintf('    - Source Image Prefix:  %s' , AHandle.Para.RefPrefix)}];
+                                {'    - Source Image Path:  Same with Functional Dataset'}];
+                        else
+                            Result=[Result ; ...
+                                {sprintf('    - Source Image Path:  %s' , AHandle.Para.RefPath)}];
                         end
                         Result=[Result ; ...
-                            {sprintf('    - T1 Images Prefix:  %s' , AHandle.Para.T1Prefix)}];
-                        if strcmpi(AHandle.Para.SegBool , 'TRUE')
-                            Result=[Result ; ...
-                                {sprintf('    - Affine Regularisation:  %s' , AHandle.Para.T1Template)}];
-                        end
+                            {sprintf('    - Source Image Prefix:  %s' , AHandle.Para.RefPrefix)}];                         
                     end
+                    
+                    Result=[Result ; ...
+                        {sprintf('. . Segment:  %s' , AHandle.Para.SegBool)}];                    
+                    % Segment
+                    if strcmpi(AHandle.Para.SegBool , 'TRUE')
+                        Result=[Result ; ...
+                            {sprintf('    - T1 Images Prefix for Segment:  %s' , AHandle.Para.SegT1Prefix)}];
+                        Result=[Result ; ...
+                            {sprintf('    - Grey Matter Template:  %s' , AHandle.Para.GreyTemplate)}];
+                        Result=[Result ; ...
+                            {sprintf('    - White Matter Template:  %s' , AHandle.Para.WhiteTemplate)}];
+                        Result=[Result ; ...
+                            {sprintf('    - CSF Template:  %s' , AHandle.Para.CSFTemplate)}];
+                        Result=[Result ; ...
+                            {sprintf('    - Affine Regularisation:  %s' , AHandle.Para.T1Template)}];                        
+                    end
+
                     Result=[Result ; ...
                         {sprintf('. . Mat Suffix:  %s' , AHandle.Para.MatSuffix)}];
                 else
@@ -1777,7 +1860,6 @@ VoxelSize=str2num(Para.VoxelSize);
 BB=str2num(Para.BB);
 FWHM=str2num(Para.FWHM);
 FreBand=str2num(Para.FreBand);
-T1Image=[];
 MatName=[];
 DelMsg='';
 TimePoint=[];
@@ -1890,8 +1972,12 @@ end
                 if strcmpi(Para.NormType , 'EPI')
                     SPMJOB=load([GUIPath , filesep ,...
                         'Jobsman' , filesep , 'gretna_Normalization_EPI.mat']);
+                    EPITemplate=fullfile(SPMPath, 'templates', 'EPI.nii');
+                    if exist(EPITemplate, 'file')~=2
+                        EPITemplate=fullfile(SPMPath, 'OldNorm', 'EPI.nii');
+                    end
                     SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.eoptions.template=...
-                        {[SPMPath , filesep , 'templates' , filesep , 'EPI.nii,1']};
+                        {[EPITemplate, ',1']};
                     SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.subj.resample=FileList;
                     SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.roptions.bb=BB;
                     SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.roptions.vox=VoxelSize;
@@ -1921,59 +2007,66 @@ end
                         pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).opt.Output=Output;
                         pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).opt.SubjName=FieldName(6:end);
                         pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).files_in={T1DcmFile};
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).files_out={[Output , ...
-                            filesep , 'coNifti_' , FieldName(6:end) , '.nii']};
+                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).files_out=...
+                            {fullfile(Output, sprintf('Nifti_%s.nii', FieldName(6:end)))};
                         if ~isempty(DelMsg)
                             DelMsg=[];
                         end
                         Para.T1Path=Para.T1NiiDir;
-                        T1Image={[Output , filesep , 'coNifti_' , FieldName(6:end) , '.nii']};
+                        CorT1Image={fullfile(Output, sprintf('%s_%s.nii', Para.CorT1Prefix(1:end-1), FieldName(6:end)))};
                     end
                     
                     %Coregister
                     if strcmpi(Para.CorBool , 'TRUE')
-                        if isempty(T1Image)
-                            T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , FieldName(6:end));
+                        if isempty(CorT1Image)
+                            CorT1Image  = gretna_GetNeedFile(Para.T1Path  , Para.CorT1Prefix  , FieldName(6:end));
+                            if isempty(CorT1Image)
+                                error('Error: Cannot find T1 image of ''%s''!\n', FieldName(6:end));
+                            end
                         end
+                        
                         SPMJOB=load([GUIPath , filesep ,...
                             'Jobsman' , filesep , 'gretna_Coregister.mat']);
-                        SPMJOB.matlabbatch{1,1}.spm.spatial.coreg.estimate.source = T1Image;
-                        command='gretna_Coregister(opt.CoregisterBatch , opt.RefPath , opt.RefPrefix , opt.SubjName , opt.T1Image)';
+                        SPMJOB.matlabbatch{1,1}.spm.spatial.coreg.estimate.source = CorT1Image;
+                        command='gretna_Coregister(opt.CoregisterBatch , opt.RefPath , opt.RefPrefix , opt.SubjName , opt.CorT1Image)';
                         pipeline.([FieldName , DelMsg , '_Coregister']).command=command;
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.CoregisterBatch=SPMJOB.matlabbatch;
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.RefPath=Para.RefPath;
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.RefPrefix=Para.RefPrefix;
                         pipeline.([FieldName , DelMsg , '_Coregister']).opt.SubjName=FieldName(6:end);
-                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.T1Image=T1Image;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).files_in=[files_in ; T1Image];
+                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.CorT1Image=CorT1Image;
+                        pipeline.([FieldName , DelMsg , '_Coregister']).files_in=[files_in ; CorT1Image];
                         if ~isempty(DelMsg)
                             DelMsg=[];
                         end
-                        [Path , File , Ext]=fileparts(T1Image{1});
-                        pipeline.([FieldName , DelMsg , '_Coregister']).files_out=[Path , filesep , 'co' , File , Ext];
-                        T1Image={[Path , filesep , 'co' , File , Ext]};
+                        [Path , File , Ext]=fileparts(CorT1Image{1});
+                        pipeline.([FieldName , DelMsg , '_Coregister']).files_out=fullfile(Path, sprintf('coreg_%s%s', File, Ext));
+                        SegT1Image={fullfile(Path, sprintf('coreg_%s%s', File, Ext))};                        
                     end
                     %Segment
                     if strcmpi(Para.SegBool , 'TRUE')
-                        if isempty(T1Image)
-                            T1Image  = gretna_GetNeedFile(Para.T1Path  , Para.T1Prefix  , FieldName(6:end));
+                        if isempty(SegT1Image)
+                            SegT1Image=gretna_GetNeedFile(Para.T1Path, Para.SegT1Prefix, FieldName(6:end));
+                            if isempty(SegT1Image)
+                                fprintf('Warning: Cannot find T1 image of ''%s''!\n', FieldName(6:end));
+                            end
                         end
                         SPMJOB=load([GUIPath , filesep ,...
                             'Jobsman' , filesep , 'gretna_Segmentation.mat']);
                         SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.opts.tpm=...
-                            {[SPMPath , filesep , 'tpm' , filesep , 'grey.nii'];...
-                            [SPMPath , filesep , 'tpm' , filesep , 'white.nii'];...
-                            [SPMPath , filesep , 'tpm' , filesep , 'csf.nii']};
-                        SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.data=T1Image;
+                            {Para.GreyTemplate;...
+                            Para.WhiteTemplate;...
+                            Para.CSFTemplate};
+                        SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.data=SegT1Image;
                         SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.opts.regtype=Para.T1Template;
                         command='spm_jobman(''run'' , opt.SegmentBatch)';
                         pipeline.([FieldName , DelMsg , '_Segment']).command=command;
                         pipeline.([FieldName , DelMsg , '_Segment']).opt.SegmentBatch=SPMJOB.matlabbatch;
-                        pipeline.([FieldName , DelMsg , '_Segment']).files_in=[files_in ; T1Image];
+                        pipeline.([FieldName , DelMsg , '_Segment']).files_in=[files_in ; SegT1Image];
                         if ~isempty(DelMsg)
                             DelMsg=[];
                         end
-                        [Path , File , Ext]=fileparts(T1Image{1});
+                        [Path , File , Ext]=fileparts(SegT1Image{1});
                         pipeline.([FieldName , DelMsg , '_Segment']).files_out=[Path , filesep , File , '_seg_sn.mat'];
                         MatName={[Path , filesep , File , '_seg_sn.mat']};
                     end
@@ -2704,16 +2797,19 @@ SubjField=fieldnames(DataList);
 for i=1:numel(SubjField)
     if iscell(DataList.(SubjField{i}))
         OneSubj=DataList.(SubjField{i});
+        String=sprintf('Copy ''%s'' etc.', OneSubj{1});
     else
         OneSubj={DataList.(SubjField{i})};
+        String=sprintf('Copy ''%s''', OneSubj{1});
     end
     Path=fileparts(OneSubj{1});
     [Path, Subj]=fileparts(Path);
     SubjPath=fullfile(ParentPath, Subj);
+    fprintf('%s to ''%s''\n', String, SubjPath)
     if exist(SubjPath, 'dir')~=7
         mkdir(SubjPath);
     end
-    cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubj);
+    cellfun(@(onesubj) copyfile(onesubj, SubjPath), OneSubj);
     if strfind(OneSubj{1}, 'img')
         OneSubjHdr=strrep(OneSubj, '.img', '.hdr');
         cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubjHdr);

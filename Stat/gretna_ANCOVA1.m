@@ -39,6 +39,9 @@ NumOfSample=size(DependentMatrix, 1);
 GroupLabelUnique=unique(GroupLabel);
 Df_Group=length(GroupLabelUnique)-1;
 GroupDummyVariable=zeros(NumOfSample, Df_Group);
+for i=1:Df_Group
+    GroupDummyVariable(:,i)=GroupLabel==GroupLabelUnique(i);
+end
 
 Regressors = [GroupDummyVariable,ones(NumOfSample,1),CovariatesMatrix];
 

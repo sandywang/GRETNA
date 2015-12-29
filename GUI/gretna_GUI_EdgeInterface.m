@@ -542,8 +542,35 @@ switch Type
 
         save(fullfile(OutputDir, [Prefix, '_Avg.txt']), 'AMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
+        
+        fprintf('\nFinished.\n');
     case 2 % Structural Backbone
-        a=1;
+        AllRawMatrix=zeros([size(MatrixGroup1{1}),numel(MatrixGroup1)]);
+        AllNumMatrix=zeros(size(AllRawMatrix));
+        for i=1:numel(MatrixGroup1)
+            Matrix=MatrixGroup1{i};
+            Matrix=Matrix-diag(diag(Matrix));
+            AllRawMatrix(:,:,i)=Matrix;
+            AllNumMatrix(:, :, i)=logical(Matrix);
+        end
+        NumMatrix=sum(AllNumMatrix, 3);
+        SumMatrix=sum(AllRawMatrix, 3);
+        
+        ProbMatrix=NumMatrix./numel(MatrixGroup1);
+        MeanMatrix=SumMatrix./NumMatrix;
+        MeanMatrix(isnan(MeanMatrix))=0;
+        % Edge Probability
+        ThresType=get(handles.CorrectPopup, 'Value');
+        if ThresType==1
+            ThresValue=str2double(get(handles.PEntry, 'String'));
+        end
+        
+        BackboneMap=(ProbMatrix>ThresValue).*MeanMatrix;
+        
+        save(fullfile(OutputDir, [Prefix, '_Backbone.txt']), 'BackboneMap', '-ASCII', '-DOUBLE', '-TABS');
+        save(fullfile(OutputDir, [Prefix, '_Probability.txt']), 'ProbMatrix', '-ASCII', '-DOUBLE', '-TABS'); 
+        
+        fprintf('\nFinished.\n');
     case 3 % One Sample T-test
         AllMatrix=zeros([size(MatrixGroup1{1}),numel(MatrixGroup1)]);
         for i=1:numel(MatrixGroup1)
@@ -654,6 +681,8 @@ switch Type
         save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
+        
+        fprintf('\nFinished.\n');
     case 4 %Two Sample T-test
         [MatrixGroup2, AliasList2]=GetGroupData(handles.Group2Cells);
         fprintf('Group2:\n');
@@ -772,7 +801,8 @@ switch Type
         BMap=double(BMap);
         save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
         save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
-        save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');        
+        save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS'); 
+        fprintf('\nFinished.\n');
 end
 
 function [MatrixGroup, AliasList]=GetGroupData(GroupCells) 

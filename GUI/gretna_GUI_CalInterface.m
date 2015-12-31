@@ -975,6 +975,7 @@ while 1
     end
     Name=fieldnames(Struct);
     if ~isempty(Name)
+        ErrorFlag=[];
         Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
             'UniformOutput', false);
         Text=cell(size(AliasList));
@@ -996,7 +997,7 @@ while 1
                 StateText='';
                 for j=1:numel(CurrName)
                     StateText=[StateText,...
-                        sprintf('%s1,',CurrName{j}(length(AliasList{i})+2:end))];
+                        sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
                 end
                 if strcmpi(StateText(end), ',')
                     StateText=StateText(1:end-1);
@@ -1012,8 +1013,8 @@ while 1
                     StateText=[StateText,...
                         sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
                     LogString=LogStruct.(CurrName{j});
-                    fprintf('====================%s====================\n', CurrName{j});
-                    error('%s\n\n', LogString);
+                    ErrorFlag{1, 1}=CurrName{j};
+                    ErrorFlag{2, 1}=LogString;
                 end
                 if strcmpi(StateText(end), ',')
                     StateText=StateText(1:end-1);
@@ -1036,7 +1037,10 @@ while 1
         end
         set(ListboxObject , 'String', Text, 'Value' , 1);
         drawnow;
-        
+        if ~isempty(ErrorFlag)
+            fprintf('====================%s====================\n', ErrorFlag{1, 1});
+            error('%s\n\n', ErrorFlag{2, 1});
+        end
         if ExitCode || strcmpi(get(handles.RunPushtool, 'Enable'), 'On')
             break;
         end

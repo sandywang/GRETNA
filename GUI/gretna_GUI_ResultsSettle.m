@@ -36,8 +36,13 @@ for j=1:numel(FieldNames)
     end
     
     if n2==1 && n1>1
-        Result.(sprintf('%s_All_Node', f))=cell2mat(cellfun(@(m) GetVariable2(m, f), MatList,...
-            'UniformOutput', false));
+        if strcmpi(f, 'phi_real') || strcmpi(f, 'phi_norm')
+            Result.(sprintf('%s_All_K', f))=cell2mat(cellfun(@(m) GetVariable2(m, f), MatList,...
+                'UniformOutput', false));           
+        else
+            Result.(sprintf('%s_All_Node', f))=cell2mat(cellfun(@(m) GetVariable2(m, f), MatList,...
+                'UniformOutput', false));
+        end
     end
     
     if n1==1 && n2==1

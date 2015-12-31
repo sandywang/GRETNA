@@ -30,7 +30,19 @@ if any(strcmpi(CalList, 'Network - Efficiency'))
     Pipeline.('ResultSettle_Efficiency').files_in=MatList;
     Pipeline.('ResultSettle_Efficiency').files_out={OutPath};
 end
-
+%% Network - Rich Club
+if any(strcmpi(CalList, 'Network - Rich Club'))
+    MatList=cellfun(@(str) fullfile(OutputDir, str, 'RCMat.mat'), AliasList,...
+        'UniformOutput', false);
+    OutName='RichClub.mat';
+    OutPath=fullfile(OutputDir, 'Results_NetworkRichClub', OutName);
+    command='gretna_GUI_ResultsSettle(opt.MatList, opt.OutPath)';
+    Pipeline.('ResultSettle_RichClub').command=command;
+    Pipeline.('ResultSettle_RichClub').opt.MatList=MatList;
+    Pipeline.('ResultSettle_RichClub').opt.OutPath=OutPath;
+    Pipeline.('ResultSettle_RichClub').files_in=MatList;
+    Pipeline.('ResultSettle_RichClub').files_out={OutPath};
+end
 %% Network - Assortativity
 if any(strcmpi(CalList, 'Network - Assortativity'))
     MatList=cellfun(@(str) fullfile(OutputDir, str, 'ASSMat.mat'), AliasList,...

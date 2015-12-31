@@ -49,6 +49,7 @@ RandNum=Para.NumRandNet;
 RType='1';
 if (any(strcmpi(CalList , 'Network - Small World')) || ...
     any(strcmpi(CalList , 'Network - Efficiency')) || ...
+    any(strcmpi(CalList , 'Network - Rich Club')) || ...
     any(strcmpi(CalList , 'Network - Modularity')) || ...
     any(strcmpi(CalList , 'Network - Assortativity')) || ...
     any(strcmpi(CalList , 'Network - Hierarchy')) || ...
@@ -114,6 +115,24 @@ if any(strcmpi(CalList, 'Network - Efficiency'))
     %Out
     EFFMat=fullfile(TempDir, 'EFFMat.mat');
     Pipeline.(sprintf('%s_Efficiency', SubjName)).files_out={EFFMat};
+end
+%% Network - Rich Club
+if any(strcmpi(CalList, 'Network - Rich Club'))
+    command='gretna_GUI_RichClub(opt.SegMat, opt.RandMat, opt.NType, opt.TempDir)';
+    Pipeline.(sprintf('%s_RichClub', SubjName)).command=command;
+    Pipeline.(sprintf('%s_RichClub', SubjName)).opt.SegMat=SegMat;
+    Pipeline.(sprintf('%s_RichClub', SubjName)).opt.RandMat=RandMat;
+    Pipeline.(sprintf('%s_RichClub', SubjName)).opt.NType=NType;
+    Pipeline.(sprintf('%s_RichClub', SubjName)).opt.TempDir=TempDir;
+    %In
+    if isempty(RandMat)
+        Pipeline.(sprintf('%s_RichClub', SubjName)).files_in={SegMat};
+    else
+        Pipeline.(sprintf('%s_RichClub', SubjName)).files_in=[{SegMat};{RandMat}];
+    end
+    %Out
+    RCMat=fullfile(TempDir, 'RCMat.mat');
+    Pipeline.(sprintf('%s_RichClub', SubjName)).files_out={RCMat};
 end
 
 %% Network - Assortativity

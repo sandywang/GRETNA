@@ -56,9 +56,9 @@ for num = 1:M
 end
 
 if Delta.real > 0
-    P = (1+length(find(Delta.rand > Delta.real)))/(M+1);
+    P = (1+length(find(Delta.rand >= Delta.real)))/(M+1);
 else
-    P = (1+length(find(Delta.rand < Delta.real)))/(M+1);
+    P = (1+length(find(Delta.rand <= Delta.real)))/(M+1);
 end
 
 return

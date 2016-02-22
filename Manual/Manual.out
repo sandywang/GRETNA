@@ -1,0 +1,67 @@
+\BOOKMARK [1][-]{section.1}{Overview}{}% 1
+\BOOKMARK [1][-]{section.2}{Licence}{}% 2
+\BOOKMARK [1][-]{section.3}{Prerequisites}{}% 3
+\BOOKMARK [1][-]{section.4}{Installation}{}% 4
+\BOOKMARK [2][-]{subsection.4.1}{Command-line}{section.4}% 5
+\BOOKMARK [2][-]{subsection.4.2}{Interface}{section.4}% 6
+\BOOKMARK [1][-]{section.5}{Starting}{}% 7
+\BOOKMARK [1][-]{section.6}{Toolbar}{}% 8
+\BOOKMARK [2][-]{subsection.6.1}{Save Default Configure}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.2}{Manual}{section.6}% 10
+\BOOKMARK [2][-]{subsection.6.3}{Load Configure}{section.6}% 11
+\BOOKMARK [2][-]{subsection.6.4}{Save Configure}{section.6}% 12
+\BOOKMARK [2][-]{subsection.6.5}{Run}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.6}{Refresh}{section.6}% 14
+\BOOKMARK [2][-]{subsection.6.7}{Stop}{section.6}% 15
+\BOOKMARK [1][-]{section.7}{Input Format}{}% 16
+\BOOKMARK [2][-]{subsection.7.1}{Brain Image}{section.7}% 17
+\BOOKMARK [2][-]{subsection.7.2}{Network Matrix}{section.7}% 18
+\BOOKMARK [1][-]{section.8}{Network Construction}{}% 19
+\BOOKMARK [2][-]{subsection.8.1}{DICOM to NIfTI}{section.8}% 20
+\BOOKMARK [2][-]{subsection.8.2}{Delete Images}{section.8}% 21
+\BOOKMARK [2][-]{subsection.8.3}{Slice Timing}{section.8}% 22
+\BOOKMARK [2][-]{subsection.8.4}{Realign}{section.8}% 23
+\BOOKMARK [2][-]{subsection.8.5}{Normalize EPI}{section.8}% 24
+\BOOKMARK [2][-]{subsection.8.6}{Normalize T1}{section.8}% 25
+\BOOKMARK [2][-]{subsection.8.7}{Smooth}{section.8}% 26
+\BOOKMARK [2][-]{subsection.8.8}{Detrend}{section.8}% 27
+\BOOKMARK [2][-]{subsection.8.9}{Filter}{section.8}% 28
+\BOOKMARK [2][-]{subsection.8.10}{Covariates Regression}{section.8}% 29
+\BOOKMARK [2][-]{subsection.8.11}{Voxel-based Degree}{section.8}% 30
+\BOOKMARK [2][-]{subsection.8.12}{Functional Connectivity Matrix}{section.8}% 31
+\BOOKMARK [1][-]{section.9}{Network Analysis}{}% 32
+\BOOKMARK [2][-]{subsection.9.1}{Network Configurations}{section.9}% 33
+\BOOKMARK [2][-]{subsection.9.2}{Network - Small World}{section.9}% 34
+\BOOKMARK [2][-]{subsection.9.3}{Network - Efficiency}{section.9}% 35
+\BOOKMARK [2][-]{subsection.9.4}{Network - Rich Club}{section.9}% 36
+\BOOKMARK [2][-]{subsection.9.5}{Network - Modularity}{section.9}% 37
+\BOOKMARK [2][-]{subsection.9.6}{Network - Assortativity}{section.9}% 38
+\BOOKMARK [2][-]{subsection.9.7}{Network - Hierarchy}{section.9}% 39
+\BOOKMARK [2][-]{subsection.9.8}{Network - Synchronization}{section.9}% 40
+\BOOKMARK [2][-]{subsection.9.9}{Node - Degree}{section.9}% 41
+\BOOKMARK [2][-]{subsection.9.10}{Node - Efficiency}{section.9}% 42
+\BOOKMARK [2][-]{subsection.9.11}{Node - Betweenness}{section.9}% 43
+\BOOKMARK [1][-]{section.10}{Network Results}{}% 44
+\BOOKMARK [2][-]{subsection.10.1}{Individual Results}{section.10}% 45
+\BOOKMARK [3][-]{subsubsection.10.1.1}{Network - Small World}{subsection.10.1}% 46
+\BOOKMARK [3][-]{subsubsection.10.1.2}{Network - Efficiency}{subsection.10.1}% 47
+\BOOKMARK [3][-]{subsubsection.10.1.3}{Network - Rich Club}{subsection.10.1}% 48
+\BOOKMARK [3][-]{subsubsection.10.1.4}{Network - Modularity}{subsection.10.1}% 49
+\BOOKMARK [3][-]{subsubsection.10.1.5}{Network - Assortativity}{subsection.10.1}% 50
+\BOOKMARK [3][-]{subsubsection.10.1.6}{Network - Hierarchy}{subsection.10.1}% 51
+\BOOKMARK [3][-]{subsubsection.10.1.7}{Network - Synchronization}{subsection.10.1}% 52
+\BOOKMARK [3][-]{subsubsection.10.1.8}{Node - Degree}{subsection.10.1}% 53
+\BOOKMARK [3][-]{subsubsection.10.1.9}{Node - Efficiency}{subsection.10.1}% 54
+\BOOKMARK [3][-]{subsubsection.10.1.10}{Node - Betweenness}{subsection.10.1}% 55
+\BOOKMARK [2][-]{subsection.10.2}{Integrated Results}{section.10}% 56
+\BOOKMARK [3][-]{subsubsection.10.2.1}{Network - Small World}{subsection.10.2}% 57
+\BOOKMARK [3][-]{subsubsection.10.2.2}{Network - Efficiency}{subsection.10.2}% 58
+\BOOKMARK [3][-]{subsubsection.10.2.3}{Network - Rich Club}{subsection.10.2}% 59
+\BOOKMARK [3][-]{subsubsection.10.2.4}{Network - Modularity}{subsection.10.2}% 60
+\BOOKMARK [3][-]{subsubsection.10.2.5}{Network - Assortativity}{subsection.10.2}% 61
+\BOOKMARK [3][-]{subsubsection.10.2.6}{Network - Hierarchy}{subsection.10.2}% 62
+\BOOKMARK [3][-]{subsubsection.10.2.7}{Network - Synchronization}{subsection.10.2}% 63
+\BOOKMARK [3][-]{subsubsection.10.2.8}{Node - Degree}{subsection.10.2}% 64
+\BOOKMARK [3][-]{subsubsection.10.2.9}{Node - Efficiency}{subsection.10.2}% 65
+\BOOKMARK [3][-]{subsubsection.10.2.10}{Node - Betweenness}{subsection.10.2}% 66
+\BOOKMARK [1][-]{section.11}{Network Comparison}{}% 67

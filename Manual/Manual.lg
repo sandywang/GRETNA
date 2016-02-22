@@ -1,0 +1,291 @@
+htfcss: cmmi font-style: italic;
+htfcss: cmmib font-style: italic; font-weight: bold;
+htfcss: cmbx  font-weight: bold;
+htfcss: cmbxsl  font-weight: bold; font-style: oblique;
+htfcss: cmtt font-family: monospace;
+File: Manual.html
+File: Manual.css
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+File: Manual.tmp
+Css: p.noindent { text-indent: 0em }
+Css: td p.noindent { text-indent: 0em; margin-top:0em; }
+Css: p.nopar { text-indent: 0em; }
+Css: p.indent{ text-indent: 1.5em }
+Css: @media print {div.crosslinks {visibility:hidden;}}
+Css: a img { border-top: 0; border-left: 0; border-right: 0; }
+Font_Css("4"): .small-caps{font-variant: small-caps; }
+Font_Css("10"): .htf-cmbx {font-weight: bold; font-style:normal;}
+Font_Css("12"): .htf-calligraphy {font-family:cursive}
+Font_Css("14"): .htf-italic {font-style: italic;}
+Font_Css("16"): .htf-bold {font-weight: bold;}
+Font_Css("12"): .htf-calligraphy-bold {font-family:cursive ; font-weight: bold; }
+Css: center { margin-top:1em; margin-bottom:1em; }
+Css: td center { margin-top:0em; margin-bottom:0em; }
+Css: .Canvas { position:relative; }
+Css: img.math{vertical-align:middle;}
+Css: li p.indent { text-indent: 0em }
+Css: li p:first-child{ margin-top:0em; }
+Css: li p:last-child, li div:last-child { margin-bottom:0.5em; }
+Css: li p~ul:last-child, li p~ol:last-child{ margin-bottom:0.5em; }
+Css: .enumerate1 {list-style-type:decimal;}
+Css: .enumerate2 {list-style-type:lower-alpha;}
+Css: .enumerate3 {list-style-type:lower-roman;}
+Css: .enumerate4 {list-style-type:upper-alpha;}
+Css: div.newtheorem { margin-bottom: 2em; margin-top: 2em;}
+Css: .obeylines-h,.obeylines-v {white-space: nowrap; }
+Css: div.obeylines-v p { margin-top:0; margin-bottom:0; }
+Css: .overline{ text-decoration:overline; }
+Css: .overline img{ border-top: 1px solid black; }
+Css: td.displaylines {text-align:center; white-space:nowrap;}
+Css: .centerline {text-align:center;}
+Css: .rightline {text-align:right;}
+Css: div.verbatim {font-family: monospace; white-space: nowrap; text-align:left; clear:both; }
+Css: .fbox {padding-left:3.0pt; padding-right:3.0pt; text-indent:0pt; border:solid black 0.4pt; }
+Css: div.fbox {display:table}
+Css: div.center div.fbox {text-align:center; clear:both; padding-left:3.0pt; padding-right:3.0pt; text-indent:0pt; border:solid black 0.4pt; }
+Css: div.minipage{width:100%;}
+Css: div.center, div.center div.center {text-align: center; margin-left:1em; margin-right:1em;}
+Css: div.center div {text-align: left;}
+Css: div.flushright, div.flushright div.flushright {text-align: right;}
+Css: div.flushright div {text-align: left;}
+Css: div.flushleft {text-align: left;}
+Css: .underline{ text-decoration:underline; }
+Css: .underline img{ border-bottom: 1px solid black; margin-bottom:1pt; }
+Css: .framebox-c, .framebox-l, .framebox-r { padding-left:3.0pt; padding-right:3.0pt; text-indent:0pt; border:solid black 0.4pt; }
+Css: .framebox-c {text-align:center;}
+Css: .framebox-l {text-align:left;}
+Css: .framebox-r {text-align:right;}
+Css: span.thank-mark{ vertical-align: super }
+Css: span.footnote-mark sup.textsuperscript, span.footnote-mark a sup.textsuperscript{ font-size:80%; }
+Css: div.tabular, div.center div.tabular {text-align: center; margin-top:0.5em; margin-bottom:0.5em; }
+Css: table.tabular td p{margin-top:0em;}
+Css: table.tabular {margin-left: auto; margin-right: auto;}
+Css: td p:first-child{ margin-top:0em; }
+Css: td p:last-child{ margin-bottom:0em; }
+Css: div.td00{ margin-left:0pt; margin-right:0pt; }
+Css: div.td01{ margin-left:0pt; margin-right:5pt; }
+Css: div.td10{ margin-left:5pt; margin-right:0pt; }
+Css: div.td11{ margin-left:5pt; margin-right:5pt; }
+Css: table[rules] {border-left:solid black 0.4pt; border-right:solid black 0.4pt; }
+Css: td.td00{ padding-left:0pt; padding-right:0pt; }
+Css: td.td01{ padding-left:0pt; padding-right:5pt; }
+Css: td.td10{ padding-left:5pt; padding-right:0pt; }
+Css: td.td11{ padding-left:5pt; padding-right:5pt; }
+Css: table[rules] {border-left:solid black 0.4pt; border-right:solid black 0.4pt; }
+Css: .hline hr, .cline hr{ height : 1px; margin:0px; }
+Css: .tabbing-right {text-align:right;}
+Css: span.TEX {letter-spacing: -0.125em; }
+Css: span.TEX span.E{ position:relative;top:0.5ex;left:-0.0417em;}
+Css: a span.TEX span.E {text-decoration: none; }
+Css: span.LATEX span.A{ position:relative; top:-0.5ex; left:-0.4em; font-size:85%;}
+Css: span.LATEX span.TEX{ position:relative; left: -0.4em; }
+Css: div.float, div.figure {margin-left: auto; margin-right: auto;}
+Css: div.float img {text-align:center;}
+Css: div.figure img {text-align:center;}
+Css: .marginpar {width:20%; float:right; text-align:left; margin-left:auto; margin-top:0.5em; font-size:85%; text-decoration:underline;}
+Css: .marginpar p{margin-top:0.4em; margin-bottom:0.4em;}
+Css: table.equation {width:100%;}
+Css: .equation td{text-align:center; }
+Css: td.equation { margin-top:1em; margin-bottom:1em; } 
+Css: td.equation-label { width:5%; text-align:center; }
+Css: td.eqnarray4 { width:5%; white-space: normal; }
+Css: td.eqnarray2 { width:5%; }
+Css: table.eqnarray-star, table.eqnarray {width:100%;}
+Css: div.eqnarray{text-align:center;}
+Css: div.array {text-align:center;}
+Css: div.pmatrix {text-align:center;}
+Css: table.pmatrix {width:100%;}
+Css: span.pmatrix img{vertical-align:middle;}
+Css: div.pmatrix {text-align:center;}
+Css: table.pmatrix {width:100%;}
+Css: span.bar-css {text-decoration:overline;}
+Css: img.cdots{vertical-align:middle;}
+Css: .partToc a, .partToc, .likepartToc a, .likepartToc {line-height: 200%; font-weight:bold; font-size:110%;}
+Css: .index-item, .index-subitem, .index-subsubitem {display:block}
+Css: div.caption {text-indent:-2em; margin-left:3em; margin-right:1em; text-align:left;}
+Css: div.caption span.id{font-weight: bold; white-space: nowrap; }
+Css: h1.partHead{text-align: center}
+Css: p.bibitem { text-indent: -2em; margin-left: 2em; margin-top:0.6em; margin-bottom:0.6em; }
+Css: p.bibitem-p { text-indent: 0em; margin-left: 2em; margin-top:0.6em; margin-bottom:0.6em; }
+Css: .paragraphHead, .likeparagraphHead { margin-top:2em; font-weight: bold;}
+Css: .subparagraphHead, .likesubparagraphHead { font-weight: bold;}
+Css: .quote {margin-bottom:0.25em; margin-top:0.25em; margin-left:1em; margin-right:1em; text-align:justify;}
+Css: .verse{white-space:nowrap; margin-left:2em}
+Css: div.maketitle {text-align:center;}
+Css: h2.titleHead{text-align:center;}
+Css: div.maketitle{ margin-bottom: 2em; }
+Css: div.author, div.date {text-align:center;}
+Css: div.thanks{text-align:left; margin-left:10%; font-size:85%; font-style:italic; }
+Css: div.author{white-space: nowrap;}
+Font_Size: 11
+Css: .quotation {margin-bottom:0.25em; margin-top:0.25em; margin-left:1em; }
+Css: .abstract p {margin-left:5%; margin-right:5%;}
+Css: div.abstract {width:100%;}
+Css: .equation td{text-align:center; }
+Css: .equation-star td{text-align:center; }
+Css: table.equation-star { width:100%; }
+Css: table.equation { width:100%; }
+Css: table.align, table.alignat, table.xalignat, table.xxalignat, table.flalign {width:100%; margin-left:5%; white-space: nowrap;}
+Css: table.align-star, table.alignat-star, table.xalignat-star, table.flalign-star {margin-left:auto; margin-right:auto; white-space: nowrap;}
+Css: td.align-label { width:5%; text-align:center; }
+Css: td.align-odd { text-align:right; padding-right:0.3em;}
+Css: td.align-even { text-align:left; padding-right:0.6em;}
+Css: table.multline, table.multline-star {width:100%;}
+Css: td.gather {text-align:center; }
+Css: table.gather {width:100%;}
+Css: div.gather-star {text-align:center;}
+Css: .figure img.graphics {margin-left:10%;}
+Css: .lstlisting .label{margin-right:0.5em; }
+Css: div.lstlisting{font-family: monospace; white-space: nowrap; margin-top:0.5em; margin-bottom:0.5em; }
+Css: div.lstinputlisting{ font-family: monospace; white-space: nowrap; }
+Css: .lstinputlisting .label{margin-right:0.5em;}
+Css: span#textcolor1{color:#FF0000}
+--- needs --- Manual.idv[2] ==> Manual0x.png ---
+--- needs --- Manual.idv[4] ==> Manual1x.png ---
+--- needs --- Manual.idv[6] ==> Manual2x.png ---
+--- needs --- Manual.idv[8] ==> Manual3x.png ---
+--- needs --- Manual.idv[10] ==> Manual4x.png ---
+--- needs --- Manual.idv[12] ==> Manual5x.png ---
+--- needs --- Manual.idv[14] ==> Manual6x.png ---
+--- needs --- Manual.idv[16] ==> Manual7x.png ---
+--- needs --- Manual.idv[18] ==> Manual8x.png ---
+--- needs --- Manual.idv[20] ==> Manual9x.png ---
+--- needs --- Manual.idv[22] ==> Manual10x.png ---
+--- needs --- Manual.idv[24] ==> Manual11x.png ---
+--- needs --- Manual.idv[26] ==> Manual12x.png ---
+--- needs --- Manual.idv[28] ==> Manual13x.png ---
+--- needs --- Manual.idv[30] ==> Manual14x.png ---
+--- needs --- Manual.idv[32] ==> Manual15x.png ---
+--- needs --- Manual.idv[34] ==> Manual16x.png ---
+--- needs --- Manual.idv[36] ==> Manual17x.png ---
+--- needs --- Manual.idv[38] ==> Manual18x.png ---
+--- needs --- Manual.idv[40] ==> Manual19x.png ---
+--- needs --- Manual.idv[42] ==> Manual20x.png ---
+--- needs --- Manual.idv[44] ==> Manual21x.png ---
+--- needs --- Manual.idv[46] ==> Manual22x.png ---
+--- needs --- Manual.idv[48] ==> Manual23x.png ---
+--- needs --- Manual.idv[50] ==> Manual24x.png ---
+--- needs --- Manual.idv[52] ==> Manual25x.png ---
+--- needs --- Manual.idv[54] ==> Manual26x.png ---
+--- needs --- Manual.idv[56] ==> Manual27x.png ---
+--- needs --- Manual.idv[57] ==> Manual28x.png ---
+--- needs --- Manual.idv[59] ==> Manual29x.png ---
+--- needs --- Manual.idv[60] ==> Manual30x.png ---
+--- needs --- Manual.idv[62] ==> Manual31x.png ---
+--- needs --- Manual.idv[64] ==> Manual32x.png ---
+--- needs --- Manual.idv[66] ==> Manual33x.png ---
+--- needs --- Manual.idv[67] ==> Manual34x.png ---
+--- needs --- Manual.idv[69] ==> Manual35x.png ---
+--- needs --- Manual.idv[70] ==> Manual36x.png ---
+--- needs --- Manual.idv[72] ==> Manual37x.png ---
+--- needs --- Manual.idv[74] ==> Manual38x.png ---
+--- needs --- Manual.idv[76] ==> Manual39x.png ---
+--- needs --- Manual.idv[78] ==> Manual40x.png ---
+--- needs --- Manual.idv[80] ==> Manual41x.png ---
+--- needs --- Manual.idv[82] ==> Manual42x.png ---
+--- needs --- Manual.idv[84] ==> Manual43x.png ---
+--- needs --- Manual.idv[86] ==> Manual44x.png ---
+--- needs --- Manual.idv[88] ==> Manual45x.png ---
+--- needs --- Manual.idv[90] ==> Manual46x.png ---
+--- needs --- Manual.idv[92] ==> Manual47x.png ---
+--- needs --- Manual.idv[94] ==> Manual48x.png ---
+--- needs --- Manual.idv[96] ==> Manual49x.png ---
+--- needs --- Manual.idv[98] ==> Manual50x.png ---
+--- needs --- Manual.idv[100] ==> Manual51x.png ---
+--- needs --- Manual.idv[101] ==> Manual52x.png ---
+--- needs --- Manual.idv[103] ==> Manual53x.png ---
+--- needs --- Manual.idv[104] ==> Manual54x.png ---
+--- needs --- Manual.idv[106] ==> Manual55x.png ---
+--- needs --- Manual.idv[108] ==> Manual56x.png ---
+--- needs --- Manual.idv[110] ==> Manual57x.png ---
+--- needs --- Manual.idv[111] ==> Manual58x.png ---
+--- needs --- Manual.idv[113] ==> Manual59x.png ---
+--- needs --- Manual.idv[114] ==> Manual60x.png ---
+--- needs --- Manual.idv[116] ==> Manual61x.png ---
+--- needs --- Manual.idv[118] ==> Manual62x.png ---
+--- needs --- Manual.idv[120] ==> Manual63x.png ---
+--- needs --- Manual.idv[122] ==> Manual64x.png ---
+--- needs --- Manual.idv[124] ==> Manual65x.png ---
+--- needs --- Manual.idv[126] ==> Manual66x.png ---
+--- needs --- Manual.idv[128] ==> Manual67x.png ---
+--- needs --- Manual.idv[130] ==> Manual68x.png ---
+--- needs --- Manual.idv[132] ==> Manual69x.png ---
+--- needs --- Manual.idv[134] ==> Manual70x.png ---
+--- needs --- Manual.idv[136] ==> Manual71x.png ---
+--- needs --- Manual.idv[138] ==> Manual72x.png ---
+--- needs --- Manual.idv[140] ==> Manual73x.png ---
+--- needs --- Manual.idv[142] ==> Manual74x.png ---
+--- needs --- Manual.idv[144] ==> Manual75x.png ---
+--- needs --- Manual.idv[146] ==> Manual76x.png ---
+--- needs --- Manual.idv[148] ==> Manual77x.png ---
+--- needs --- Manual.idv[150] ==> Manual78x.png ---
+--- needs --- Manual.idv[152] ==> Manual79x.png ---
+--- needs --- Manual.idv[154] ==> Manual80x.png ---
+--- needs --- Manual.idv[156] ==> Manual81x.png ---
+--- needs --- Manual.idv[158] ==> Manual82x.png ---
+--- needs --- Manual.idv[160] ==> Manual83x.png ---
+--- needs --- Manual.idv[162] ==> Manual84x.png ---
+--- characters ---
+Font("cmr","10","10","109")
+Font("cmr","17","17","100")
+Font("cmr","12","12","100")
+Font("cmtt","10","10","109")
+Font("cmbx","10","10","109")
+Font("cmmi","10","10","109")
+Font("cmsy","10","10","109")

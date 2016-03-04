@@ -1055,10 +1055,10 @@ for n=1:numel(List)
     warning on all
     warning off backtrace
     warning off verbose
-    if Len>64
+    if Len>48
         warning('String:TooLong',...
             '"%s" is longer than 63, truncate string...', C);
-        CutNum=Len-40;
+        CutNum=Len-35;
         CutPos=floor(Len/2)-floor(CutNum/2);
         C=[C(1:CutPos), '___', C(CutPos+CutNum+1:end)];
         List{n}=C;

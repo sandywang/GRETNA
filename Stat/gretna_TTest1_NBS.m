@@ -35,18 +35,30 @@ Comnet = Comnet(IX,1);
 % Permutation test
 NumOfSample=size(GroupMatrix{1}, 1);
 RandMat=GroupMatrix{1};
+RandMat=cat(3, RandMat, Base*ones([NumOfSample, size(RandMat, 2)]));
 max_NumofEdge_rand = zeros(M,1);
-    
-for num = 1:M
+
+MaskIndex=MIndex(:);
+parfor num = 1:M
     fprintf('NBS-->Iteration: %d\n', num);
-    RandIndex = randperm(NumOfSample);
-    RandGroup1 = {RandMat(RandIndex(1:NumOfSample), :)};
-        
-    [T_rand, P_rand]=gretna_TTest1(RandGroup1, CovCells, Base); 
+    Flag=-1*ones(NumOfSample, 1);
+    Flag=arrayfun(@(x) x^randi(NumOfSample), Flag);
+    
+    TmpRandMat=num2cell(RandMat, [2, 3]);
+    Flag=num2cell(Flag, 2);
+    
+    TmpRandMat=cellfun(@(v, f) Flip(v, f), TmpRandMat, Flag, 'UniformOutput', false);
+    TmpRandMat=cell2mat(TmpRandMat);
+    
+    RandGroup=cell(2, 1);
+    RandGroup{1, 1} = TmpRandMat(:, :, 1);
+    RandGroup{2, 1} = TmpRandMat(:, :, 2);
+    
+    [T_rand, P_rand]=gretna_TTestPaired(RandGroup, CovCells); 
     %TMap_rand=zeros(N*N, 1);
     PMap_rand=zeros(N*N, 1);
     %TMap_rand(MIndex(:))=T_rand;
-    PMap_rand(MIndex(:))=P_rand;
+    PMap_rand(MaskIndex)=P_rand;
     %TMap_rand=reshape(TMap_rand, [N, N]);
     PMap_rand=reshape(PMap_rand, [N, N]);
     %TMap_rand=TMap_rand+TMap_rand';
@@ -81,3 +93,8 @@ end
 Net=logical(Net);
 PMap(~Net)=0;
 TMap(~Net)=0;
+
+function V=Flip(V, Flag)
+if Flag==-1
+    V=flipdim(V, 3);
+end

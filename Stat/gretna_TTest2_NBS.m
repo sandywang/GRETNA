@@ -79,5 +79,5 @@ for i = 1:N_com
     end
 end
 Net=logical(Net);
-PMap(~Net)=0;
+%PMap(~Net)=0;
 TMap(~Net)=0;

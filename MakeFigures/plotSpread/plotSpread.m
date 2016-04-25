@@ -98,7 +98,7 @@ def.xNames = [];
 def.showMM = false;
 def.xValues = [];
 def.distributionIdx = [];
-def.distributionColors = [0.31 0.31 0.31];
+def.distributionColors = 'b';
 def.distributionMarkers = '.';
 def.xMode = 'manual';
 def.xyOri = 'normal';
@@ -129,7 +129,7 @@ end
 % optional arguments
 parserObj = inputParser;
 parserObj.FunctionName = 'plotSpread';
-distributionLabels = '';
+distributionIdx = [];distributionLabels = '';
 if ~isempty(varargin) && ~ischar(varargin{1}) && ~isstruct(varargin{1})
     % old syntax
     parserObj.addOptional('binWidth',def.binWidth);
@@ -166,7 +166,7 @@ else
     % new syntax
     defNames = fieldnames(def);
     for dn = defNames(:)'
-        parserObj.addParameter(dn{1},def.(dn{1}));
+        parserObj.addParamValue(dn{1},def.(dn{1}));
     end
     
     

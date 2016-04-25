@@ -1,80 +1,103 @@
-function [mdl] = gretna_plot_regression(Y, X, Type, Type_hist)
+function  [mdl] = gretna_plot_regression(Xdata, Ydata, Type, Type_hist)
+
 %==========================================================================
-% This function is used to perform regress analysis.
+% This function is used to plot a linear fitted line between two variables.
 %
-% Syntax: [mdl] = gretna_plot_regression(Y, X, Type, Type_hist)
+%
+% Syntax: function [mdl] = gretna_plot_regression(Xdata, Ydata, Type, Type_hist)
 %
 % Inputs:
-%        Y: 
-%           is an n-by-1 vector of observed responses.
-%        X: 
-%           is an n-by-1 matrix of predictors at each of n observations.
-%
-%     Type: 
-%           'PI' or  'CI' (Either 'observation' (the default) to compute
-%            prediction intervals for new observations at the values in X, or 'curve'
-%            to compute confidence intervals for the fit evaluated at the values in X).
-% Type_hist: 
+%    Xdata:
+%           N*1 data array for the x-axis.
+%    Ydata:
+%           N*1 data array for the y-axis.
+%     Type:
+%           'ci' or 'CI': 95% confidence intervals for the fitted line 
+%                         evaluated at the values in Xdata (default).
+%           'pi' or 'PI': 95% prediction intervals for new observations at
+%                          the values in Xdata.
+% Type_hist:
 %           'on' or 'off'.
 %
-% Examples:
-%           X=[143 145 146 147 149 150 153 154 155 156 157 158 159 160 162 164]';
-%           Y=[88 85 88 91 92 93 93 95 96 98 97 96 98 99 100 102]';
-%           [mdl] = gretna_plot_regression(Y, X, 'CI');
+% Output:
+%       md1:
+%           The linear fitted model.
 %
+% Example:
+%          X = [143 145 146 147 149 150 153 154 155 156 157 158 159 160 162 164]';
+%          Y = [88 85 88 91 92 93 93 95 96 98 97 96 98 99 100 102]';
+%          [mdl] = gretna_plot_regression(X, Y, 'ci');
 %
 % Hao WANG, CCBD, HZNU, Hangzhou, 2015/11/18, hall.wong@outlook.com
 %==========================================================================
 
-if nargin < 3
-    Type = 'ci';  Type_hist = 'off';
+if nargin < 2
+    error('At least two arguments are needed!'); end
+
+if nargin == 2
+    Type = 'ci';  Type_hist = 'off'; end
+
+if nargin == 3
+    Type_hist = 'off'; end
+
+if nargin > 4
+    error('At most four arguments are permitted');
 end
 
-if nargin < 4
-    Type_hist = 'off';  
-end
+if size(Xdata,2) ~= 1 || size(Ydata,2) ~= 1
+    error('The input X and Y must be n-by-1 arrays'); end
 
-tbl = table(Y, X);
-mdl = fitlm(tbl, 'Y~1+X');
 
-Y = Y'; X = X';
-% plot(X, Y,'k.','Markersize',15);
-[p,s] = polyfit(X, Y, 1);
+tbl = table(Ydata, Xdata);
+mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'on');
+
+Xdata = Xdata'; Ydata = Ydata';
+[p, s] = polyfit(Xdata, Ydata, 1);
 
 switch lower(Type)
     case 'ci'
-        [yfit,dy] = polyconf(p,X ,s,'predopt','curve');       %  'curve' to compute confidence intervals.
+        [yfit, dy] = polyconf(p, Xdata, s, 'predopt', 'curve');       %  'curve' to compute confidence intervals.
     case 'pi'
-        [yfit,dy] = polyconf(p,X ,s,'predopt','observation'); %  'observation' (the default) to compute prediction intervals.
+        [yfit, dy] = polyconf(p, Xdata, s, 'predopt', 'observation'); %  'observation' to compute prediction intervals.
     otherwise
-        error('Other types are not supported')
+        error('The inputted Type is not recognized, please check it!');
 end
 
 switch lower(Type_hist)
     case 'on'
-        scatterhist(X,Y,'Marker','.','MarkerSize',10, 'Color','k', 'Nbins', round(length(X)./3), 'Direction','out','Kernel','overlay'); % Nbin: the number of the bins.
+        scatterhist(Xdata, Ydata, 'Marker','.','MarkerSize', 12, 'Color', 'k', 'Nbins', round(length(Xdata)./3), 'Direction','out','Kernel','overlay'); % Nbin: the number of the bins.
     case 'off'
-        scatter(X,Y,'o','k');
+        plot(Xdata, Ydata, 'k.' ,'Markersize', 12);
     otherwise
-        error('Other types are not supported')
+        error('The inputted Type_hist is not recognized, please check it!')
 end
 
 hold on;
-line(X,yfit,'color',[0 0.45 0.74],'Linewidth',2);
-Border = [yfit+dy; yfit-dy];
 
-[X,index] = sort(X);
-Border = Border(:,index);
+Xraw = Xdata;
 
-fill([X fliplr(X)],[Border(1,:) fliplr(Border(2,:))],[0.5 0.5 0.5], 'FaceAlpha', 0.4, 'linestyle', 'none');
-set(gca,'TickDir','out','box','on','Xlim',[min(X) max(X)]);
+% plot shade
+Border    = [yfit+dy; yfit-dy];
+[Xdata,index] = sort(Xdata);
+Border    = Border(:,index);
+fill([Xdata fliplr(Xdata)], [Border(1,:) fliplr(Border(2,:))], [0.5 0.5 0.5], 'FaceAlpha', 0.4, 'linestyle', 'none');
 
-% Add a legend.
+% plot fit curve
+[~,ind1] = min(Xraw);
+[~,ind2] = max(Xraw);
+
+plot([Xraw(ind1); Xraw(ind2)], [yfit(ind1); yfit(ind2)], 'color', [0 0.45 0.74], 'Linewidth', 2);
+
+% Add a legend
 switch lower(Type)
     case 'ci'
-        legend( 'Data','Fit curve','95% CI');
+        legend('Data', 'Fitted curve', '95% CI');
     case 'pi'
-        legend( 'Data','Fit curve','95% PI');
+        legend('Data', 'Fitted curve', '95% PI');
 end
+
+set(gca, 'TickDir', 'out', 'box', 'on', 'Xlim', [min(Xdata) max(Xdata)]);
+
 hold off;
+
 return

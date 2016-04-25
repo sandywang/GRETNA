@@ -1,107 +1,130 @@
-function [serial] = gretna_plot_hub(Data, Lname, Hubcolor, Nhubcolor, Type)
+function  gretna_plot_hub(Data, Lname, Hubcolor, Nhubcolor, Criteria)
 
 %==========================================================================
-% This function is used to plot the bar figure of hub nodes.
+% This function is used to plot bar figures of brain hubs.
 %
 %
-% Syntax: function [serial] = gretna_plot_hub(Data, Lname, Hubcolor, Nhubcolor, Type)
+% Syntax: function  gretna_plot_hub(Data, Lname, Hubcolor, Nhubcolor, Criteria)
 %
 % Inputs:
 %       Data:
-%            Network parameters (M*N, M = independent variable
-%            (e.g.,subjects); N = the number of nodes ).
+%            M*N data array (M, number of subjects; N, number of nodes or
+%            regions).
 %      Lname:
-%            label name (ROI, Autofill the name of AAL90 and HOA112 atlas, e.g.,'AAL' or 'HOA'.
-%            In addition to these two situations, I'm afraid you have to
-%            define your own ROI name.   e.g.,{'INS','TPO','PCUN','PCC'}).
+%            Label names (e.g.,{'INS','TPO','PCUN','PCC'}). If nodes are
+%            from several popular brain atlases (e.g., the Anatomical
+%            Automatic Labeling atlas or Harvard-Oxford atlas, just simply
+%            type 'AAL' or 'HOA'.
 %   Hubcolor:
-%            An RGB color for Hub nodes(a three-element row vector)
-%            or a color string('r','b','k').
+%            Color assigned to hubs (1*3 vector of RGB values or a color
+%            string, e.g., 'r').
 %  Nhubcolor:
-%            An RGB color for Non-Hub nodes(a three-element row vector)
-%            or a color string('r','b','k').
-%       Type:
-%            1,  top10% hubs
-%            2,  mean+1SD hubs
+%            Color assigned to non-hubs (1*3 vector of RGB values or a color
+%            string, e.g., 'b').
+%   Criteria:
+%            1: after averaging nodal values across subjects, the top 10%
+%               nodes with the highest values are identified as hubs.
+%            2: after averaging nodal values across subjects, the nodes with
+%               values larger than mean + 1 SD over all nodes are identified
+%               as hubs.
 %
 % Examples:
 %        figure
 %        subplot(2,1,1);
-%        [~] = gretna_plot_hub(rand(36,10),{'A','B','C','D','E','F','G','H','I','J'});
+%        gretna_plot_hub(rand(36,8),{'A','B','C','D','E','F','G','H'});
 %        subplot(2,1,2);
-%        [~] = gretna_plot_hub(rand(60,90), 'AAL');
+%        gretna_plot_hub(rand(60,90), 'AAL');
 %        figure
 %        subplot(2,1,1);
-%        [~] = gretna_plot_hub(rand(45,90), 'AAL', 'r', 'b',2);
+%        gretna_plot_hub(rand(45,90), 'AAL', 'r', 'b', 2);
 %        subplot(2,1,2);
-%        [~] = gretna_plot_hub(rand(45,112), 'HOA');
-%
+%        gretna_plot_hub(rand(45,112), 'HOA');
 %
 % Hao WANG, CCBD, HZNU, Hangzhou, 2014/12/14, hall.wong@outlook.com
 %==========================================================================
 
-if nargin < 3
+if nargin < 2
+    error('At least two arguments are needed!'); end
+
+if nargin == 2
     Hubcolor  = [0.93 0.69 0.13];
     Nhubcolor = [0.80 0.80 0.80];
-    Type = 1;
+    Criteria = 1;
+end
+
+if nargin == 3
+    Nhubcolor = [0.80 0.80 0.80];
+    Criteria = 1;
+end
+
+if nargin == 4
+    Criteria = 1;
+end
+
+if nargin > 5
+    error('At most five arguments are permitted!');
 end
 
 tmp = mean(Data);
-sd = std(Data);
+sd  = std(Data);
 
 [~,serial] = sort(tmp,'descend');
 tmp = tmp(serial);
-sd = sd(serial);
-N = length(tmp);
+sd  = sd(serial);
+N   = length(tmp);
 
-switch lower(Type)
+switch Criteria
     case 1
         Num = round(N.*0.1);
     case 2
-        Num = length(find(tmp>mean(tmp)+std(tmp)));
+        Num = length(find(tmp > mean(tmp)+std(tmp)));
     otherwise
-        error('Unsupported type')
+        error('The inputted Type is not recognized, please check it!')
 end
 
-LineNub = repmat((1:N)',1,2);
+LineNub  = repmat((1:N)',1,2);
 LineData = [(tmp+sd)',tmp'];
 
 if  strcmp(Lname,'AAL')
     Lab_info = gretna_label('AAL');
-    Lab = Lab_info.name;
+    Lab      = Lab_info.abbr;
+    
 elseif strcmp(Lname,'HOA')
     Lab_info = gretna_label('HOA');
-    Lab = Lab_info.name;
+    Lab      = Lab_info.abbr;
+    
 else
     Lab = Lname;
-    if size(Lab,2)~=N;
-        error('brain regions must correspond to their names');
+    if size(Lab,2) ~= N;
+        error('The number of brain regions must be equal to the number of inputted names!');
     end
+    
 end
 
-nonhub = bar(Num+1:N,tmp(Num+1:end));
-hold on
-set(nonhub,'BarWidth',0.618,'FaceColor',Nhubcolor,'EdgeColor',Nhubcolor);   % Bar width
+nonhub = bar(Num+1:N, tmp(Num+1:end));
+
+hold on;
+
+set(nonhub, 'BarWidth', 0.618, 'FaceColor', Nhubcolor, 'EdgeColor', Nhubcolor);   % Bar width
 
 hub = bar(1:Num, tmp(1:Num));
-set(hub,'BarWidth',0.618,'FaceColor',Hubcolor,'EdgeColor',Hubcolor);
+set(hub,'BarWidth', 0.618, 'FaceColor', Hubcolor, 'EdgeColor', Hubcolor);
 
-plot(LineNub(1:Num,:)',LineData(1:Num,:)','Color',Hubcolor,'LineWidth',0.5);
-plot(LineNub(Num+1:N,:)',LineData(Num+1:N,:)','Color',Nhubcolor,'LineWidth',0.5);
+plot(LineNub(1:Num,:)',   LineData(1:Num,:)',   'Color', Hubcolor,  'LineWidth', 0.5);
+plot(LineNub(Num+1:N,:)', LineData(Num+1:N,:)', 'Color', Nhubcolor, 'LineWidth', 0.5);
 
 % plot the criterion line
-H1 = plot([1 N],[tmp(Num) tmp(Num)],'color','k','LineStyle','-.','Linewidth',0.5);
+H1 = plot([1 N], [tmp(Num) tmp(Num)], 'color', 'k', 'LineStyle', '-.', 'Linewidth', 0.5);
 
-legend([hub,nonhub,H1],'Hubs','Non-Hubs','Criterion line',...
-    'Location','northoutside','Orientation','horizontal');
+legend([hub,nonhub,H1], 'Hubs', 'Non-Hubs', 'Criterion line',...
+    'Location', 'northoutside', 'Orientation', 'horizontal');
 
-set(gca, 'XTICK', 1:N);
-set(gca,'Xlim',[0 N+1],'XTickLabel',Lab(serial),'fontsize',8,...
-    'FontName','arial','XTickLabelRotation',90,'box','off',...
-    'TickDir','out' ,'TickLength',[0.005 0.005]);
-set(get(gca,'Children'),'linewidth',0.5)
+set(gca, 'XTICK', 1:N, 'Xlim', [0 N+1], 'XTickLabel', Lab(serial), 'fontsize', 8,...
+    'FontName', 'arial', 'XTickLabelRotation', 90, 'box', 'off',...
+    'TickDir', 'out', 'TickLength', [0.005 0.005]);
+set(get(gca, 'Children'), 'linewidth', 0.5)
 
-hold off
+hold off;
 
 % saveas(gca,File_filter,'fig');    % save current figure as fig file
 return

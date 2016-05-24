@@ -100,50 +100,50 @@ FisherZ_abs_wei_short = zeros(size(Ymask));
 if Dis==0
     for ii = 1:length(Index)
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
-        r(r>=1)=1-1e-16;
+        r(r>=1)=0;
         z = 0.5.*(log((1+r)./(1-r)));
         
         tmp = find(r >= R_thr);
-        R_pos_bin(Index(ii))   = length(tmp) - 1;
-        R_pos_wei(Index(ii))   = sum(r(tmp)) - 1;
-        FisherZ_pos_wei(Index(ii))   = sum(z(tmp)) - 1;
+        R_pos_bin(Index(ii))   = length(tmp);
+        R_pos_wei(Index(ii))   = sum(r(tmp));
+        FisherZ_pos_wei(Index(ii))   = sum(z(tmp));
         
         tmp = find(abs(r) >= R_thr);
-        R_abs_bin(Index(ii))   = length(tmp) - 1;
-        R_abs_wei(Index(ii))   = sum(abs(r(tmp))) - 1;
-        FisherZ_abs_wei(Index(ii))   = sum(abs(z(tmp))) - 1;
+        R_abs_bin(Index(ii))   = length(tmp);
+        R_abs_wei(Index(ii))   = sum(abs(r(tmp)));
+        FisherZ_abs_wei(Index(ii))   = sum(abs(z(tmp)));
     end
 else
     for ii = 1:length(Index)
         D = gretna_pdist2(XYZ(ii,:),XYZ);
 
         r = Ydata(:,ii)' * Ydata / (numSample - 1);
-        r(r>=1)=1-1e-16;
+        r(r>=1)=0;
         z = 0.5.*(log((1+r)./(1-r)));
         
         tmp = find(r >= R_thr);
-        R_pos_bin(Index(ii))   = length(tmp) - 1;
+        R_pos_bin(Index(ii))   = length(tmp);
         R_pos_bin_long(Index(ii))  = length(find(D(tmp) >= Dis));
-        R_pos_bin_short(Index(ii)) = length(find(D(tmp) < Dis)) - 1;
-        R_pos_wei(Index(ii))   = sum(r(tmp)) - 1;
+        R_pos_bin_short(Index(ii)) = length(find(D(tmp) < Dis));
+        R_pos_wei(Index(ii))   = sum(r(tmp));
         R_pos_wei_long(Index(ii))  = sum(r(tmp(D(tmp) >= Dis)));
-        R_pos_wei_short(Index(ii)) = sum(r(tmp(D(tmp) < Dis))) - 1;
+        R_pos_wei_short(Index(ii)) = sum(r(tmp(D(tmp) < Dis)));
         %FisherZ
-        FisherZ_pos_wei(Index(ii))   = sum(z(tmp)) - 1;
+        FisherZ_pos_wei(Index(ii))   = sum(z(tmp));
         FisherZ_pos_wei_long(Index(ii))  = sum(z(tmp(D(tmp) >= Dis)));
-        FisherZ_pos_wei_short(Index(ii)) = sum(z(tmp(D(tmp) < Dis))) - 1;
+        FisherZ_pos_wei_short(Index(ii)) = sum(z(tmp(D(tmp) < Dis)));
         
         tmp = find(abs(r) >= R_thr);
-        R_abs_bin(Index(ii))   = length(tmp) - 1;
+        R_abs_bin(Index(ii))   = length(tmp);
         R_abs_bin_long(Index(ii))  = length(find(D(tmp) >= Dis));
-        R_abs_bin_short(Index(ii)) = length(find(D(tmp) < Dis)) - 1;
-        R_abs_wei(Index(ii))   = sum(abs(r(tmp))) - 1;
+        R_abs_bin_short(Index(ii)) = length(find(D(tmp) < Dis));
+        R_abs_wei(Index(ii))   = sum(abs(r(tmp)));
         R_abs_wei_long(Index(ii))  = sum(abs(r(tmp(D(tmp) >= Dis))));
-        R_abs_wei_short(Index(ii)) = sum(abs(r(tmp(D(tmp) < Dis)))) - 1;
+        R_abs_wei_short(Index(ii)) = sum(abs(r(tmp(D(tmp) < Dis))));
         %FisherZ
-        FisherZ_abs_wei(Index(ii))   = sum(abs(z(tmp))) - 1;
+        FisherZ_abs_wei(Index(ii))   = sum(abs(z(tmp)));
         FisherZ_abs_wei_long(Index(ii))  = sum(abs(z(tmp(D(tmp) >= Dis))));
-        FisherZ_abs_wei_short(Index(ii)) = sum(abs(z(tmp(D(tmp) < Dis)))) - 1;        
+        FisherZ_abs_wei_short(Index(ii)) = sum(abs(z(tmp(D(tmp) < Dis))));        
     end
 end
     

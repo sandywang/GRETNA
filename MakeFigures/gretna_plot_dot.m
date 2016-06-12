@@ -93,7 +93,8 @@ switch lower(Type)
 end
 
 Ch = plotSpread(Data);
-H  = Ch{1,3}.Children;
+%H  = Ch{1,3}.Children; Compatibility Sandy
+H  = get(Ch{1,3}, 'Children');
 
 if Numgname < 8
     Color = [0.078 0.631 0.678; 0.878 0.671 0.031; 0.973 0.212 0.047;...
@@ -112,8 +113,10 @@ plot([Lxlim; Rxlim],[Databar; Databar], 'k-', 'linewidth', 1.5);
 set(gca, 'TickDir', 'out', 'XLim', [0.5 Dim2+0.5], 'YLim', [min(Data(:))-0.309*range(Data(:)), max(Data(:))+0.309*range(Data(:))]);  % 0.309 (0.618/2) to Visualize Better
 
 ax = gca;
-ax.XTick = ((1 + Numgroup)/2):Numgroup:(Dim2 - (Numgroup -(1 + Numgroup)/2));
-ax.XTickLabel = Lname;
+%ax.XTick = ((1 + Numgroup)/2):Numgroup:(Dim2 - (Numgroup -(1 + Numgroup)/2));
+%ax.XTickLabel = Lname;
+set(ax, 'XTick', ((1 + Numgroup)/2):Numgroup:(Dim2 - (Numgroup -(1 + Numgroup)/2)));
+set(ax, 'XTickLabel', Lname);
 
 legend(H(Numgroup:1), Gname, 'Location', 'northeast');
 

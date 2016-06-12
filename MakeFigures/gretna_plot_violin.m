@@ -83,16 +83,34 @@ end
 
 hold on;
 
-H  = gobjects(1, Dim2);
-H1 = gobjects(1, Dim2);
+FullMatlabVersion = sscanf(version,'%d.%d.%d.%d%s');
+
+if FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4  % Modified by Sandy
+    H  = gobjects(1, Dim2);
+    H1 = gobjects(1, Dim2);
+else
+    H  = cell(1, Dim2);
+    H1 = cell(1, Dim2);
+end
 
 for i = 1:Dim2
-    H(i)  = fill([F(:,i)+i; flipud(i-F(:,i))],[U(:,i); flipud(U(:,i))], [1 1 1], 'EdgeColor','none');
-    H1(i) = plot([interp1(U(:,i), F(:,i)+i, Mdata(i)), interp1(flipud(U(:,i)), flipud(i-F(:,i)), Mdata(i)) ], [Mdata(i) Mdata(i)], 'r', 'LineWidth', 1.5);
+    if FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4  % Modified by Sandy
+        H(i)  = fill([F(:,i)+i; flipud(i-F(:,i))],[U(:,i); flipud(U(:,i))], [1 1 1], 'EdgeColor','none');
+        H1(i) = plot([interp1(U(:,i), F(:,i)+i, Mdata(i)), interp1(flipud(U(:,i)), flipud(i-F(:,i)), Mdata(i)) ], [Mdata(i) Mdata(i)], 'k', 'LineWidth', 1.5);
+    else
+        H{1, i}  = fill([F(:,i)+i; flipud(i-F(:,i))],[U(:,i); flipud(U(:,i))], [1 1 1], 'EdgeColor','none');
+        H1{1, i} = plot([interp1(U(:,i), F(:,i)+i, Mdata(i)), interp1(flipud(U(:,i)), flipud(i-F(:,i)), Mdata(i)) ], [Mdata(i) Mdata(i)], 'k', 'LineWidth', 1.5);
+    end
 end
 
 for j = 1:Numgroup
-    set(H(j:Numgroup:Dim2), 'FaceColor', Color(j,:), 'markerfacecolor', 'none');
+    for h = j:Numgroup:Dim2
+        if FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4  % Modified by Sandy
+            set(H(h), 'FaceColor', Color(j,:), 'markerfacecolor','none');
+        else
+            set(H{h}, 'FaceColor', Color(j,:), 'markerfacecolor', 'none');
+        end
+    end
 end
 
 switch lower(Type)
@@ -101,27 +119,32 @@ switch lower(Type)
         set(findobj(gcf, '-regexp', 'Tag', '\w*Whisker'), 'LineStyle', '-');
     case 'dot'
         ch = plotSpread(Data, 'distributionColors', {[0.3 0.3 0.3]});
-        set(ch{1,3}.Children, 'MarkerSize', 8);
+        HChildren=get(ch{1, 3}, 'Children');
+        set(HChildren, 'MarkerSize', 8);
+        %set(ch{1,3}.Children, 'MarkerSize', 8);
     otherwise
         error('The inputted Type is not recognized, please check it!');
 end
 
-ax            = gca;
-ax.XTick      = ((1+Numgroup)/2): Numgroup: (Dim2-(Numgroup-(1+Numgroup)/2));
-ax.XTickLabel = Lname;
+set(gca, 'XTick',((1+Numgroup)/2): Numgroup: (Dim2-(Numgroup-(1+Numgroup)/2)), 'XTickLabel', Lname)
 
 % legend
 Gname{1,end+1} = 'Mean';
-legend([H(1:Numgroup),H1(1)], Gname, 'Location','northeast');
+if FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4  % Modified by Sandy
+    legend([H(1:Numgroup),H1(1)], Gname, 'Location','northeast')
+else
+    warning('off','MATLAB:legend:IgnoringExtraEntries');
+    legend([cell2mat(H(1:Numgroup)), cell2mat(H1)], Gname, 'Location','northeast');
+end
 
 % line positions
-xlines = (Numgroup+0.5):Numgroup:(Dim2+0.5-Numgroup);
-hx     = zeros(size(xlines));
-
-for n  = 1:length(xlines);
-    hx(n) = line([xlines(n) xlines(n)], [min(Data(:))-0.309*range(Data(:)), max(Data(:))+0.309*range(Data(:))],...
-        'Linestyle' ,'-.' ,'color', .5+zeros(1,3), 'tag', 'separator', 'LineWidth', 1.5);
-end
+% xlines = (Numgroup+0.5):Numgroup:(Dim2+0.5-Numgroup);
+% hx     = zeros(size(xlines));
+% 
+% for n  = 1:length(xlines);
+%     hx(n) = line([xlines(n) xlines(n)], [min(Data(:))-0.309*range(Data(:)), max(Data(:))+0.309*range(Data(:))],...
+%         'Linestyle' ,'-.' ,'color', .5+zeros(1,3), 'tag', 'separator', 'LineWidth', 1.5);
+% end
 
 set(gca, 'FontName', 'arial', 'box', 'off', 'TickDir', 'out', 'Ylim', [min(Data(:))-range(Data(:)), max(Data(:))+range(Data(:))]);
 

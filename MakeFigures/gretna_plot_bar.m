@@ -92,18 +92,32 @@ if Numgroup == 1
     set(gca, 'xlim', [0 Numregion+1], 'xtick', x, 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
     
     hold on;
-    
+    %% Modified by Sandy, Show the upper or lower half error bar
     switch lower(Type)
         case 'sd'
-            plot([x; x], [yMean - yStd yMean + yStd]', 'color', [0.49 0.49 0.49], 'LineWidth', 2);
+            %plot([x; x], [yMean - yStd yMean + yStd]', 'color', [0.49 0.49 0.49], 'LineWidth', 2);
+            yErr=yStd;
         case 'sem'
-            plot([x; x], [yMean - ySem yMean + ySem]', 'color', [0.49 0.49 0.49], 'LineWidth', 2);
+            %plot([x; x], [yMean - ySem yMean + ySem]', 'color', [0.49 0.49 0.49], 'LineWidth', 2);
+            yErr=ySem;
         case 'ci'
-            plot([x; x], [yMean - yCI  yMean + yCI]',  'color',  [0.49 0.49 0.49], 'LineWidth', 2);
+            %plot([x; x], [yMean - yCI  yMean + yCI]',  'color',  [0.49 0.49 0.49], 'LineWidth', 2);
+            yErr=yCI;
         otherwise
             error('The inputted Type is not recognized, please check it!')
     end
-    
+    yErrBar=zeros(Numregion, 2);
+    for nr=1:Numregion
+        yOneMean=yMean(nr, 1);
+        if yOneMean >=0
+            yErrBar(nr, 1)=yOneMean;
+            yErrBar(nr, 2)=yOneMean + yErr(nr, 1);
+        else
+            yErrBar(nr, 1)=yOneMean - yErr(nr, 1);
+            yErrBar(nr, 2)=yOneMean;            
+        end
+    end
+    plot([x; x], yErrBar',  'color',  [0.49 0.49 0.49], 'LineWidth', 2);
 else
     
     if Numregion == 1
@@ -111,25 +125,39 @@ else
         yMean_new = diag(yMean);
         H = bar(yMean_new, 'stack');
         
-        for i = 1:Numgroup;
+        for i = 1:Numgroup
             set(H(i), 'FaceColor', Color(i,:), 'BarWidth', 0.66); 
         end
         
         hold on;
         
         for i = 1:Numgroup;
-            
+           %% Modified by Sandy, Show the upper or lower half error bar
             switch lower(Type)
                 case 'sd'
-                    plot([i; i], [yMean(:,i) - yStd(:,i);  yMean(:,i) + yStd(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
+                    %plot([i; i], [yMean(:,i) - yStd(:,i);  yMean(:,i) + yStd(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
+                    yErr = yStd;
                 case 'sem'
-                    plot([i; i], [yMean(:,i) - ySem(:,i);  yMean(:,i) + ySem(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
+                    %plot([i; i], [yMean(:,i) - ySem(:,i);  yMean(:,i) + ySem(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
+                    yErr = ySem;
                 case 'ci'
-                    plot([i; i], [yMean(:,i) - yCI(:,i);   yMean(:,i) + yCI(:,i)]',  'color', Color(i,:), 'LineWidth', 2);
+                    %plot([i; i], [yMean(:,i) - yCI(:,i);   yMean(:,i) + yCI(:,i)]',  'color', Color(i,:), 'LineWidth', 2);
+                    yErr = yCI;
                 otherwise
                     error('The inputted Type is not recognized, please check it!')
             end
-            
+            yErrBar=zeros(Numregion, 2);
+            for nr=1:Numregion
+                yOneMean=yMean(nr, i);
+                if yOneMean >=0
+                    yErrBar(nr, 1)=yOneMean;
+                    yErrBar(nr, 2)=yOneMean + yErr(nr, i);
+                else
+                    yErrBar(nr, 1)=yOneMean - yErr(nr, i);
+                    yErrBar(nr, 2)=yOneMean;            
+                end
+            end
+            plot([i; i], yErrBar',  'color', Color(i,:), 'LineWidth', 2);
         end
         
         set(gca, 'xlim', [0 Numgroup + 1], 'xtick', median(1:Numgroup), 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
@@ -138,7 +166,7 @@ else
         
         H = bar(yMean, 'LineStyle', '-');
         hold on;
-        set(gca, 'Xlim', [0.3 Numregion + 0.7], 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
+        set(gca, 'Xlim', [0.3 Numregion + 0.7], 'xtick', 1:Numregion, 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
         
         for i = 1:Numgroup
             
@@ -146,21 +174,35 @@ else
             
             % Aligning error bar with individual bar (Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange)
             x = (1:Numregion) - groupwidth/2 + (2*i-1) * groupwidth / (2*Numgroup);
-            
+           %% Modified by Sandy, Show the upper or lower half error bar 
             switch lower(Type)
                 case 'sd'
-                    plot([x; x], [yMean(:,i) - yStd(:,i)  yMean(:,i) + yStd(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
+                    %plot([x; x], [yMean(:,i) - yStd(:,i)  yMean(:,i) + yStd(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
                     % plot([x-criteria; x+criteria],[yMean(:,i)+yStd(:,i) yMean(:,i)+yStd(:,i)]','color',color(i,:),'LineWidth', 2);
+                    yErr = yStd;
                 case 'sem'
-                    plot([x; x], [yMean(:,i) - ySem(:,i)  yMean(:,i) + ySem(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
+                    %plot([x; x], [yMean(:,i) - ySem(:,i)  yMean(:,i) + ySem(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
                     % plot([x-criteria; x+criteria],[yMean(:,i)+ySem(:,i) yMean(:,i)+ySem(:,i)]','color',color(i,:),'LineWidth', 2);
+                    yErr = ySem;
                 case 'ci'
-                    plot([x; x], [yMean(:,i) - yCI(:,i)   yMean(:,i) + yCI(:,i)]',  'color', Color(i,:), 'LineWidth', 2);
+                    %plot([x; x], [yMean(:,i) - yCI(:,i)   yMean(:,i) + yCI(:,i)]',  'color', Color(i,:), 'LineWidth', 2);
                     % plot([x-criteria; x+criteria],[yMean(:,i)+yCI(:,i)  yMean(:,i)+yCI(:,i)]','color',color(i,:),'LineWidth', 2);
+                    yErr = yCI;
                 otherwise
                     error('The inputted Type is not recognized, please check it');
             end
-            
+            yErrBar=zeros(Numregion, 2);
+            for nr=1:Numregion
+                yOneMean=yMean(nr, i);
+                if yOneMean >=0
+                    yErrBar(nr, 1)=yOneMean;
+                    yErrBar(nr, 2)=yOneMean + yErr(nr, i);
+                else
+                    yErrBar(nr, 1)=yOneMean - yErr(nr, i);
+                    yErrBar(nr, 2)=yOneMean;            
+                end
+            end
+            plot([x; x], yErrBar',  'color', Color(i,:), 'LineWidth', 2);            
         end
         
     end
@@ -168,7 +210,9 @@ else
 end
 
 ax = gca;   
-ax.XTickLabel = Lname;
+%ax.XTickLabel = Lname; Modified by Sandy, Compatibility
+set(ax, 'XTickLabel', Lname);
+
 legend(H, Gname, 'Location', 'northeast');
 legend('boxoff');
 

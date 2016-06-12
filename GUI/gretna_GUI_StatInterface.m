@@ -296,7 +296,7 @@ if numel(handles.SampleCells)==handles.SampleNum
     return
 end
 
-[Name, Path]=uigetfile({'*.txt;*.csv;*.tsv','Text Covariates File (*.txt;*.csv;*.tsv)';'*.*', 'All Files (*.*)';},...
+[Name, Path]=uigetfile({'*.txt;*.csv;*.tsv','Sample File (*.txt;*.csv;*.tsv)';'*.*', 'All Files (*.*)';},...
     'Pick the Text Covariates');
 if isnumeric(Name)
     return
@@ -365,7 +365,14 @@ function OutputDirEntry_Callback(hObject, eventdata, handles)
 % hObject    handle to OutputDirEntry (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+Path=get(handles.OutputDirEntry, 'String');
+if exist(Path, 'dir')~=7
+    warndlg('Cannot find directory, please create it first!');
+    set(handles.OutputDirEntry, 'String', handles.CurDir);
+    return
+end
+handles.CurDir=Path;
+guidata(hObject, handles);
 % Hints: get(hObject,'String') returns contents of OutputDirEntry as text
 %        str2double(get(hObject,'String')) returns contents of OutputDirEntry as a double
 
@@ -392,7 +399,7 @@ Path=uigetdir(handles.CurDir, 'Pick Output Directory');
 if isnumeric(Path)
     return
 end
-handles.CurDir=fileparts(Path);
+handles.CurDir=Path;
 set(handles.OutputDirEntry, 'String', Path);
 guidata(hObject, handles);
 

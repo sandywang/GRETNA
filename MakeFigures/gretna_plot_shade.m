@@ -68,33 +68,69 @@ else
     Color = distinguishable_colors(100);
 end
 
-H = gobjects(1,Dim2);
+FullMatlabVersion = sscanf(version,'%d.%d.%d.%d%s');
 
-for i = 1:Dim2
-    Datatmp = Ydata{1,i};
-    Xbar    = mean(Datatmp);  N = size(Datatmp,1);
+if FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4  % Modified by Sandy
     
-    switch lower(Type)
-        case 'sd'
-            fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp) fliplr(Xbar-std(Datatmp))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-        case 'sem'
-            fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp)/sqrt(N) fliplr(Xbar-std(Datatmp)/sqrt(N))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-        case 'ci'
-            ts = tinv([0.975 0.025], N-1);                % T-Score
-            UpCI = Xbar + ts(1)*(std(Datatmp)/sqrt(N));   % upper boundary of 95% confidence interval
-            LoCI = Xbar + ts(2)*(std(Datatmp)/sqrt(N));   % lower boundary of 95% confidence interval
-            fill([Xdata fliplr(Xdata)], [UpCI fliplr(LoCI)], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-        otherwise
-            error('The inputted Type is not recognized, please check it!')
+    H = gobjects(1,Dim2);
+    
+    for i = 1:Dim2
+        Datatmp = Ydata{1,i};
+        Xbar    = mean(Datatmp);  N = size(Datatmp,1);
+        
+        switch lower(Type)
+            case 'sd'
+                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp) fliplr(Xbar-std(Datatmp))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+            case 'sem'
+                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp)/sqrt(N) fliplr(Xbar-std(Datatmp)/sqrt(N))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+            case 'ci'
+                ts = tinv([0.975 0.025], N-1);                % T-Score
+                UpCI = Xbar + ts(1)*(std(Datatmp)/sqrt(N));   % upper boundary of 95% confidence interval
+                LoCI = Xbar + ts(2)*(std(Datatmp)/sqrt(N));   % lower boundary of 95% confidence interval
+                fill([Xdata fliplr(Xdata)], [UpCI fliplr(LoCI)], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+            otherwise
+                error('The inputted Type is not recognized, please check it!')
+        end
+        
+        hold on;
+        
+        H(i) = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
+        set(gca, 'Xlim', [min(Xdata) max(Xdata)], 'Tickdir', 'out');
     end
     
-    hold on;
+    legend(H, Gname, 'Location', 'northeast');
     
-    H(i) = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
-    set(gca, 'Xlim', [min(Xdata) max(Xdata)], 'Tickdir', 'out');
+else
+    
+    H = cell(1,Dim2);
+    
+    for i = 1:Dim2
+        Datatmp = Ydata{1,i};
+        Xbar    = mean(Datatmp);  N = size(Datatmp,1);
+        
+        switch lower(Type)
+            case 'sd'
+                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp) fliplr(Xbar-std(Datatmp))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+            case 'sem'
+                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp)/sqrt(N) fliplr(Xbar-std(Datatmp)/sqrt(N))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+            case 'ci'
+                ts = tinv([0.975 0.025], N-1);                % T-Score
+                UpCI = Xbar + ts(1)*(std(Datatmp)/sqrt(N));   % upper boundary of 95% confidence interval
+                LoCI = Xbar + ts(2)*(std(Datatmp)/sqrt(N));   % lower boundary of 95% confidence interval
+                fill([Xdata fliplr(Xdata)], [UpCI fliplr(LoCI)], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+            otherwise
+                error('The inputted Type is not recognized, please check it!')
+        end
+        
+        hold on;
+        
+        H{i} = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
+        set(gca, 'Xlim', [min(Xdata) max(Xdata)], 'Tickdir', 'out');
+    end
+    
+    legend(cell2mat(H)', Gname', 'Location', 'northeast');
+    
 end
-
-legend(H, Gname, 'Location', 'northeast');
 
 hold off;
 

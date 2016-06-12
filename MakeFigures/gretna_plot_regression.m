@@ -47,9 +47,15 @@ end
 if size(Xdata,2) ~= 1 || size(Ydata,2) ~= 1
     error('The input X and Y must be n-by-1 arrays'); end
 
-
-tbl = table(Ydata, Xdata);
-mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'on');
+FullMatlabVersion = sscanf(version,'%d.%d.%d.%d%s');
+if (FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4)
+    tbl = table(Ydata, Xdata); %Modified by Sandy
+    mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'off');    
+else
+    mdl= regstats(Ydata, Xdata, 'linear');
+end
+%tbl = table(Ydata, Xdata); %Modified by Sandy
+%mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'on');
 
 Xdata = Xdata'; Ydata = Ydata';
 [p, s] = polyfit(Xdata, Ydata, 1);

@@ -25,15 +25,15 @@ function [Pval] = gretna_Corr2Pval(R, n, tail)
 %==========================================================================
 
 t = (R.*sqrt(n-2))./(sqrt(1-R.^2));
-Tscore = abs(t); df = n-2;
+df = n-2;
 
 % calculate p value
 if strcmpi(tail, 'right')
-    Pval = tcdf(-Tscore,df);
+    Pval = tcdf(-t,df);
 elseif strcmpi(tail, 'left')
-    Pval = tcdf(Tscore,df);
+    Pval = tcdf(t,df);
 elseif strcmpi(tail, 'both')
-    Pval = 2 .* tcdf(-abs(Tscore),df);
+    Pval = 2 .* tcdf(-abs(t),df);
 else
     error('Wrong input for the third argument')
 end

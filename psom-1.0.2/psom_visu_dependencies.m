@@ -70,7 +70,7 @@ psom_set_defaults
 
 if exist('biograph')
     
-    [graph_deps,list_jobs,files_in,files_out,files_clean,deps] = psom_build_dependencies(pipeline);
+    [graph_deps,list_jobs,files_in,files_out,files_clean] = psom_build_dependencies(pipeline);
     bg = biograph(graph_deps,list_jobs);
     dolayout(bg);
     view(bg);

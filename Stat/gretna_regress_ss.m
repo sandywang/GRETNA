@@ -27,7 +27,7 @@ function [b,r,SSE,SSR, T, TF_ForContrast] = gretna_regress_ss(y,X,Contrast,TF_Fl
 % Revised by YAN Chao-Gan 121220. Also support T-test or F-test for a given contrast.
 %___________________________________________________________________________
 % Reused by Wang Xindi in GRETNA 140615
-% National Key Laboratory of Cognitive Neuroscience and Learning, Beijing Normal University, China
+% State Key Laboratory of Cognitive Neuroscience and Learning, Beijing Normal University, China
 
 [n,ncolX] = size(X);
 [Q,R,perm] = qr(X,0);

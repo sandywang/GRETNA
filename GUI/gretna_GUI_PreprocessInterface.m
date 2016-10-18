@@ -22,7 +22,7 @@ function varargout = gretna_GUI_PreprocessInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_PreprocessInterface
 
-% Last Modified by Sandy Wang 20121127
+% Last Modified by GUIDE v2.5 17-Oct-2016 19:02:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,158 +53,170 @@ function gretna_GUI_PreprocessInterface_OpeningFcn(hObject, eventdata, handles, 
 % varargin   command line arguments to gretna_GUI_PreprocessInterface (see VARARGIN)
 
 % Choose default command line output for gretna_GUI_PreprocessInterface
+
+% Init Input Structure
+handles.InputS=[];
+
+% Init Preprocess Procedures
+handles.PreModeCell={...
+    'DICOM to NIfTI',         1;...
+    'Remove First Images',    2;...
+    'Slice Timing',           3;...
+    'Realign',                4;...
+    'Normalize',              5;...
+    'Spatially Smooth',       6;...
+    'Regress Out Covariates', 7;...    
+    'Temporally Detrend',     8;...
+    'Temporally Filter',      9;...
+    'Scrubbing',              10};
+
+SPMPath=fileparts(which('spm.m'));
+GRETNAPath=fileparts(which('gretna.m'));
+
+% DICOM to NIfTI
+%   Time Points
+handles.Para.TP={'<-X'};
+
+% Remove First Images
+%   Removed Images
+handles.Para.DelImg={'<-X'};
+
+% Slice Timing
+%   TR
+handles.Para.TR={'<-X'};
+%   Slice Order
+handles.Para.SliOrd={1, ...
+    {'Alternating in the plus direction (starting at odd)';...
+    'Alternating in the plus direction (starting at even)';...
+    'Alternating in the minus direction (starting at odd)';...
+    'Alternating in the minus direction (starting at even)';...
+    'Sequential in the plus direction';...
+    'Sequential in the minus direction'}};
+%   Reference Slice
+handles.Para.RefSli={2, ...
+    {'First slice'; 'Middle slice'; 'Last slice'}};
+
+% Realign
+%   Num Passes
+handles.Para.NumPasses={1, ...
+    {'Register to first'; 'Register to mean'}};
+
+% Normalize
+handles.Para.NormSgy={3, ...
+    {'EPI Template'; ' T1 Unified Segmentation'; 'DARTEL'}};
+
+handles.Para.SourPath={'Same To Fun', '', 'D'};
+handles.Para.SourPrefix={'mean*'};
+handles.Para.VoxSize={[3, 3, 3]};
+handles.Para.BBox={[-90, -126, -72; 90, 90, 108]};
+
+%   EPI
+if exist(fullfile(SPMPath, 'templates', 'EPI.nii'), 'file')~=2 %spm12
+    handles.Para.EPITpm={'EPI.nii', fullfile(SPMPath, 'toolbox', 'OldNorm', 'EPI.nii'), 'F'};
+else
+    handles.Para.EPITpm={'EPI.nii', fullfile(SPMPath, 'templates', 'EPI.nii'), 'F'};
+end
+
+handles.Para.T1Path={'<-X', '', 'D'};
+handles.Para.T1Dcm2NiiFlag={1, ...
+    {'TRUE'; 'FALSE'}};
+handles.Para.T1Prefix={'*'};
+
+%   OldSeg
+if exist(fullfile(SPMPath, 'tpm', 'grey.nii'), 'file')~=2 %spm12
+    handles.Para.GMTpm={'grey.nii', fullfile(SPMPath, 'toolbox', 'OldSeg', 'grey.nii'), 'F'};
+    handles.Para.WMTpm={'white.nii', fullfile(SPMPath, 'toolbox', 'OldSeg', 'white.nii'), 'F'};
+    handles.Para.CSFTpm={'csf.nii', fullfile(SPMPath, 'toolbox', 'OldSeg', 'csf.nii'), 'F'};
+else
+    handles.Para.GMTpm={'grey.nii', fullfile(SPMPath, 'tpm', 'grey.nii'), 'F'};
+    handles.Para.WMTpm={'white.nii', fullfile(SPMPath, 'tpm', 'white.nii'), 'F'};
+    handles.Para.CSFTpm={'csf.nii', fullfile(SPMPath, 'tpm', 'csf.nii'), 'F'};
+end
+handles.Para.AffReg={2, ...
+    {'No affine registration';...
+    'ICBM space template - European brains';...
+    'ICBM space template - East Asian brains';...
+    'Average sized template';...
+    'No regularisation'}};
+
+%   NewSeg
+if exist(fullfile(SPMPath, 'toolbox', 'Seg', 'TPM.nii'), 'file')~=2 %spm12
+    handles.Para.TPMTpm={'TPM.nii', fullfile(SPMPath, 'tpm', 'TPM.nii'), 'F'};
+else
+    handles.Para.TPMTpm={'TPM.nii', fullfile(SPMPath, 'toolbox', 'Seg', 'TPM.nii'), 'F'};
+end
+
+% Spatially Smooth
+handles.Para.FWHM={[4, 4, 4]};
+
+% Regress Out Covariates
+%   Global Signal
+handles.Para.GSFlag={2,...
+    {'TRUE'; 'FALSE'}};
+handles.Para.GSMsk={'BrainMask_3mm.nii', fullfile(GRETNAPath, 'Mask', 'BrainMask_3mm.nii'), 'F'};
+%   White Matter Signal
+handles.Para.WMFlag={1,...
+    {'TRUE'; 'FALSE'}};
+handles.Para.WMMsk={'WMMask_3mm.nii', fullfile(GRETNAPath, 'Mask', 'WMMask_3mm.nii'), 'F'};
+%   CSF Signal
+handles.Para.CSFFlag={1,...
+    {'TRUE'; 'FALSE'}};
+handles.Para.CSFMsk={'CSFMask_3mm.nii', fullfile(GRETNAPath, 'Mask', 'CSFMask_3mm.nii'), 'F'};
+
+%   Head Motion
+handles.Para.HMFlag={1,...
+    {'TRUE'; 'FALSE'}};
+handles.Para.HMSgy={3,...
+    {'Original - 6 Parameters'; 'Original and Relative - 12 Parameters'; 'Frison - 24 Parameters'}};
+
+% Temporally Detrend
+handles.Para.PolyOrd={1,...
+    {'Linear'; 'Linear and Quadratic'}};
+
+% Temporally Filter
+handles.Para.Band={[0.01, 0.1]};
+
+% Scrubbing
+handles.Para.InterSgy={1,...
+    {'Remove'; 'Nearest Interpolation'; 'Linear Interpolation'}};
+handles.Para.FDTrd={0.5};
+handles.Para.PreNum={1};
+handles.Para.PostNum={2};
+
+
+% Init Postprocess Procedures
+handles.PostModeCell={'Static Correlation', 1;...
+    'Dynamical Correlation', 2};
+
+% SFC
+handles.Para.FCAtlas={'Random1024_3mm.nii', fullfile(GRETNAPath, 'Atlas', 'Random1024_3mm.nii'), 'F'};
+handles.Para.FZTFlag={2,...
+    {'TRUE'; 'FALSE'}};
+
+% DFC
+handles.Para.SWL={50};
+handles.Para.SWS={2};
+
+% Init Mode List Index
+handles.UnselPreInd=(1:10)';
+handles.SelPreInd=[];
+handles.UnselPostInd=(1:2)';
+handles.SelPostInd=[];
+
+% Init Current Item Key
+handles.CurItemKey=[];
+
+% Init Fun Parent Dir
+handles.FunPDir=[];
+
+handles.MainFig=hObject;
 handles.output = hObject;
-
-if nargin==4
-    if strcmpi(varargin{1},'Connect');
-        handles.ConnectFlag=1;
-    elseif strcmpi(varargin{1},'UnConnect')
-        close(hObject);
-        return;
-    end
-elseif ~isfield(handles , 'ConnectFlag')
-    handles.ConnectFlag=0;
-end
-
-if ~isfield(handles , 'CalList')
-    handles.CalList=[];
-end
-
-if ~isfield(handles , 'DataList')
-    handles.DataList=[];
-end
-
-if ~isfield(handles , 'subj_num')
-    handles.subj_num=0;
-end
-if ~isfield(handles , 'Para')
-    GUIPath=fileparts(which('gretna.m'));
-    ParaFile=[GUIPath , filesep , 'PreprocessPara.mat'];
-    if exist(ParaFile , 'file')
-        Para=load([GUIPath , filesep , 'PreprocessPara.mat']);
-        Para=Para.Para;
-        if ~isfield(Para, 'DCMask')       ||...
-            ~isfield(Para, 'DCRthr')      ||...
-            ~isfield(Para, 'DCDis')       ||...
-            ~isfield(Para, 'QueueSize')   ||...
-            ~isfield(Para, 'HMDerivBool') ||...
-            ~isfield(Para, 'DFCBool') ||...
-            ~isfield(Para, 'CoregT1Prefix')
-            Para=[];
-        end
-        
-        if exist(Para.LabMask, 'file')~=2
-            Para=[];
-            try
-                delete(fullfile(GUIPath, 'PreprocessPara.mat'));
-            catch exception
-                %fprintf('Delete %s Failed', fullfile(GUIPath, 'PreprocessPara.mat'));
-                rethrow(exception);
-            end
-        end
-    else
-        Para=[];
-    end
-    
-    if isempty(Para)
-    %DICOM to Nifti
-        %-Output
-        Para.NiiDir='';
-        Para.TimePoint=240;
-    %Remove first time points
-        %-The number of images to be deleted
-        Para.DeleteType='Delete';
-        Para.ImageNum=10;
-    %Slice Timing
-        %-Number of Slices
-        Para.SliceNum=33;
-        %-TR (s)
-        Para.TR=2;
-        %-Slice order
-        Para.SliOrd='1:2:33,2:2:32';
-        %-Reference Slice
-        Para.RefSlice=33;
-    %Normalize
-        Para.NormType='EPI';
-        Para.T1Path='';
-        Para.T1D2NBool='FALSE';
-        Para.T1NiiDir='';
-        % Coregister
-        Para.CorBool='TRUE';
-        Para.CorT1Prefix='Nifti*';
-        Para.RefPath='';
-        Para.RefPrefix='mean*';
-        % Segment
-        Para.SegBool='TRUE';
-        Para.SegT1Prefix='coreg*';
-        Para.T1Template='mni';
-        Para.MatSuffix='*_seg_sn.mat';
-        SPMPath=fileparts(which('spm.m'));
-        Para.GreyTemplate=fullfile(SPMPath, 'tpm', 'grey.nii');
-        Para.WhiteTemplate=fullfile(SPMPath, 'tpm', 'white.nii');
-        Para.CSFTemplate=fullfile(SPMPath, 'tpm', 'csf.nii');
-        if exist(fullfile(SPMPath, 'tpm', 'grey.nii'), 'file')~=2 %spm12
-            Para.GreyTemplate=fullfile(SPMPath, 'toolbox', 'OldSeg', 'grey.nii');
-            Para.WhiteTemplate=fullfile(SPMPath, 'toolbox', 'OldSeg', 'white.nii');
-            Para.CSFTemplate=fullfile(SPMPath, 'toolbox', 'OldSeg', 'csf.nii');            
-        end
-        % Normalized Opt
-        Para.VoxelSize='[3 3 3]';
-        Para.BB='[-90 , -126 , -72 ; 90 , 90 , 108]';
-    %Smooth
-        %-The full width half maximum of the Gaussian smoothing kernel (mm)
-        Para.FWHM='[4 4 4]';
-    %Detrend
-        %-The degrees of polynomial curve fitting (1 for linear trend)
-        Para.DetrendOrd=1;
-        %-Remain (TRUE) or Remove (no) the mean of time course
-        Para.RemainMean='TRUE';
-        %Filter
-        %-Frequency-band
-        Para.FreBand='[0.01 0.08]';
-    %Covarites
-        %-Global Signal
-        Para.GSBool='TRUE';
-        Para.GSMask=[GUIPath , filesep ,...
-            'mask' , filesep , 'BrainMask_05_61x73x61.img'];
-        %-White Matter Signal
-        Para.WMBool='TRUE';
-        Para.WMMask=[GUIPath , filesep ,...
-            'mask' , filesep , 'WhiteMask_09_61x73x61.img'];
-        %-CSF Signal
-        Para.CSFBool='TRUE';
-        Para.CSFMask=[GUIPath , filesep ,...
-            'mask' , filesep , 'CsfMask_07_61x73x61.img'];
-        %-Head Motion
-        Para.HMBool='TRUE';
-        Para.HMPath='';
-        Para.HMPrefix='rp_*';
-        Para.HMDerivBool='FALSE';
-        Para.HMFrison24Bool='FALSE';
-    %Voxel-wise Degree
-        Para.DCMask=[GUIPath , filesep ,...
-            'Templates' , filesep , 'greymatter_02_mask_with_AAL90.nii'];
-        Para.DCRthr=0.3;
-        Para.DCDis=75;
-    %Queue Size
-        Para.QueueSize=2;
-    %FC
-        Para.LabMask=[GUIPath , filesep ,...
-            'Templates' , filesep , 'AAL_90_3mm.nii'];
-        Para.DFCBool='TRUE';
-        Para.DFCWin=50;
-        Para.DFCStep=2;
-        %save(ParaFile , 'Para');
-    end
-    set(handles.QueueEntry, 'String', num2str(Para.QueueSize));
-    handles.Para=Para;
-end
-handles.StopFlag=0;
 % Update handles structure
 guidata(hObject, handles);
 
+UpdateConfigInterface(hObject);
 % UIWAIT makes gretna_GUI_PreprocessInterface wait for user response (see UIRESUME)
-% uiwait(handles.gretna_GUI_PreprocessInterface);
+% uiwait(handles.MainFig);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -215,56 +227,22 @@ function varargout = gretna_GUI_PreprocessInterface_OutputFcn(hObject, eventdata
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-%varargout{1} = handles.output;
+varargout{1} = handles.output;
 
 
-% --- Executes on selection change in ModeListbox.
-function ModeListbox_Callback(hObject, eventdata, handles)
-% hObject    handle to ModeListbox (see GCBO)
+% --- Executes on selection change in PreModeList.
+function PreModeList_Callback(hObject, eventdata, handles)
+% hObject    handle to PreModeList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmpi(get(gcf , 'SelectionType') , 'normal')
-    return;
-elseif strcmpi(get(gcf , 'SelectionType') , 'open')
-    ModeList=get(handles.ModeListbox , 'String');
-    if ~isempty(ModeList)
-        SelectValue=get(handles.ModeListbox , 'Value');
-        handles.CalList=[handles.CalList ; ModeList(SelectValue')];
-        ModeList(SelectValue')=[];
-        if isempty(ModeList)
-            set(handles.ModeListbox , 'Value' , 0)
-        else
-            set(handles.ModeListbox , 'Value' , 1)
-        end
-        set(handles.ModeListbox , 'String' , ModeList);
-        for i=size(handles.CalList , 1):-1:1
-            if strcmpi(handles.CalList{i} , 'DICOM to NIFTI')
-                handles.CalList(i)=[];
-                handles.CalList=[ {'DICOM to NIFTI'} ; handles.CalList];
-                break;
-            end
-        end
-    
-        for i=size(handles.CalList , 1):-1:1
-            if strcmpi(handles.CalList{i} , 'Functional Connectivity Matrix')
-                handles.CalList(i)=[];
-                handles.CalList=[handles.CalList ; {'Functional Connectivity Matrix'}];
-                break;
-            end
-        end           
-        CalText=CalListbox(handles);
-        set(handles.CalListbox , 'Value' , 1);
-        set(handles.CalListbox , 'String' , CalText);
-        guidata(hObject,handles);
-    end
-end
-% Hints: contents = cellstr(get(hObject,'String')) returns ModeListbox contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from ModeListbox
+
+% Hints: contents = cellstr(get(hObject,'String')) returns PreModeList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from PreModeList
 
 
 % --- Executes during object creation, after setting all properties.
-function ModeListbox_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to ModeListbox (see GCBO)
+function PreModeList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to PreModeList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -275,2353 +253,29 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in toleftbutton.
-function ToRightButton_Callback(hObject, eventdata, handles)
-% hObject    handle to toleftbutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
+% --- Executes on key press with focus on PreModeList and none of its controls.
+function PreModeList_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to PreModeList (see GCBO)
+% eventdata  structure with the following fields (see UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
-    ModeList=get(handles.ModeListbox , 'String');
-    if ~isempty(ModeList)
-        SelectValue=get(handles.ModeListbox , 'Value');
-        handles.CalList=[handles.CalList ; ModeList(SelectValue')];
-        ModeList(SelectValue')=[];
-        if isempty(ModeList)
-            set(handles.ModeListbox , 'Value' , 0)
-        else
-            set(handles.ModeListbox , 'Value' , 1)
-        end
-        set(handles.ModeListbox , 'String' , ModeList);
-        for i=size(handles.CalList , 1):-1:1
-            if strcmpi(handles.CalList{i} , 'DICOM to NIFTI')
-                handles.CalList(i)=[];
-                handles.CalList=[ {'DICOM to NIFTI'} ; handles.CalList];
-                break;
-            end
-        end
-    
-        for i=size(handles.CalList , 1):-1:1
-            if strcmpi(handles.CalList{i} , 'Functional Connectivity Matrix')
-                handles.CalList(i)=[];
-                handles.CalList=[handles.CalList ; {'Functional Connectivity Matrix'}];
-                break;
-            end
-        end   
-        CalText=CalListbox(handles);
-        set(handles.CalListbox , 'Value' , 1);
-        set(handles.CalListbox , 'String' , CalText);
-        guidata(hObject,handles);
-    end
 
-% --- Executes on button press in ToLeftButton.
-function ToLeftButton_Callback(hObject, eventdata, handles)
-% hObject    handle to ToLeftButton (see GCBO)
+
+% --- Executes on selection change in PostModeList.
+function PostModeList_Callback(hObject, eventdata, handles)
+% hObject    handle to PostModeList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    CalText=get(handles.CalListbox , 'String');
-    if ~isempty(CalText)
-        SelectValue=get(handles.CalListbox , 'Value');
-        ModeList=get(handles.ModeListbox , 'String');
-        IsMode=0;
-        for i=1:size(handles.CalList, 1)
-            if strcmpi(CalText{SelectValue} , handles.CalList{i})
-                IsMode=1;
-                break;
-            end
-        end
-        if ~IsMode
-            return;
-        end
-        
-        ModeList=[ModeList ; CalText{SelectValue}];
-        for i=1:size(handles.CalList , 1)
-        	if strcmpi([handles.CalList{i}] , CalText{SelectValue})
-            	temp_order=i;
-            else
-            	continue;
-            end
-        end
-        handles.CalList(temp_order)=[];
-        
-        CalText=CalListbox(handles);
-        if isempty(handles.CalList)
-            set(handles.CalListbox , 'Value' , 0)
-        else
-            set(handles.CalListbox , 'Value' , 1)
-        end
-        set(handles.CalListbox , 'String' , CalText);
-        set(handles.ModeListbox , 'String' , ModeList);
-        set(handles.ModeListbox , 'Value' , 1)
-        guidata(hObject,handles);
-    end
-    
-% --- Executes on selection change in CalListbox.
-function CalListbox_Callback(hObject, eventdata, handles)
-% hObject    handle to CalListbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if strcmpi(get(gcf , 'SelectionType') , 'normal')
-    CalText=get(handles.CalListbox , 'String');
-    if ~isempty(CalText)
-        SelectValue=get(handles.CalListbox , 'Value');
-        IsMode=0;
-        for i=1:size(handles.CalList, 1)
-            if strcmpi(CalText{SelectValue} , handles.CalList{i})
-                IsMode=1;
-                break;
-            end
-        end
-        if ~IsMode
-            if ~isempty(strfind(CalText{SelectValue} , 'Time Point:'))
-                ConfigText={sprintf('%d' , handles.Para.TimePoint)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'The delete type:'))
-                if strcmpi(handles.Para.DeleteType , 'Delete')
-                    ConfigText=[{'*Delete'};...
-                        {'Retain'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText=[{'Delete'};...
-                        {'*Retain'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'time points'))
-                ConfigText={sprintf('%d' , handles.Para.ImageNum)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Number of Slices:'))
-                ConfigText={sprintf('%d' , handles.Para.SliceNum)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'TR (s):'))
-                ConfigText={sprintf('%d' , handles.Para.TR)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Slice order:'))
-                SliOrdNum=str2num(handles.Para.SliOrd);
-                ConfigText={sprintf('%-3d' , SliOrdNum)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Reference Slice:'))
-                ConfigText={sprintf('%d' , handles.Para.RefSlice)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Normlize Method:'))
-                if strcmpi(handles.Para.NormType , 'EPI')
-                    ConfigText=[{'*EPI'};...
-                        {'T1'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText=[{'EPI'};...
-                        {'*T1'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Source Image Path:'))
-                if ~isempty(handles.Para.RefPath)
-                    ConfigText={sprintf('%s' , handles.Para.RefPath)};
-                else
-                    ConfigText={'Same with Functional Dataset'};
-                end
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Source Image Prefix:'))
-                ConfigText={sprintf('%s' , handles.Para.RefPrefix)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Path   <-X'))
-                if ~isempty(handles.Para.T1Path)
-                    ConfigText={sprintf('%s' , handles.Para.T1Path)};
-                else
-                    ConfigText={'Please pick your T1 Directory'};
-                end
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'DICOM to Nifti:'))
-                if strcmpi(handles.Para.T1D2NBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , '. . Coregister:'))
-                if strcmpi(handles.Para.CorBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , '. . Segment:'))
-                if strcmpi(handles.Para.SegBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Grey Matter Template:'))
-                ConfigText={sprintf('%s' , handles.Para.GreyTemplate)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'White Matter Template:'))
-                ConfigText={sprintf('%s' , handles.Para.WhiteTemplate)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);   
-            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF Template:'))
-                ConfigText={sprintf('%s' , handles.Para.CSFTemplate)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);                 
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Coregister:'))
-                ConfigText={sprintf('%s' , handles.Para.CorT1Prefix)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Segment:'))
-                ConfigText={sprintf('%s' , handles.Para.SegT1Prefix)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);                
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Mat Suffix:'))
-                ConfigText={sprintf('%s' , handles.Para.MatSuffix)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Affine Regularisation:'))
-                if strcmpi(handles.Para.T1Template , 'mni')
-                    ConfigText={'*mni';...
-                        'estern'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'mni';...
-                        '*estern'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Voxel Sizes (mm):'))
-                VoxelSize=str2num(handles.Para.VoxelSize);
-                ConfigText={sprintf('%-2d' , VoxelSize)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Bounding box:'))
-                BB=str2num(handles.Para.BB);
-                ConfigText=[{sprintf('%-10d' , BB(1,:))};...
-                    {sprintf('%-10d' , BB(2,:))}];
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'FWHM (mm):'))
-                FWHM=str2num(handles.Para.FWHM);
-                ConfigText={sprintf('%-2d' , FWHM)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'The degrees of polynomial curve fitting:'))
-                ConfigText={sprintf('%d' , handles.Para.DetrendOrd)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Remain Mean'))
-                if strcmpi(handles.Para.RemainMean , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Band (Hz):'))
-                FreBand=str2num(handles.Para.FreBand);
-                ConfigText={sprintf('%-10.2f' , FreBand)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Global signal:'))
-                if strcmpi(handles.Para.GSBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Brain Mask:'))
-                ConfigText={sprintf('%s' , handles.Para.GSMask)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'White matter signal:'))
-                if strcmpi(handles.Para.WMBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'White Mask:'))
-                ConfigText={sprintf('%s' , handles.Para.WMMask)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF signal:'))
-                if strcmpi(handles.Para.CSFBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF Mask:'))
-                ConfigText={sprintf('%s' , handles.Para.CSFMask)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Head Motion:'))
-                if strcmpi(handles.Para.HMBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Text Parent Path:')) 
-                if ~isempty(handles.Para.HMPath)
-                    ConfigText={sprintf('%s' , handles.Para.HMPath)};
-                else
-                    ConfigText={'Same with Functional Dataset'};
-                end
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Text Prefix:'))
-                ConfigText={sprintf('%s' , handles.Para.HMPrefix)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Derivative (12):'))
-                if strcmpi(handles.Para.HMDerivBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Frison (24):'))
-                if strcmpi(handles.Para.HMFrison24Bool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end                
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Label Mask:'))
-                ConfigText={sprintf('%s' , handles.Para.LabMask)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Dynamical FC:'))
-                if strcmpi(handles.Para.DFCBool , 'TRUE');
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                else
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Window Length:'))
-                ConfigText={sprintf('%d' , handles.Para.DFCWin)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Step Length:'))
-                ConfigText={sprintf('%d' , handles.Para.DFCStep)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Output Directory:')) 
-                ConfigText={sprintf('%s' , handles.Para.MatOutput)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Degree Mask:'))
-                ConfigText={sprintf('%s' , handles.Para.DCMask)};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Threshold:'))
-                ConfigText={sprintf('%s' , num2str(handles.Para.DCRthr))};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Distance:'))
-                ConfigText={sprintf('%s' , num2str(handles.Para.DCDis))};
-                set(handles.ConfigListbox , 'String' , ConfigText);
-                set(handles.ConfigListbox , 'Value'  , 1);
-            end
-            guidata(hObject,handles);
-        else
-            ConfigText=[];
-            set(handles.ConfigListbox , 'String' , ConfigText);
-            set(handles.ConfigListbox , 'Value'  , 0);
-        end
-        return;
-    end
-elseif strcmpi(get(gcf , 'SelectionType') , 'open')
-    CalText=get(handles.CalListbox , 'String');
-    if ~isempty(CalText)
-        SelectValue=get(handles.CalListbox , 'Value');
-        ModeList=get(handles.ModeListbox , 'String');
-        IsMode=0;
-        for i=1:size(handles.CalList, 1)
-            if strcmpi(CalText{SelectValue} , handles.CalList{i})
-                IsMode=1;
-                break;
-            end
-        end
-        if ~IsMode
-            if ~isempty(strfind(CalText{SelectValue} , 'Time Point:'))
-                TimePoint=inputdlg('Enter Time Point of time series:',...
-                    'The time points',...
-                    1,...
-                    {num2str(handles.Para.TimePoint)});
-                if ~isempty(TimePoint)
-                    handles.Para.TimePoint=str2num(TimePoint{1});
-                    ConfigText={sprintf('%d' , handles.Para.TimePoint)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'The delete type:'))
-                if strcmpi(handles.Para.DeleteType , 'Delete')
-                    handles.Para.DeleteType='Retain';
-                    ConfigText=[{'Delete'};...
-                        {'*Retain'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.DeleteType='Delete';
-                    ConfigText=[{'*Delete'};...
-                        {'Retain'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'time points'))
-                ImageNum=inputdlg('Enter the number of images:',...
-                    'The time points',...
-                    1,...
-                    {num2str(handles.Para.ImageNum)});
-                if ~isempty(ImageNum)
-                    handles.Para.ImageNum=str2num(ImageNum{1});
-                    ConfigText={sprintf('%d' , handles.Para.ImageNum)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Number of Slices:'))
-                SliceNum=inputdlg('Enter Number of Slices:',...
-                    'The slices in a volume',...
-                    1,...
-                    {num2str(handles.Para.SliceNum)});
-                if ~isempty(SliceNum)
-                    handles.Para.SliceNum=str2num(SliceNum{1});
-                    ConfigText={handles.Para.SliceNum};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'TR (s):'))
-                TR=inputdlg('Enter TR:',...
-                    'TR (s)',...
-                    1,...
-                    {num2str(handles.Para.TR)});
-                if ~isempty(TR)
-                    handles.Para.TR=str2num(TR{1});
-                    ConfigText={sprintf('%d' , handles.Para.TR)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Slice order:'))
-                SliOrd=inputdlg('Enter Slice order:',...
-                    'Slice order',...
-                    1,...
-                    {handles.Para.SliOrd});
-                if ~isempty(SliOrd)
-                    handles.Para.SliOrd=SliOrd{1};
-                    SliOrdNum=str2num(handles.Para.SliOrd);
-                    ConfigText={sprintf('%-3d ' , SliOrdNum)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end 
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Reference Slice:'))
-                RefSlice=inputdlg('Enter Reference Slice:',...
-                    'Reference Slice',...
-                    1,...
-                    {num2str(handles.Para.RefSlice)});
-                if ~isempty(RefSlice)
-                    handles.Para.RefSlice=str2num(RefSlice{1});
-                    ConfigText={sprintf('%d' , handles.Para.RefSlice)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Normlize Method:'))
-                if strcmpi(handles.Para.NormType , 'EPI')
-                    handles.Para.NormType='T1';
-                    ConfigText=[{'EPI'};...
-                        {'*T1'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.NormType='EPI';
-                    ConfigText=[{'*EPI'};...
-                        {'T1'}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Source Image Path:'))
-                RefPath=uigetdir(pwd , 'Pick a parent directory for reference images');
-                if ischar(RefPath)
-                    handles.Para.RefPath=RefPath;
-                    ConfigText={sprintf('%s' , handles.Para.RefPath)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Source Image Prefix:'))
-                RefPrefix=inputdlg('Enter Source Image Prefix:',...
-                    'Source Image Prefix',...
-                    1,...
-                    {handles.Para.RefPrefix});
-                if ~isempty(RefPrefix)
-                    handles.Para.RefPrefix=RefPrefix{1};
-                    ConfigText={sprintf('%s' , handles.Para.RefPrefix)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Path   <-X')) 
-                T1Path=uigetdir(pwd , 'Pick a parent directory for T1 images');
-                if ischar(T1Path)
-                    handles.Para.T1Path=T1Path;
-                    ConfigText={sprintf('%s' , handles.Para.T1Path)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'DICOM to Nifti:'))
-                if strcmpi(handles.Para.T1D2NBool , 'TRUE');
-                    handles.Para.T1D2NBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.T1D2NBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , '. . Coregister:'))
-                if strcmpi(handles.Para.CorBool , 'TRUE')
-                    handles.Para.CorBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.CorBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end    
-            elseif ~isempty(strfind(CalText{SelectValue} , '. . Segment:'))
-                if strcmpi(handles.Para.SegBool , 'TRUE')
-                    handles.Para.SegBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.SegBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end    
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Coregister:'))
-                CorT1Prefix=inputdlg('Enter T1 Images Prefix for Coregister:',...
-                    'T1 Images Prefix',...
-                    1,...
-                    {handles.Para.CorT1Prefix});
-                if ~isempty(CorT1Prefix)
-                    handles.Para.CorT1Prefix=CorT1Prefix{1};
-                    ConfigText={sprintf('%s' , handles.Para.CorT1Prefix)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'T1 Images Prefix for Segment:'))
-                SegT1Prefix=inputdlg('Enter T1 Images Prefix for Segment:',...
-                    'T1 Images Prefix',...
-                    1,...
-                    {handles.Para.SegT1Prefix});
-                if ~isempty(SegT1Prefix)
-                    handles.Para.SegT1Prefix=SegT1Prefix{1};
-                    ConfigText={sprintf('%s' , handles.Para.SegT1Prefix)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Grey Matter Template:'))
-                [Path , Name , Ext]=fileparts(handles.Para.GreyTemplate);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick grey matter template' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.GreyTemplate=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.GreyTemplate)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'White Matter Template:'))
-                [Path , Name , Ext]=fileparts(handles.Para.WhiteTemplate);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick white matter template' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.WhiteTemplate=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.WhiteTemplate)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF Template:'))
-                [Path , Name , Ext]=fileparts(handles.Para.CSFTemplate);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick csf template' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.CSFTemplate=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.CSFTemplate)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end                    
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Mat Suffix:'))
-                MatSuffix=inputdlg('Enter the prefix of MAT:',...
-                    'The prefix of MAT',...
-                    1,...
-                    {handles.Para.MatSuffix});
-                if ~isempty(MatSuffix)
-                    handles.Para.MatSuffix=MatSuffix{1};
-                    ConfigText={sprintf('%s' , handles.Para.MatSuffix)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Affine Regularisation:'))
-                if strcmpi(handles.Para.T1Template , 'mni')
-                    handles.Para.T1Template='eastern';
-                    ConfigText={'mni';...
-                        '*estern'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.T1Template='mni';
-                    ConfigText={'*mni';...
-                        'estern'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end    
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Voxel Sizes (mm):'))
-                VoxelSize=inputdlg('Enter the Voxel Sizes (mm):',...
-                    'The Voxel Sizes',...
-                    1,...
-                    {handles.Para.VoxelSize});
-                if ~isempty(VoxelSize)
-                    handles.Para.VoxelSize=VoxelSize{1};
-                    VoxelSize=str2num(handles.Para.VoxelSize);
-                    ConfigText={sprintf('%-2d' , VoxelSize)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Bounding box:'))
-                BB=inputdlg('Enter the bounding box:',...
-                    'The bounding box',...
-                    1,...
-                    {handles.Para.BB});
-                if ~isempty(BB)
-                    handles.Para.BB=BB{1};
-                    BB=str2num(handles.Para.BB);
-                    ConfigText=[{sprintf('%-10d' , BB(1,:))};...
-                        {sprintf('%-10d' , BB(2,:))}];
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'FWHM (mm):'))
-                FWHM=inputdlg('Enter FWHM (mm):',...
-                    'FWHM (mm)',...
-                    1,...
-                    {handles.Para.FWHM});
-                if ~isempty(FWHM)
-                    handles.Para.FWHM=FWHM{1};
-                    FWHM=str2num(handles.Para.FWHM);
-                    ConfigText={sprintf('%-2d' , FWHM)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'The degrees of polynomial curve fitting:'))
-                DetrendOrd=inputdlg('Enter the degrees of polynomial curve fitting:',...
-                    'The degree of polynomial curve fitting',...
-                    1,...
-                    {num2str(handles.Para.DetrendOrd)});
-                if ~isempty(DetrendOrd)
-                    handles.Para.DetrendOrd=str2num(DetrendOrd{1});
-                    ConfigText={sprintf('%d' , handles.Para.DetrendOrd)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Remain Mean'))
-                if strcmpi(handles.Para.RemainMean , 'TRUE')
-                    handles.Para.RemainMean='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.RemainMean='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Band (Hz):'))
-                FreBand=inputdlg('Enter the Band (Hz):',...
-                    'The Band (Hz)',...
-                    1,...
-                    {handles.Para.FreBand});
-                if ~isempty(FreBand)
-                    handles.Para.FreBand=FreBand{1};
-                    FreBand=str2num(handles.Para.FreBand);
-                    ConfigText={sprintf('%-10.2f' , FreBand)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Global signal:'))
-                if strcmpi(handles.Para.GSBool , 'TRUE')
-                    handles.Para.GSBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.GSBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Brain Mask:'))
-                [Path , Name , Ext]=fileparts(handles.Para.GSMask);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick one mask file' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.GSMask=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.GSMask)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'White matter signal:'))
-                if strcmpi(handles.Para.WMBool , 'TRUE')
-                    handles.Para.WMBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.WMBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'White Mask:'))
-                [Path , Name , Ext]=fileparts(handles.Para.WMMask);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick one mask file' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.WMMask=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.WMMask)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF signal:'))
-                if strcmpi(handles.Para.CSFBool , 'TRUE')
-                    handles.Para.CSFBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.CSFBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'CSF Mask:'))
-                [Path , Name , Ext]=fileparts(handles.Para.CSFMask);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick one mask file' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.CSFMask=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.CSFMask)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Head Motion:'))
-                if strcmpi(handles.Para.HMBool , 'TRUE')
-                    handles.Para.HMBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.HMBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Text Parent Path:')) 
-                HMPath=uigetdir(pwd , 'Pick a parent directory for head motion text');
-                if ischar(HMPath)
-                    handles.Para.HMPath=HMPath;
-                    ConfigText={sprintf('%s' , handles.Para.HMPath)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Text Prefix:'))
-                HMPrefix=inputdlg('Enter the Text prefix:',...
-                    'The prefix of head motion text',...
-                    1,...
-                    {handles.Para.HMPrefix});
-                if ~isempty(HMPrefix)
-                    handles.Para.HMPrefix=HMPrefix{1};
-                    ConfigText={sprintf('%s' , handles.Para.HMPrefix)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Derivative (12):'))
-                if strcmpi(handles.Para.HMDerivBool , 'TRUE')
-                    handles.Para.HMDerivBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.HMDerivBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Frison (24):'))
-                if strcmpi(handles.Para.HMFrison24Bool , 'TRUE')
-                    handles.Para.HMFrison24Bool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.HMFrison24Bool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end                
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Label Mask:'))
-                [Path , Name , Ext]=fileparts(handles.Para.LabMask);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick one mask file' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.LabMask=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.LabMask)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Dynamical FC:'))
-                if strcmpi(handles.Para.DFCBool , 'TRUE')
-                    handles.Para.DFCBool='FALSE';
-                    ConfigText={'TRUE';...
-                        '*FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 2);
-                else
-                    handles.Para.DFCBool='TRUE';
-                    ConfigText={'*TRUE';...
-                        'FALSE'};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Window Length:'))
-                DFCWin=inputdlg('Enter window of sliding window:',...
-                    'The window length',...
-                    1,...
-                    {num2str(handles.Para.DFCWin)});
-                if ~isempty(DFCWin)
-                    handles.Para.DFCWin=str2num(DFCWin{1});
-                    ConfigText={sprintf('%d' , handles.Para.DFCWin)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Sliding Step Length:'))
-                DFCStep=inputdlg('Enter step of sliding window:',...
-                    'The step length',...
-                    1,...
-                    {num2str(handles.Para.DFCStep)});
-                if ~isempty(DFCStep)
-                    handles.Para.DFCStep=str2num(DFCStep{1});
-                    ConfigText={sprintf('%d' , handles.Para.DFCStep)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Output Directory:')) 
-                MatOutput=uigetdir(pwd , 'Pick a directory for output matrixs');
-                if ischar(MatOutput)
-                    handles.Para.MatOutput=MatOutput;
-                    ConfigText={sprintf('%s' , handles.Para.MatOutput)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Degree Mask:'))
-                [Path , Name , Ext]=fileparts(handles.Para.DCMask);
-                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
-                    'Pick one mask file' , [Path , filesep , Name , Ext]);
-                if ischar(File)
-                    handles.Para.DCMask=[Path , File];
-                    ConfigText={sprintf('%s' , handles.Para.DCMask)};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Threshold:'))
-                DCRthr=inputdlg('Enter the Threshold of r:',...
-                    'Connectional Threshold',...
-                    1,...
-                    {num2str(handles.Para.DCRthr)});
-                if ~isempty(DCRthr)
-                    handles.Para.DCRthr=str2num(DCRthr{1});
-                    ConfigText={sprintf('%s' , DCRthr{1})};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            elseif ~isempty(strfind(CalText{SelectValue} , 'Connectional Distance:'))
-                DCDis=inputdlg('Enter the Threshold of Distance:',...
-                    'Connectional Distance',...
-                    1,...
-                    {num2str(handles.Para.DCDis)});
-                if ~isempty(DCDis)
-                    handles.Para.DCDis=str2num(DCDis{1});
-                    ConfigText={sprintf('%s' , DCDis{1})};
-                    set(handles.ConfigListbox , 'String' , ConfigText);
-                    set(handles.ConfigListbox , 'Value'  , 1);
-                end
-            end
-         
-            CalText=CalListbox(handles);
-            set(handles.DefaultPushtool , 'Enable' , 'On');
-            set(handles.CalListbox , 'String' , CalText);
-            guidata(hObject,handles);
-            return;
-        end
-        
-        ModeList=[ModeList ; CalText{SelectValue}];
-        for i=1:size(handles.CalList , 1)
-        	if strcmpi([handles.CalList{i}] , CalText{SelectValue})
-            	temp_order=i;
-            else
-            	continue;
-            end
-        end
-        handles.CalList(temp_order)=[];
-        
-        CalText=CalListbox(handles);
-        if isempty(handles.CalList)
-            set(handles.CalListbox , 'Value' , 0)
-        else
-            set(handles.CalListbox , 'Value' , 1)
-        end
-        set(handles.CalListbox , 'String' , CalText);
-        set(handles.ModeListbox , 'String' , ModeList);
-        set(handles.ModeListbox , 'Value' , 1)
-        guidata(hObject,handles);
-    end
-end
-% Hints: contents = cellstr(get(hObject,'String')) returns CalListbox contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from CalListbox
+
+% Hints: contents = cellstr(get(hObject,'String')) returns PostModeList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from PostModeList
 
 
 % --- Executes during object creation, after setting all properties.
-function CalListbox_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to CalListbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function Result=CalListbox(AHandle)
-    Result=[];
-    
-    if isempty(AHandle.CalList)
-        return;
-    end
-     
-    for i=1:size(AHandle.CalList , 1)
-        MODE=upper(AHandle.CalList{i});
-        Mode=AHandle.CalList{i};
-        switch(MODE)
-            case 'DICOM TO NIFTI'
-                Result=[Result ;...
-                    {Mode};...
-                    {sprintf('. Time Point:  %d' , AHandle.Para.TimePoint)}];
-            case 'DELETE IMAGES'
-                Result=[Result ; ...
-                    {Mode};...
-                    {sprintf('. The delete type:  %s', AHandle.Para.DeleteType)}];
-                if strcmpi(AHandle.Para.DeleteType , 'Delete')    
-                    Result=[Result ; ...
-                        {sprintf('. . %s first %d time points' , AHandle.Para.DeleteType,...
-                        AHandle.Para.ImageNum)}];
-                else
-                    Result=[Result ; ...
-                        {sprintf('. . %s end %d time points' , AHandle.Para.DeleteType,...
-                        AHandle.Para.ImageNum)}];
-                end
-            case 'SLICE TIMING'
-                Result=[Result ; ...
-                    {Mode};...
-                    {sprintf('. Number of Slices:  %d', AHandle.Para.SliceNum)};...
-                    {sprintf('. TR (s):  %d' , AHandle.Para.TR)};...
-                    {sprintf('. Slice order:  %s' , AHandle.Para.SliOrd)};...
-                    {sprintf('. Reference Slice:  %d' , AHandle.Para.RefSlice)}];
-            case 'REALIGN'
-                Result=[Result ; ...
-                    {Mode}];
-            case 'NORMALIZE'
-                Result=[Result ; ...
-                    {Mode} ; ...
-                    {sprintf('. Normlize Method:  %s' , AHandle.Para.NormType)}];
-                if strcmpi(AHandle.Para.NormType , 'T1')
-                    Result=[Result ; ...
-                        {sprintf('. . T1 Path   <-X  %s' , AHandle.Para.T1Path)} ; ...
-                        {sprintf('. . DICOM to Nifti:  %s' , AHandle.Para.T1D2NBool)}];
-                    Result=[Result ; ...
-                        {sprintf('. . Coregister:  %s' , AHandle.Para.CorBool)}];
-                    % Coregister
-                    if strcmpi(AHandle.Para.CorBool, 'TRUE')
-                        Result=[Result ; ...
-                            {sprintf('    - T1 Images Prefix for Coregister:  %s' , AHandle.Para.CorT1Prefix)}];                        
-                        if isempty(AHandle.Para.RefPath)
-                            Result=[Result ; ...
-                                {'    - Source Image Path:  Same with Functional Dataset'}];
-                        else
-                            Result=[Result ; ...
-                                {sprintf('    - Source Image Path:  %s' , AHandle.Para.RefPath)}];
-                        end
-                        Result=[Result ; ...
-                            {sprintf('    - Source Image Prefix:  %s' , AHandle.Para.RefPrefix)}];                         
-                    end
-                    
-                    Result=[Result ; ...
-                        {sprintf('. . Segment:  %s' , AHandle.Para.SegBool)}];                    
-                    % Segment
-                    if strcmpi(AHandle.Para.SegBool , 'TRUE')
-                        Result=[Result ; ...
-                            {sprintf('    - T1 Images Prefix for Segment:  %s' , AHandle.Para.SegT1Prefix)}];
-                        Result=[Result ; ...
-                            {sprintf('    - Grey Matter Template:  %s' , AHandle.Para.GreyTemplate)}];
-                        Result=[Result ; ...
-                            {sprintf('    - White Matter Template:  %s' , AHandle.Para.WhiteTemplate)}];
-                        Result=[Result ; ...
-                            {sprintf('    - CSF Template:  %s' , AHandle.Para.CSFTemplate)}];
-                        Result=[Result ; ...
-                            {sprintf('    - Affine Regularisation:  %s' , AHandle.Para.T1Template)}];                        
-                    end
-
-                    Result=[Result ; ...
-                        {sprintf('. . Mat Suffix:  %s' , AHandle.Para.MatSuffix)}];
-                else
-                    if isempty(AHandle.Para.RefPath)
-                        Result=[Result ; ...
-                            {'. Source Image Path:  Same with Functional Dataset'}];
-                    else
-                        Result=[Result ; ...
-                            {sprintf('. Source Image Path:  %s' , AHandle.Para.RefPath)}];
-                    end
-                    Result=[Result ; ...
-                        {sprintf('. Source Image Prefix:  %s' , AHandle.Para.RefPrefix)}];
-                end
-                Result=[Result ; ...
-                    {sprintf('. Voxel Sizes (mm):  %s' , AHandle.Para.VoxelSize)} ; ...
-                    {sprintf('. Bounding box:  %s' , AHandle.Para.BB)}];
-            case 'SMOOTH'
-                Result=[Result ; ...
-                    {Mode} ; ...
-                    {sprintf('. FWHM (mm):  %s' , AHandle.Para.FWHM)}];
-            case 'DETREND'
-                Result=[Result ; ...
-                    {Mode}; ...
-                    {sprintf('. The degrees of polynomial curve fitting:  %d' , AHandle.Para.DetrendOrd)};...
-                    {sprintf('. Remain Mean:  %s' , AHandle.Para.RemainMean)}];
-            case 'FILTER'
-                Result=[Result ; ...
-                    {Mode}; ...
-                    {sprintf('. TR (s):  %d' , AHandle.Para.TR)};...
-                    {sprintf('. Band (Hz):  %s' , AHandle.Para.FreBand)}];
-            case 'COVARIATES REGRESSION'
-                Result=[Result ; ...
-                    {Mode} ; ...
-                    {sprintf('. Global signal:  %s' , AHandle.Para.GSBool)}];
-                if strcmpi(AHandle.Para.GSBool , 'TRUE')
-                    [Path , Name , Ext]=fileparts(AHandle.Para.GSMask);
-                    Result=[Result ;...
-                        {sprintf('. . Brain Mask:  %s' , [Name , Ext])}];
-                end
-                Result=[Result ; ...
-                    {sprintf('. White matter signal:  %s' , AHandle.Para.WMBool)}];
-                if strcmpi(AHandle.Para.WMBool , 'TRUE')
-                    [Path , Name , Ext]=fileparts(AHandle.Para.WMMask);
-                    Result=[Result ;...
-                        {sprintf('. . White Mask:  %s' , [Name , Ext])}];
-                end
-                Result=[Result ; ...
-                    {sprintf('. CSF signal:  %s' , AHandle.Para.CSFBool)}];
-                if strcmpi(AHandle.Para.CSFBool , 'TRUE')
-                    [Path , Name , Ext]=fileparts(AHandle.Para.CSFMask);
-                    Result=[Result ;...
-                        {sprintf('. . CSF Mask:  %s' , [Name , Ext])}];
-                end
-                Result=[Result ; ...
-                    {sprintf('. Head Motion:  %s' , AHandle.Para.HMBool)}];
-                if strcmpi(AHandle.Para.HMBool , 'TRUE')
-                    if isempty(AHandle.Para.HMPath)
-                    	Result=[Result ;...
-                            {'. . Text Parent Path:  Same with Functional Dataset'};...
-                            {sprintf('. . Text Prefix:  %s' , AHandle.Para.HMPrefix)};...
-                            {sprintf('. . Derivative (12):  %s' , AHandle.Para.HMDerivBool)};...
-                            {sprintf('. . Frison (24):  %s' , AHandle.Para.HMFrison24Bool)}];
-                    else
-                        Result=[Result ;...
-                            {sprintf('. . Text Parent Path:  %s' , AHandle.Para.HMPath)};...
-                            {sprintf('. . Text Prefix:  %s' , AHandle.Para.HMPrefix)};...
-                            {sprintf('. . Derivative (12):  %s' , AHandle.Para.HMDerivBool)};...
-                            {sprintf('. . Frison (24):  %s' , AHandle.Para.HMFrison24Bool)}];
-                    end
-                end
-            case 'FUNCTIONAL CONNECTIVITY MATRIX'
-                Result=[Result ;...
-                    {Mode}];
-                [Path , Name , Ext]=fileparts(AHandle.Para.LabMask);
-                Result=[Result ;...
-                    {sprintf('. Label Mask:  %s' , [Name , Ext])};...
-                    {sprintf('. Dynamical FC:  %s', AHandle.Para.DFCBool)}];
-                if strcmpi(AHandle.Para.DFCBool, 'TRUE')
-                    Result=[Result ;...
-                        {sprintf('. . Sliding Window Length:  %d' , AHandle.Para.DFCWin)};...
-                        {sprintf('. . Sliding Step Length:  %d' , AHandle.Para.DFCStep)}];
-                end
-            case 'VOXEL-BASED DEGREE'
-                Result=[Result ;...
-                    {Mode}];
-                [Path, Name, Ext]=fileparts(AHandle.Para.DCMask);
-                Result=[Result ;...
-                    {sprintf('. Degree Mask:  %s' , [Name , Ext])} ];
-                Result=[Result ; ...
-                    {sprintf('. Connectional Threshold:  %s' , num2str(AHandle.Para.DCRthr))}];
-                Result=[Result ; ...
-                    {sprintf('. Connectional Distance:  %d' , AHandle.Para.DCDis)}];
-        end
-    end
-    
-    if isfield(AHandle , 'NetCalText')
-        Result=[Result ; AHandle.NetCalText];
-    end
-
-
-function PrefixEntry_Callback(hObject, eventdata, handles)
-% hObject    handle to PrefixEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    handles=UpdateInputListbox(handles);
-    InputText=get(handles.InputListbox , 'String');
-    if isempty(handles.DataList) %&& ~isempty(InputText)
-        Choose=questdlg(['There are no *.nii or *img file in the directory! ',...
-            'If you want to select Dicom file, please click "Dicom to Nifti", ',...
-            'else click Quit'],...
-            'Dicom to Nifti?',...
-            'Dicom to Nifti' ,...
-            'Quit' ,...
-            'Dicom to Nifti');
-        if strcmpi(Choose , 'Dicom to Nifti')
-            ModeList=get(handles.ModeListbox , 'String');
-            SelectValue=0;
-            for i=1:size(ModeList , 1)
-                if strcmpi(ModeList{i} , 'DICOM to NIFTI')
-                    SelectValue=i;
-                    break;
-                end
-            end
-            ModeList(SelectValue)=[];
-            set(handles.ModeListbox , 'String' , ModeList);
-            if isempty(ModeList)
-                set(handles.ModeListbox , 'Value' , 0);
-            else
-                set(handles.ModeListbox , 'Value' , 1);
-            end
-            handles.CalList=[{'DICOM to NIFTI'};handles.CalList];
-            CalText=CalListbox(handles);
-            set(handles.CalListbox , 'Value' , 1 ,'String' , CalText);
-            handles=UpdateInputListbox(handles);
-        end
-    end
-    guidata(hObject , handles);
-% Hints: get(hObject,'String') returns contents of PrefixEntry as text
-%        str2double(get(hObject,'String')) returns contents of PrefixEntry as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function PrefixEntry_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to PrefixEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-    
-
-function InputEntry_Callback(hObject, eventdata, handles)
-% hObject    handle to InputEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    handles=UpdateInputListbox(handles);
-    InputText=get(handles.InputListbox , 'String');
-    if isempty(handles.DataList) %&& ~isempty(InputText)
-        Choose=questdlg(['There are no *.nii or *img file in the directory! ',...
-            'If you want to select Dicom file, please click "Dicom to Nifti", ',...
-            'else click Quit'],...
-            'Dicom to Nifti?',...
-            'Dicom to Nifti' ,...
-            'Quit' ,...
-            'Dicom to Nifti');
-        if strcmpi(Choose , 'Dicom to Nifti')
-            ModeList=get(handles.ModeListbox , 'String');
-            SelectValue=0;
-            for i=1:size(ModeList , 1)
-                if strcmpi(ModeList{i} , 'DICOM to NIFTI')
-                    SelectValue=i;
-                    break;
-                end
-            end
-            ModeList(SelectValue)=[];
-            set(handles.ModeListbox , 'String' , ModeList);
-            if isempty(ModeList)
-                set(handles.ModeListbox , 'Value' , 0);
-            else
-                set(handles.ModeListbox , 'Value' , 1);
-            end
-            handles.CalList=[{'DICOM to NIFTI'};handles.CalList];
-            CalText=CalListbox(handles);
-            set(handles.CalListbox , 'Value' , 1 ,'String' , CalText);
-            handles=UpdateInputListbox(handles);
-        end
-    end
-    guidata(hObject , handles);
-% Hints: get(hObject,'String') returns contents of InputEntry as text
-%        str2double(get(hObject,'String')) returns contents of InputEntry as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function InputEntry_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to InputEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in InputButton.
-function InputButton_Callback(hObject, eventdata, handles)
-% hObject    handle to InputButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    ParentDir=uigetdir(pwd , 'Pick parent directory of dataset');
-    if ischar(ParentDir)
-        set(handles.InputEntry , 'String' , ParentDir);
-        handles=UpdateInputListbox(handles);
-        InputText=get(handles.InputListbox , 'String');
-        if isempty(handles.DataList) %&& ~isempty(InputText)
-            Choose=questdlg(['There are no *.nii or *img file in the directory! ',...
-                'If you want to select Dicom file, please click "Dicom to Nifti", ',...
-                'else click Quit'],...
-                'Dicom to Nifti?',...
-                'Dicom to Nifti' ,...
-                'Quit' ,...
-                'Dicom to Nifti');
-            if strcmpi(Choose , 'Dicom to Nifti')
-                ModeList=get(handles.ModeListbox , 'String');
-                SelectValue=0;
-                for i=1:size(ModeList , 1)
-                    if strcmpi(ModeList{i} , 'DICOM to NIFTI')
-                        SelectValue=i;
-                        break;
-                    end
-                end
-                ModeList(SelectValue)=[];
-                set(handles.ModeListbox , 'String' , ModeList);
-                if isempty(ModeList)
-                    set(handles.ModeListbox , 'Value' , 0);
-                else
-                    set(handles.ModeListbox , 'Value' , 1);
-                end
-                handles.CalList=[{'DICOM to NIFTI'};handles.CalList];
-                CalText=CalListbox(handles);
-                set(handles.CalListbox , 'Value' , 1 ,'String' , CalText);
-                handles=UpdateInputListbox(handles);
-            end
-        end
-        guidata(hObject , handles);
-    end
-    
-function handles=UpdateInputListbox(handles)
-        set(handles.InputListbox , 'BackgroundColor' , 'Green');
-        handles.DataList=[];
-        ParentDir=get(handles.InputEntry , 'String');
-        Prefix=get(handles.PrefixEntry , 'String');
-        InputListbox=[];
-        Subj=dir(ParentDir);
-        drawnow;
-        if isempty(Prefix)
-            Prefix=inputdlg({'Enter key of files searched'},...
-                'Key Words', 1 , {'*'});
-            if isempty(Prefix)
-                return
-            end
-            Prefix=Prefix{1};
-            set(handles.PrefixEntry , 'String' , Prefix);
-        end
-        
-        if ~isempty(handles.CalList)
-            if strcmpi(handles.CalList{1} , 'DICOM to NIFTI')
-                for i=1:size(Subj , 1)
-                    if Subj(i).isdir && ...
-                            ~strcmpi(Subj(i).name , '.') &&...
-                            ~strcmpi(Subj(i).name , '..') &&...
-                            ~strcmpi(Subj(i).name , '.DS_Store')
-                        SubjImage=dir([ParentDir , filesep , Subj(i).name,...
-                            filesep , Prefix]);
-                        ImageList=[];
-                        if strcmpi(SubjImage(1).name , '.')
-                           SubjImage(1)=[];
-                        	if strcmpi(SubjImage(1).name , '..')
-                                SubjImage(1)=[];
-                                if strcmpi(SubjImage(1).name , '.DS_Store')
-                                   SubjImage(1)=[];
-                                end
-                            end
-                        end
-                        FileNum=size(SubjImage , 1);
-                        [Path , Name , Ext]=fileparts([ParentDir , filesep , Subj(i).name,...
-                            filesep , SubjImage(1).name]);
-                        if ~strcmpi(Ext , '.nii') && ~strcmpi(Ext , '.img') ...
-                                && ~strcmpi(Ext , '.hdr') && ~strcmpi(Ext , '.gz')
-                            ImageList=[Path , filesep , Name , Ext];
-                        end
-    
-                        if isempty(ImageList)
-                            InputListbox=[InputListbox;...
-                                    {sprintf('DICOM File: [Empty!] Subject Directory: %s%s' ,...
-                                    Subj(i).name , filesep)}];
-                        else
-                            handles.DataList=...
-                                setfield(handles.DataList ,...
-                                ['DCM3D', Subj(i).name] , ImageList);
-                            InputListbox=[InputListbox;...
-                                {sprintf('DICOM File: [ %.5d ] DICOM Directory: %s%s' ,...
-                                FileNum,...
-                                Subj(i).name)}];
-                        end
-                        set(handles.InputListbox , 'String' , InputListbox);
-                        set(handles.InputListbox , 'Value'  , size(InputListbox , 1));
-                        drawnow;
-                    end
-                end
-                set(handles.InputListbox , 'String' , InputListbox ,...
-                    'BackgroundColor' , 'White');
-                if isempty(InputListbox)
-                    set(handles.InputListbox , 'Value' , 0);
-                else
-                    set(handles.InputListbox , 'Value' , 1);
-                end
-                return;
-            end
-        end
-        
-        for i=1:size(Subj , 1)
-            if ~strcmpi(Subj(i).name , '.') && ~strcmpi(Subj(i).name , '..')...
-                    && ~strcmpi(Subj(i).name , '.DS_Store')
-                if Subj(i).isdir
-                    SubjImage=dir([ParentDir , filesep , Subj(i).name,...
-                        filesep , Prefix , '.img']);
-                    if isempty(SubjImage)
-                        SubjImage=dir([ParentDir , filesep , Subj(i).name,...
-                            filesep , Prefix , '.nii']);
-                    end
-                    
-                    if isempty(SubjImage)
-                        ImageList=[];
-                    elseif size(SubjImage , 1)==1
-                    	[Path , Name ,Ext]=...
-                        	fileparts([ParentDir , filesep ,...
-                            Subj(i).name , filesep , SubjImage(1).name]);
-                        Nii=nifti(fullfile(Path, [Name, Ext]));
-                        Dims=size(Nii.dat);
-                        if length(Dims)>3
-                            TimePoint=Dims(4);
-                        else
-                            TimePoint=1;
-                        end
-                        ImageList=[Path , filesep , Name , Ext];
-                    else
-                        ImageList=cell(size(SubjImage , 1) , 1);
-                        for j=1:size(SubjImage , 1)
-                            [Path , Name ,Ext]=...
-                                fileparts([ParentDir , filesep ,...
-                                Subj(i).name , filesep , SubjImage(j).name]);
-                            ImageList{j}=[Path , filesep , Name , Ext];
-                        end
-                        TimePoint=size(ImageList , 1);
-                    end
-                        
-                    if isempty(ImageList)    
-                        InputListbox=[InputListbox;...
-                            {sprintf('Time Points: [Empty!] Subject Directory: %s%s' ,...
-                            Subj(i).name , filesep)}];
-                    else
-                        if iscell(ImageList)
-                            TimePoint=size(ImageList,1);
-                            InputListbox=[InputListbox;...
-                                {sprintf('Time Points: [ %.4d ] Subject Directory: %s%s' ,...
-                                TimePoint,...
-                                Subj(i).name , filesep)}];
-                            handles.DataList.(['DIR3D', Subj(i).name])=ImageList;
-                        else
-                          	InputListbox=[InputListbox;...
-                                {sprintf('Time Points: [ %.4d ] Subject Directory: %s%s' ,...
-                                TimePoint,...
-                                [Subj(i).name , filesep , Name , Ext])}];
-                            handles.DataList.(['DIR4D' , Subj(i).name])=ImageList;
-                        end
-                    end
-                else
-                    break;
-                end
-               
-                set(handles.InputListbox , 'String' , InputListbox);
-                set(handles.InputListbox , 'Value' , size(InputListbox , 1));
-                drawnow;
-            else
-                continue;
-            end
-        end
-        %find 4DNii
-        Subj=dir([ParentDir , filesep , Prefix]);
-        for i=1:size(Subj , 1)
-            if ~strcmpi(Subj(i).name , '.') && ~strcmpi(Subj(i).name , '..')...
-                    && ~strcmpi(Subj(i).name , '.DS_Store')
-                if Subj(i).isdir
-                    continue;
-                else
-                    [Path , Name , Ext]=...
-                    fileparts([ParentDir , filesep , Subj(i).name]);
-                    if strcmpi(Ext , '.nii') || strcmpi(Ext , '.img')
-                        NiiName=[Path , filesep , Name , Ext];
-                        
-                        Nii=nifti(fullfile(Path, [Name, Ext]));
-                        Dims=size(Nii.dat);
-                        if length(Dims)>3
-                            TimePoint=Dims(4);
-                        else
-                            TimePoint=1;
-                        end
-                        
-                        if TimePoint~=1
-                            InputListbox=[InputListbox;...
-                                {sprintf('Time Points: [ %.4d ] Subject 4DNiiFile: %s%s' , ...
-                                TimePoint,...
-                                Name, Ext)}];
-                            handles.DataList.(['Nii4D',Name])=NiiName;
-                        else 
-                            continue;
-                        end 
-                    end
-                end
-                
-                set(handles.InputListbox , 'String' , InputListbox);
-                set(handles.InputListbox , 'Value'  , size(InputListbox , 1));
-                drawnow;
-            else
-                continue;
-            end
-        end
-        
-        set(handles.InputListbox , 'String' , InputListbox ,...
-            'BackgroundColor' , 'White');
-        if isempty(InputListbox)
-        	set(handles.InputListbox , 'Value' , 0);
-        else
-        	set(handles.InputListbox , 'Value' , 1);
-        end
-
-% --- Executes on selection change in InputListbox.
-function InputListbox_Callback(hObject, eventdata, handles)
-% hObject    handle to InputListbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if strcmpi(get(gcf , 'SelectionType') , 'normal')
-    return;
-elseif strcmpi(get(gcf , 'SelectionType') , 'open')
-    InputListbox=get(handles.InputListbox , 'String');
-    SelectedValue=get(handles.InputListbox , 'Value');
-    if isempty(SelectedValue)
-        return;
-    end
-    if ~strfind(InputListbox{SelectedValue}, 'Time Points: [Empty!]');
-        FieldName=fieldnames(handles.DataList);
-        handles.DataList=rmfield(handles.DataList , FieldName{SelectedValue});
-    end
-    InputListbox(SelectedValue)=[];
-    set(handles.InputListbox , 'String' , InputListbox);
-    if size(InputListbox , 1) < SelectedValue
-        set(handles.InputListbox , 'Value' , SelectedValue-1);
-    else
-        set(handles.InputListbox , 'Value' , SelectedValue);
-    end
-    guidata(hObject , handles);
-end
-% Hints: contents = cellstr(get(hObject,'String')) returns InputListbox contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from InputListbox
-
-
-% --- Executes during object creation, after setting all properties.
-function InputListbox_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to InputListbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function pipeline=PreprocessFork(DataFile , CalList , Para , FieldName , pipeline)
-GUIPath=fileparts(which('gretna.m'));
-SPMPath=fileparts(which('spm.m'));
-
-SliOrd=str2num(Para.SliOrd);
-VoxelSize=str2num(Para.VoxelSize);
-BB=str2num(Para.BB);
-FWHM=str2num(Para.FWHM);
-FreBand=str2num(Para.FreBand);
-MatName=[];
-DelMsg='';
-TimePoint=[];
-if ~strcmpi(CalList{1} , 'DICOM TO NIFTI')
-    if ischar(DataFile)
-        [Path , Name , Ext]=fileparts(DataFile);
-        Nii=nifti(fullfile(Path, [Name, Ext]));
-        Dims=size(Nii.dat);
-        if length(Dims)>3
-            TimePoint=Dims(4);
-        else
-            TimePoint=1;
-        end
-    end
-end
-    for j=1:size(CalList , 1)
-        Mode=upper(CalList{j});
-        switch(Mode)
-            case 'DICOM TO NIFTI'
-                Output=[Para.NiiDir , filesep , FieldName(6:end)];
-                if ~(exist(Output , 'dir')==7)
-                    mkdir(Output);
-                end
-                command='gretna_EPI_dcm2nii(opt.DataFile , opt.Output , opt.SubjName , opt.TimePoint)';
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).command=command;
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).opt.DataFile=DataFile;
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).opt.Output=Output;
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).opt.SubjName=FieldName(6:end);
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).opt.TimePoint=Para.TimePoint;
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).files_in={DataFile};
-                DataFile=[];
-                for i=1:Para.TimePoint
-                    DataFile=[DataFile ;...
-                        {sprintf('%s%s%s_%.4d.nii' , Output , filesep , FieldName(6:end) , i)}];
-                end
-                pipeline.([FieldName , DelMsg , '_Dcm2Nii']).files_out=DataFile;
-                Para.EPIPath=Para.NiiDir;
-            case 'DELETE IMAGES'
-                if strcmpi(Para.DeleteType , 'Delete')
-                    ImageNum=Para.ImageNum;
-                else
-                    if iscell(DataFile)
-                        ImageNum=size(DataFile , 1 )-ImageNum;
-                    else
-                        ImageNum=TimePoint-ImageNum;
-                    end
-                end
-                TimePoint=TimePoint-ImageNum;
-                if iscell(DataFile)
-                    DataFile(1:ImageNum)=[];
-                    DelMsg='_DeleteImage';
-                else
-                    command='gretna_DeleteImage(opt.DataFile , opt.DeleteNum , opt.Prefix)';
-                    pipeline.([FieldName , DelMsg , '_DeleteImage']).command=command;
-                    pipeline.([FieldName , DelMsg , '_DeleteImage']).opt.DataFile=DataFile;
-                    pipeline.([FieldName , DelMsg , '_DeleteImage']).opt.DeleteNum=ImageNum;
-                    pipeline.([FieldName , DelMsg , '_DeleteImage']).opt.Prefix='n';
-                    pipeline.([FieldName , DelMsg , '_DeleteImage']).files_in={DataFile};
-                    [Path , File , Ext]=fileparts(DataFile);
-                    DataFile=[Path , filesep , 'n' , File , Ext];
-                    pipeline.([FieldName , DelMsg , '_DeleteImage']).files_out={DataFile};
-                end
-            case 'SLICE TIMING'
-                SPMJOB=load([GUIPath , filesep ,...
-                    'Jobsman' , filesep , 'gretna_Slicetiming.mat']);
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('a' , DataFile , TimePoint);
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.scans{1}=FileList;
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.nslices=Para.SliceNum;
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.so=SliOrd;
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.refslice=Para.RefSlice;
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.tr=Para.TR;
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.ta=...
-                                                Para.TR-(Para.TR/Para.SliceNum);
-                SPMJOB.matlabbatch{1,1}.spm.temporal.st.prefix='a';           
-                command='spm_jobman(''run'',opt.SliceTimingBatch)';
-                pipeline.([FieldName , DelMsg , '_SliceTiming']).command=command;
-                pipeline.([FieldName , DelMsg , '_SliceTiming']).opt.SliceTimingBatch=SPMJOB.matlabbatch;
-                pipeline.([FieldName , DelMsg , '_SliceTiming']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_SliceTiming']).files_out=files_out;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-            case 'REALIGN'
-                SPMJOB=load([GUIPath , filesep ,...
-                    'Jobsman' , filesep , 'gretna_Realignment.mat']);
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('r' , DataFile , TimePoint);
-                SPMJOB.matlabbatch{1,1}.spm.spatial.realign.estwrite.data{1}=FileList;
-                SPMJOB.matlabbatch{1,1}.spm.spatial.realign.estwrite.roptions.prefix='r';
-                HMLogDir=[Para.LogDir , filesep , 'HeadMotion'];
-                
-                command='gretna_Realign(opt.RealignBatch , opt.HMLogDir , opt.SubjName , opt.EPIPath)';
-                pipeline.([FieldName , DelMsg , '_Realign']).command=command;
-                pipeline.([FieldName , DelMsg , '_Realign']).opt.RealignBatch=SPMJOB.matlabbatch;
-                pipeline.([FieldName , DelMsg , '_Realign']).opt.HMLogDir=HMLogDir;
-                pipeline.([FieldName , DelMsg , '_Realign']).opt.SubjName=FieldName(6:end);
-                pipeline.([FieldName , DelMsg , '_Realign']).opt.EPIPath=Para.EPIPath;
-                pipeline.([FieldName , DelMsg , '_Realign']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_Realign']).files_out=files_out;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-            case 'NORMALIZE'
-                if isempty(Para.RefPath) || ~(exist(Para.RefPath , 'dir')==7)
-                    Para.RefPath=Para.EPIPath;
-                end
-                [FileList , files_in , files_out , DataFile]=...
-                	UpdateDataList('w' , DataFile , TimePoint);
-                if strcmpi(Para.NormType , 'EPI')
-                    SPMJOB=load([GUIPath , filesep ,...
-                        'Jobsman' , filesep , 'gretna_Normalization_EPI.mat']);
-                    EPITemplate=fullfile(SPMPath, 'templates', 'EPI.nii');
-                    if exist(EPITemplate, 'file')~=2
-                        EPITemplate=fullfile(SPMPath, 'OldNorm', 'EPI.nii');
-                    end
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.eoptions.template=...
-                        {[EPITemplate, ',1']};
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.subj.resample=FileList;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.roptions.bb=BB;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.roptions.vox=VoxelSize;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.estwrite.roptions.prefix='w';
-                    command='gretna_NormalizeEPI(opt.NormalizeEPIBatch , opt.RefPath , opt.RefPrefix , opt.SubjName)';
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).command=command;
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).opt.NormalizeEPIBatch=SPMJOB.matlabbatch;
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).opt.RefPath=Para.RefPath;
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).opt.RefPrefix=Para.RefPrefix;
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).opt.SubjName=FieldName(6:end);
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).files_in=files_in;
-                    pipeline.([FieldName , DelMsg , '_NormalizeEPI']).files_out=files_out;
-                    if ~isempty(DelMsg)
-                        DelMsg=[];
-                    end
-                else
-                    %DICOM TO NII
-                    if strcmpi(Para.T1D2NBool , 'TRUE')
-                        Output=[Para.T1NiiDir , filesep , FieldName(6:end)];
-                        if ~(exist(Output,'dir')==7)
-                            mkdir(Output);
-                        end
-                        T1DcmFile=GetNeedDcmFile(Para.T1Path , FieldName(6:end));
-                        command='gretna_T1_dcm2nii(opt.T1DcmFile , opt.Output , opt.SubjName)';
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).command=command;
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).opt.T1DcmFile=T1DcmFile;
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).opt.Output=Output;
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).opt.SubjName=FieldName(6:end);
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).files_in={T1DcmFile};
-                        pipeline.([FieldName , DelMsg , '_T1Dcm2Nii']).files_out=...
-                            {fullfile(Output, sprintf('Nifti_%s.nii', FieldName(6:end)))};
-                        if ~isempty(DelMsg)
-                            DelMsg=[];
-                        end
-                        Para.T1Path=Para.T1NiiDir;
-                        CorT1Image={fullfile(Output, sprintf('%s_%s.nii', Para.CorT1Prefix(1:end-1), FieldName(6:end)))};
-                    end
-                    
-                    %Coregister
-                    if strcmpi(Para.CorBool , 'TRUE')
-                        if isempty(CorT1Image)
-                            CorT1Image  = gretna_GetNeedFile(Para.T1Path  , Para.CorT1Prefix  , FieldName(6:end));
-                            if isempty(CorT1Image)
-                                error('Error: Cannot find T1 image of ''%s''!\n', FieldName(6:end));
-                            end
-                        end
-                        
-                        SPMJOB=load([GUIPath , filesep ,...
-                            'Jobsman' , filesep , 'gretna_Coregister.mat']);
-                        SPMJOB.matlabbatch{1,1}.spm.spatial.coreg.estimate.source = CorT1Image;
-                        command='gretna_Coregister(opt.CoregisterBatch , opt.RefPath , opt.RefPrefix , opt.SubjName , opt.CorT1Image)';
-                        pipeline.([FieldName , DelMsg , '_Coregister']).command=command;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.CoregisterBatch=SPMJOB.matlabbatch;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.RefPath=Para.RefPath;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.RefPrefix=Para.RefPrefix;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.SubjName=FieldName(6:end);
-                        pipeline.([FieldName , DelMsg , '_Coregister']).opt.CorT1Image=CorT1Image;
-                        pipeline.([FieldName , DelMsg , '_Coregister']).files_in=[files_in ; CorT1Image];
-                        if ~isempty(DelMsg)
-                            DelMsg=[];
-                        end
-                        [Path , File , Ext]=fileparts(CorT1Image{1});
-                        pipeline.([FieldName , DelMsg , '_Coregister']).files_out=fullfile(Path, sprintf('coreg_%s%s', File, Ext));
-                        SegT1Image={fullfile(Path, sprintf('coreg_%s%s', File, Ext))};                        
-                    end
-                    %Segment
-                    if strcmpi(Para.SegBool , 'TRUE')
-                        if isempty(SegT1Image)
-                            SegT1Image=gretna_GetNeedFile(Para.T1Path, Para.SegT1Prefix, FieldName(6:end));
-                            if isempty(SegT1Image)
-                                fprintf('Warning: Cannot find T1 image of ''%s''!\n', FieldName(6:end));
-                            end
-                        end
-                        SPMJOB=load([GUIPath , filesep ,...
-                            'Jobsman' , filesep , 'gretna_Segmentation.mat']);
-                        SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.opts.tpm=...
-                            {Para.GreyTemplate;...
-                            Para.WhiteTemplate;...
-                            Para.CSFTemplate};
-                        SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.data=SegT1Image;
-                        SPMJOB.matlabbatch{1,1}.spm.spatial.preproc.opts.regtype=Para.T1Template;
-                        command='spm_jobman(''run'' , opt.SegmentBatch)';
-                        pipeline.([FieldName , DelMsg , '_Segment']).command=command;
-                        pipeline.([FieldName , DelMsg , '_Segment']).opt.SegmentBatch=SPMJOB.matlabbatch;
-                        pipeline.([FieldName , DelMsg , '_Segment']).files_in=[files_in ; SegT1Image];
-                        if ~isempty(DelMsg)
-                            DelMsg=[];
-                        end
-                        [Path , File , Ext]=fileparts(SegT1Image{1});
-                        pipeline.([FieldName , DelMsg , '_Segment']).files_out=[Path , filesep , File , '_seg_sn.mat'];
-                        MatName={[Path , filesep , File , '_seg_sn.mat']};
-                    end
-                    %Normalize
-                    SPMJOB=load([GUIPath , filesep ,...
-                        'Jobsman' , filesep , 'gretna_Normalization_write.mat']);
-                    if isempty(MatName)    
-                        MatName=GetNeedFile(Para.T1Path , Para.MatSuffix , FieldName(6:end));
-                    end    
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.write.subj.matname=MatName;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.write.subj.resample=FileList;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.write.roptions.bb=BB;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.write.roptions.vox=VoxelSize;
-                    SPMJOB.matlabbatch{1,1}.spm.spatial.normalise.write.roptions.prefix='w';
-                    command='spm_jobman(''run'',opt.NormalizeT1Batch)';
-                    pipeline.([FieldName , DelMsg , '_NormalizeT1']).command=command;
-                    pipeline.([FieldName , DelMsg , '_NormalizeT1']).opt.NormalizeT1Batch=SPMJOB.matlabbatch;
-                    pipeline.([FieldName , DelMsg , '_NormalizeT1']).files_in=[files_in ; MatName];
-                    pipeline.([FieldName , DelMsg , '_NormalizeT1']).files_out=files_out;
-                    if ~isempty(DelMsg)
-                        DelMsg=[];
-                    end
-                end
-                %command='gretna_PicForCheck(opt.FileList , opt.PicDir , opt.SubjName)';
-                %pipeline([FieldName , '_CheckNormalize']).command=command;
-                %pipeline([FieldName , '_CheckNormalize']).opt.FileList=files_out;
-                %pipeline([FieldName , '_CheckNormalize']).opt.PicDir=Para.PicDir;
-                %pipeline([FieldName , '_CheckNormalize']).opt.SubjName=FieldName(6:end);
-                %pipeline([FieldName , '_CheckNormalize']).files_in=files_out;
-                %pipeline([FieldName , '_CheckNormalize']).files_out=[Para.PicDir , filesep , FieldName(6:end) , '.tif'];
-            case 'SMOOTH'
-                SPMJOB=load([GUIPath , filesep ,...
-                    'Jobsman' , filesep , 'gretna_Smooth.mat']);
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('s' , DataFile , TimePoint);
-                SPMJOB.matlabbatch{1,1}.spm.spatial.smooth.fwhm=FWHM;
-                SPMJOB.matlabbatch{1,1}.spm.spatial.smooth.data=FileList;
-                SPMJOB.matlabbatch{1,1}.spm.spatial.smooth.prefix='s';
-                command='spm_jobman(''run'',opt.SmoothBatch)';
-                pipeline.([FieldName , DelMsg , '_Smooth']).command=command;
-                pipeline.([FieldName , DelMsg , '_Smooth']).opt.SmoothBatch=SPMJOB.matlabbatch;
-                pipeline.([FieldName , DelMsg , '_Smooth']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_Smooth']).files_out=files_out;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-            case 'DETREND'
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('d' , DataFile , TimePoint);
-                command='gretna_detrend(opt.FileList , opt.Prefix , opt.DetrendOrd , opt.RemainMean)';
-                pipeline.([FieldName , DelMsg , '_Detrend']).command=command;
-                pipeline.([FieldName , DelMsg , '_Detrend']).opt.FileList=FileList;
-                pipeline.([FieldName , DelMsg , '_Detrend']).opt.Prefix='d';
-                pipeline.([FieldName , DelMsg , '_Detrend']).opt.DetrendOrd=Para.DetrendOrd;
-                pipeline.([FieldName , DelMsg , '_Detrend']).opt.RemainMean=Para.RemainMean;
-                pipeline.([FieldName , DelMsg , '_Detrend']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_Detrend']).files_out=files_out;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-            case 'FILTER'
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('b' , DataFile , TimePoint);
-                command='gretna_bandpass(opt.FileList , opt.Prefix , opt.Band , opt.TR)';
-                pipeline.([FieldName , DelMsg , '_BandPass']).command=command;
-                pipeline.([FieldName , DelMsg , '_BandPass']).opt.FileList=FileList;
-                pipeline.([FieldName , DelMsg , '_BandPass']).opt.Prefix='b';
-                pipeline.([FieldName , DelMsg , '_BandPass']).opt.Band=FreBand;
-                pipeline.([FieldName , DelMsg , '_BandPass']).opt.TR=Para.TR;
-                pipeline.([FieldName , DelMsg , '_BandPass']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_BandPass']).files_out=files_out;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-            case 'COVARIATES REGRESSION'    
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('c' , DataFile , TimePoint);
-                %Cov
-                CovCell=[];
-                if strcmpi(Para.GSBool , 'TRUE')
-                    CovCell=[CovCell ; {Para.GSMask}];
-                end
-                if strcmpi(Para.WMBool , 'TRUE')
-                    CovCell=[CovCell ; {Para.WMMask}];
-                end
-                if strcmpi(Para.CSFBool, 'TRUE')
-                    CovCell=[CovCell ; {Para.CSFMask}];
-                end
-
-                if strcmpi(Para.HMBool , 'TRUE')
-                    if isempty(Para.HMPath) || ~(exist(Para.HMPath , 'dir')==7)
-                        Para.HMPath=Para.EPIPath;
-                    end
-                end
-                %Config.BrainMask = Para.GSMask;
-                Config.HMBool    = Para.HMBool;
-                Config.HMPath    = Para.HMPath;
-                Config.HMPrefix  = Para.HMPrefix;
-                Config.HMDeriv   = Para.HMDerivBool;
-                Config.HMFrison24= Para.HMFrison24Bool;
-                Config.Name      = FieldName(6:end);
-                Config.CovCell   = CovCell;
-                command='gretna_regressout(opt.FileList , opt.Prefix , opt.CovConfig)';
-                pipeline.([FieldName , DelMsg , '_Regressout']).command=command;
-                pipeline.([FieldName , DelMsg , '_Regressout']).opt.FileList=FileList;
-                pipeline.([FieldName , DelMsg , '_Regressout']).opt.Prefix='c';
-                pipeline.([FieldName , DelMsg , '_Regressout']).opt.CovConfig=Config;
-                pipeline.([FieldName , DelMsg , '_Regressout']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_Regressout']).files_out=files_out;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-                
-            case 'VOXEL-BASED DEGREE'
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('' , DataFile , TimePoint);
-                %Voxel-based Degree
-                DCDir=[Para.ParentDir , 'GretnaVoxelDegree'];
-                if ~(exist(DCDir , 'dir')==7)
-                    mkdir(DCDir);
-                end
-                DCOutput=[DCDir , filesep , FieldName(6:end)];
-                command='gretna_voxel_based_degree_pipeuse(opt.FileList, opt.DCOutput, opt.DCMask, opt.DCRthr, opt.DCDis, opt.SubjName)';
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).command=command;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.FileList=FileList;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCOutput=DCOutput;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCMask=Para.DCMask;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCRthr=Para.DCRthr;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.DCDis=Para.DCDis;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).opt.SubjName=FieldName(6:end);
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_VoxelDegree']).files_out=...
-                    {[DCOutput, filesep, 'degree_abs_wei_', FieldName(6:end), '.nii']};
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-                
-            case 'FUNCTIONAL CONNECTIVITY MATRIX'
-                [FileList , files_in , files_out , DataFile]=...
-                    UpdateDataList('' , DataFile , TimePoint);
-                %FC
-                MatOutput=[Para.ParentDir , 'GretnaMatrixResult'];
-                if ~(exist(MatOutput , 'dir')==7)
-                    mkdir(MatOutput);
-                end
-                
-                OutputRMatName=fullfile(MatOutput, [FieldName(6:end), '.txt']);
-                OutputZMatName=fullfile(MatOutput, ['z_', FieldName(6:end), '.txt']);                
-                OutputTCName=fullfile(MatOutput, ['TimeCourse_', FieldName(6:end), '.txt']);
-                OutputCell={OutputRMatName; OutputZMatName; OutputTCName};
-                
-                DFCStruct=[];
-                if strcmpi(Para.DFCBool, 'TRUE')
-                    DFCStruct.DFCWin=Para.DFCWin;
-                    DFCStruct.DFCStep=Para.DFCStep;
-                end
-                
-                command='gretna_fc(opt.FileList , opt.LabMask , opt.OutputName, opt.DFCStruct)';
-                pipeline.([FieldName , DelMsg , '_FC']).command=command;
-                pipeline.([FieldName , DelMsg , '_FC']).opt.FileList=FileList;
-                pipeline.([FieldName , DelMsg , '_FC']).opt.LabMask=Para.LabMask;
-                pipeline.([FieldName , DelMsg , '_FC']).opt.OutputName=OutputRMatName;
-                pipeline.([FieldName , DelMsg , '_FC']).opt.DFCStruct=DFCStruct;
-                pipeline.([FieldName , DelMsg , '_FC']).files_in=files_in;
-                pipeline.([FieldName , DelMsg , '_FC']).files_out=OutputCell;
-                if ~isempty(DelMsg)
-                    DelMsg=[];
-                end
-        end
-    end
-
-function [FileList , FilesIn , FilesOut , NewDataList]=...
-    UpdateDataList(Prefix , OldDataList , TimePoint)
-    FileList=[];
-    NewDataList=[];
-    if iscell(OldDataList)
-        FileList=OldDataList;
-        FilesIn=OldDataList;
-        for i=1:size(OldDataList , 1)
-            [Path , File , Ext]=fileparts(OldDataList{i});
-            NewDataList=[NewDataList ; ...
-                {[Path , filesep , Prefix , File , Ext]}];
-        end
-        FilesOut=NewDataList;
-    else
-        FilesIn={OldDataList};
-        for i=1:TimePoint
-            FileList=[FileList ;... 
-                {sprintf('%s,%d' , OldDataList , i)}];
-        end
-        [Path , File , Ext]=fileparts(OldDataList);
-        NewDataList=[Path , filesep , Prefix , File , Ext];
-        FilesOut={NewDataList};
-    end
-    
-function DcmFile=GetNeedDcmFile(ParentDir , SubjName)
-        FirstChar=1;
-        while FirstChar<=size(SubjName , 2)
-            SubjDir=[ParentDir , filesep , SubjName(FirstChar:end)];
-            if ~(exist(SubjDir , 'dir')==7)
-                FirstChar=FirstChar+1;
-            else
-                SubjFile=dir(SubjDir);
-                if ~isempty(SubjFile)
-                    if strcmpi(SubjFile(1).name , '.')
-                        SubjFile(1)=[];
-                        if strcmpi(SubjFile(2).name , '..')
-                            SubjFile(1)=[];
-                            if strcmpi(SubjFile(1).name , '.DS_Store')
-                                SubjFile(1)=[];
-                            end
-                        end
-                    end
-                end
-                DcmFile=[SubjDir , filesep , SubjFile(1).name];
-                break;
-            end
-        end
-
-function CheckWarning(UIcontrol)
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'White');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);       
-        set(UIcontrol , 'BackgroundColor' , 'White');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);       
-        set(UIcontrol , 'BackgroundColor' , 'White');
-        pause(0.08);
-        set(UIcontrol , 'BackgroundColor' , 'Red');
-        pause(0.08);       
-        set(UIcontrol , 'BackgroundColor' , 'White');        
-    
-% --------------------------------------------------------------------
-function RunPushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to RunPushtool (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    RunEvent(hObject , handles);
-
-function RunEvent(hObject , handles)
-if isempty(handles.CalList)
-    CheckWarning(handles.CalListbox);
-    return;
-end
-
-if isempty(handles.DataList)
-    CheckWarning(handles.InputListbox);
-    return;
-end
-set(handles.RunButton       , 'Enable' , 'Off');
-set(handles.RunPushtool     , 'Enable' , 'Off');
-set(handles.StopPushtool    , 'Enable' , 'On');
-set(handles.RefreshPushtool , 'Enable' , 'On');
-set(handles.InputListbox , 'Enable' , 'inactive');
-drawnow;
-
-handles.Para.EPIPath=get(handles.InputEntry , 'String');
-ParentDir=handles.Para.EPIPath;
-if strcmpi(ParentDir(end) , filesep)
-    ParentDir=ParentDir(1:end-1);
-end
-while ~strcmpi(ParentDir(end) , filesep)
-  	ParentDir=ParentDir(1:end-1);
-end
-handles.Para.ParentDir=ParentDir;
-
-if handles.ConnectFlag
-    if ~isfield(handles , 'NetCalList') || ~isfield(handles , 'NetPara')
-        [NetCalList , NetPara , Netfig , NetCalText ]=CalInterface;
-        handles.NetCalList = NetCalList;
-        handles.NetPara    = NetPara;
-        handles.NetCalText = NetCalText;
-        CalText=get(handles.CalListbox , 'String');
-        CalText=[CalText ; NetCalText];
-        set(handles.CalListbox , 'String' , CalText);
-        drawnow;
-        close(Netfig);
-    else
-        NetCalList = handles.NetCalList;
-        NetPara    = handles.NetPara;
-    end
-    
-    NetworkDir=[ParentDir , 'GretnaNetworkMetrics'];
-    if ~(exist(NetworkDir , 'dir')==7)
-        mkdir(NetworkDir);
-    end
-    TempDir=[NetworkDir , filesep , 'tmp'];
-    if ~(exist(TempDir , 'dir')==7)
-        mkdir(TempDir);
-    end
-end
-
-%Time
-Time=clock;
-Date=sprintf('%d-%d-%d, %d:%d:%02.0f' , Time(1) , Time(2) , Time(3) , ...
-            Time(4) , Time(5) , Time(6));
-
-LogDir=[ParentDir , 'GretnaLogs' , filesep];
-if ~(exist(LogDir , 'dir')==7)
-    mkdir(LogDir);
-end
-
-CalText=get(handles.CalListbox , 'String');
-fid=fopen([LogDir , 'PreprocessConfigure.txt'] , 'a');
-fprintf(fid , [Date]);
-if ispc
-    fprintf(fid , '\r\n');
-else
-    fprintf(fid , '\n');
-end
-fprintf(fid , '-------------------------------------------------------');
-if ispc
-    fprintf(fid , '\r\n');
-else
-    fprintf(fid , '\n');
-end
-for i=1:size(CalText , 1)
-    TempText=strrep(CalText{i} , '\' , '\\');
-    if ispc
-        fprintf(fid , [TempText , '\r\n']);
-    else
-        fprintf(fid , [TempText , '\n']);
-    end
-end
-if ispc
-    fprintf(fid , '\r\n');
-else
-    fprintf(fid , '\n');
-end
-fclose(fid);
-
-if isfield(handles , 'InputText')
-    InputText = handles.InputText;
-else
-    InputText=get(handles.InputListbox , 'String');
-    handles.InputText = InputText;
-end
-
-fid=fopen([LogDir , 'InputDataList.txt'] , 'a');
-fprintf(fid , [Date]);
-if ispc
-    fprintf(fid , '\r\n');
-else
-    fprintf(fid , '\n');
-end
-fprintf(fid , '-------------------------------------------------------');
-if ispc
-    fprintf(fid , '\r\n');
-else
-    fprintf(fid , '\n');
-end
-for i=1:size(InputText , 1)
-    TempText=strrep(InputText{i} , '\' , '\\');
-    if ispc
-        fprintf(fid , [TempText , '\r\n']);
-    else
-        fprintf(fid , [TempText , '\n']);
-    end
-end
-if ispc
-    fprintf(fid , '\r\n');
-else
-    fprintf(fid , '\n');
-end
-fclose(fid);
-
-handles.Para.LogDir=LogDir;
-
-if strcmpi(handles.CalList{1} , 'DICOM to NIFTI')
-    NiiDir=[ParentDir , 'GretnaNifti'];
-    if ~(exist(NiiDir , 'dir')==7)
-        mkdir(NiiDir);
-    end
-    handles.Para.NiiDir=NiiDir;
-end
-
-if strcmpi(handles.Para.T1D2NBool , 'TRUE') && strcmpi(handles.Para.NormType , 'T1')
-	T1ParentDir=handles.Para.T1Path;
-    if strcmpi(T1ParentDir(end) , filesep)
-        T1ParentDir=T1ParentDir(1:end-1);
-    end
-    while ~strcmpi(T1ParentDir(end) , filesep)
-    	T1ParentDir=T1ParentDir(1:end-1);
-    end
-    T1NiiDir=[T1ParentDir , 'GretnaT1Nifti'];
-    if ~(exist(T1NiiDir , 'dir')==7)
-        mkdir(T1NiiDir);
-    end
-    handles.Para.T1NiiDir=T1NiiDir;
-end
-
-handles.PipelineLog=[LogDir , 'Preprocess_logs'];
-
-%MatOutput
-
-%if ~isempty(strfind(handles.CalList , 'Normalize'))
-%    handles.Para.PicDir=[ParentDir , 'GretnaPicForCheck'];
-%    if ~(exist(handles.Para.PicDir , 'dir')==7)
-%        mkdir(handles.Para.PicDir);
-%    end
-%end
-
-pipeline=[];
-handles.AliasList=fieldnames(handles.DataList);
-Para=handles.Para;
-
-guidata(hObject , handles);
-
-for i=1:size(handles.AliasList, 1)
-    SubjData=handles.DataList.(handles.AliasList{i});
-    pipeline=PreprocessFork(SubjData, handles.CalList, Para, handles.AliasList{i}, pipeline);
-%     if handles.ConnectFlag
-%         command='gretna_ForkProcess(opt.Matrix , opt.CalList , opt.Para , opt.OutputDir , opt.SubjNum)';
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).command=command;
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Matrix=[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt'];
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.CalList=NetCalList;
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.Para=NetPara;
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.OutputDir=NetworkDir;
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).opt.SubjNum=['_',SubjField{i}(6:end)];
-%         pipeline.([SubjField{i} , '_NetworkMetrics']).files_in={[Para.ParentDir , 'GretnaMatrixResult' , filesep , SubjField{i}(6:end) , '.txt']};
-%         %pipeline.([SubjField{i} , '_NetworkMetrics']).files_out={sprintf('%s%s%s.out' , TempDir , filesep , ['_',SubjField{i}(6:end)])};
-%     end
-end
-opt.path_logs = [LogDir , 'Preprocess_logs'];
-opt.mode = 'batch';
-opt.mode_pipeline_manager = 'batch';
-if ismac
-    opt.mode='background';
-    opt.mode_pipeline_manager='background';
-else
-    opt.mode = 'batch';
-    opt.mode_pipeline_manager = 'batch';
-end
-opt.max_queued = str2num(get(handles.QueueEntry , 'String'));
-opt.flag_verbose = false;
-opt.flag_pause = false;
-opt.flag_update = false;
-opt.time_between_checks=3;
-psom_run_pipeline(pipeline,opt);
-RefreshStatus(handles.AliasList, handles.InputListbox, handles.PipelineLog);
-
-function RefreshStatus(AliasList, ListboxObject, LogDir)
-handles=guidata(gcf);
-while 1
-    try 
-        Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
-    catch exception
-        continue;
-    end
-    Name=fieldnames(Struct);
-    if ~isempty(Name)
-        Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
-            'UniformOutput', false);
-        Text=cell(size(AliasList));
-    
-        for i=1:numel(AliasList)
-            ExitCode=0;
-        
-            CurrName=Name(Index{i});
-            if isempty(CurrName)
-                Text{i, 1}=sprintf('(%s/%s): %s)',...
-                    AliasList{i}, 'All', 'waiting');
-                continue;
-            end        
-            StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
-        
-            if sum(strcmpi('running', StateCell))
-                CurrIndex=strcmpi('running', StateCell);
-                CurrName=CurrName(CurrIndex);
-                StateText='';
-                for j=1:numel(CurrName)
-                    StateText=[StateText,...
-                        sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
-                end
-                if strcmpi(StateText(end), ',')
-                    StateText=StateText(1:end-1);
-                end
-                Flag='running';
-            elseif sum(strcmpi('failed', StateCell))
-                LogStruct=load(fullfile(LogDir, 'PIPE_logs.mat'));                
-                CurrIndex=strcmpi('failed', StateCell);
-                CurrName=CurrName(CurrIndex);
-                
-                StateText='';
-                for j=1:numel(CurrName)
-                    StateText=[StateText,...
-                        sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
-                    LogString=LogStruct.(CurrName{j});
-                    fprintf('====================%s====================\n', CurrName{j});
-                    error('%s\n\n', LogString);                
-                end
-                if strcmpi(StateText(end), ',')
-                    StateText=StateText(1:end-1);
-                end
-                Flag='failed';
-                ExitCode=1;
-            elseif all(strcmpi('finished', StateCell))
-                StateText='All';
-                Flag='finished';
-                ExitCode=1;
-            elseif (strcmpi('none', StateCell))
-                StateText='All';
-                Flag='waiting';
-            else
-                StateText='';
-                Flag='waiting';
-            end
-            Text{i, 1}=sprintf('(%s/%s): %s)',...
-                AliasList{i}, StateText, Flag);
-        end
-    
-        set(ListboxObject , 'String', Text, 'Value' , 1);
-        drawnow;
-        
-        if ExitCode || strcmpi(get(handles.RunPushtool, 'Enable'), 'On')
-            break;
-        end
-    end
-end
-    
-% --------------------------------------------------------------------
-function DefaultPushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to DefaultPushtool (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    set(handles.DefaultPushtool , 'Enable' , 'Off');
-    GUIPath=fileparts(which('gretna.m'));
-    Para=handles.Para;
-    save([GUIPath , filesep , 'PreprocessPara.mat'] , 'Para');
-% --------------------------------------------------------------------
-function HelpPushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to HelpPushtool (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    GUIPath=fileparts(which('gretna.m'));
-    ManualFile=fullfile(GUIPath , 'Manual' , 'Manual.html');
-    open(ManualFile);
-
-% --- Executes on selection change in ConfigListbox.
-function ConfigListbox_Callback(hObject, eventdata, handles)
-% hObject    handle to ConfigListbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns ConfigListbox contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from ConfigListbox
-
-
-% --- Executes during object creation, after setting all properties.
-function ConfigListbox_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to ConfigListbox (see GCBO)
+function PostModeList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to PostModeList (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -2632,85 +286,130 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in RunButton.
-function RunButton_Callback(hObject, eventdata, handles)
-% hObject    handle to RunButton (see GCBO)
+% --- Executes on button press in PreModeToRight.
+function PreModeToRight_Callback(hObject, eventdata, handles)
+% hObject    handle to PreModeToRight (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    RunEvent(hObject , handles);
+UnselModeVal=get(handles.PreModeList, 'Value');
+UnselModeStr=get(handles.PreModeList, 'String');
+UnselModeTar=UnselModeStr(UnselModeVal);
+Msk=strcmpi(UnselModeTar{1}, handles.PreModeCell(:, 1));
+Ind=handles.PreModeCell(Msk, 2);
+Ind=Ind{1};
 
-% --------------------------------------------------------------------
-function LoadPushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to LoadPushtool (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-[FileName , PathName] = uigetfile('*.mat' , 'Pick a configure mat for Preprocess');
-if ischar(FileName)
-    ConfigMat=load([PathName , FileName]);
-    handles.Para=ConfigMat.Para;
-    handles.CalList=ConfigMat.CalList;
-    set(handles.ModeListbox , 'String' , ConfigMat.ModeList);
-    if isempty(ConfigMat.ModeList)
-        set(handles.ModeListbox , 'Value' , 0);
-    else
-        set(handles.ModeListbox , 'Value' , 1);
-    end
-    CalText=CalListbox(handles);
-    set(handles.CalListbox , 'String' , CalText);
-    if isempty(ConfigMat.CalList)
-        set(handles.CalListbox , 'Value' , 0);
-    else
-        set(handles.CalListbox , 'Value' , 1);
-    end
-    guidata(hObject , handles);
+handles.UnselPreInd(handles.UnselPreInd==Ind)=[];
+handles.SelPreInd=[handles.SelPreInd; Ind];
+
+Dcm2NiiMsk=handles.SelPreInd==1;
+if any(Dcm2NiiMsk)
+    handles.SelPreInd(Dcm2NiiMsk)=[];
+    handles.SelPreInd=[1; handles.SelPreInd];
 end
-
-% --------------------------------------------------------------------
-function SavePushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to SavePushtool (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-[FileName , PathName]=uiputfile('*.mat', 'Save a configure mat for Preprocess' , 'MyPreprocessConfig.mat' );
-if ischar(FileName)
-    SaveName=[PathName , FileName];
-    ModeList=get(handles.ModeListbox , 'String');
-    CalList=handles.CalList;
-    Para=handles.Para;
-    save(SaveName , 'ModeList' , 'CalList' , 'Para');
-end
-
-
-% --------------------------------------------------------------------
-function StopPushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to StopPushtool (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-set(handles.RunButton   , 'Enable' , 'On');
-set(handles.RunPushtool , 'Enable' , 'On');
-set(handles.StopPushtool, 'Enable' , 'Off');
-set(handles.RefreshPushtool , 'Enable' , 'Off');
-
-StopFlag=dir([handles.PipelineLog , filesep , 'PIPE.lock']);
-if ~isempty(StopFlag)
-    delete([handles.PipelineLog , filesep , 'PIPE.lock']);
-end
-set(handles.InputListbox    , 'Enable' , 'On' , 'String' , handles.InputText);
-drawnow;
-
-function QueueEntry_Callback(hObject, eventdata, handles)
-% hObject    handle to QueueEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-QueueSize=get(handles.QueueEntry, 'String');
-handles.Para.QueueSize=str2num(QueueSize);
 guidata(hObject, handles);
-% Hints: get(hObject,'String') returns contents of QueueEntry as text
-%        str2double(get(hObject,'String')) returns contents of QueueEntry as a double
+
+UpdateConfigInterface(hObject);
+
+% --- Executes on button press in PreModeToLeft.
+function PreModeToLeft_Callback(hObject, eventdata, handles)
+% hObject    handle to PreModeToLeft (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SelModeVal=get(handles.PipeOptList, 'Value');
+SelModeStr=get(handles.PipeOptList, 'String');
+SelModeTar=SelModeStr(SelModeVal);
+Msk=cellfun(@(s) strncmpi(SelModeTar{1}, s, length(s)), handles.PreModeCell(:, 1));
+Ind=handles.PreModeCell(Msk, 2);
+Ind=Ind{1};
+
+handles.SelPreInd(handles.SelPreInd==Ind)=[];
+handles.UnselPreInd=[handles.UnselPreInd; Ind];
+handles.UnselPreInd=sort(handles.UnselPreInd);
+
+guidata(hObject, handles);
+
+UpdateConfigInterface(hObject);
+
+% --- Executes on button press in PostModeToRight.
+function PostModeToRight_Callback(hObject, eventdata, handles)
+% hObject    handle to PostModeToRight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+UnselModeVal=get(handles.PostModeList, 'Value');
+UnselModeStr=get(handles.PostModeList, 'String');
+UnselModeTar=UnselModeStr(UnselModeVal);
+Msk=strcmpi(UnselModeTar{1}, handles.PostModeCell(:, 1));
+Ind=handles.PreModeCell(Msk, 2);
+Ind=Ind{1};
+
+handles.UnselPostInd(handles.UnselPostInd==Ind)=[];
+handles.SelPostInd=sort([handles.SelPostInd; Ind]);
+
+guidata(hObject, handles);
+
+UpdateConfigInterface(hObject);
+
+% --- Executes on button press in PostModeToLeft.
+function PostModeToLeft_Callback(hObject, eventdata, handles)
+% hObject    handle to PostModeToLeft (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SelModeVal=get(handles.PipeOptList, 'Value');
+SelModeStr=get(handles.PipeOptList, 'String');
+SelModeTar=SelModeStr(SelModeVal);
+Msk=cellfun(@(s) strncmpi(SelModeTar{1}, s, length(s)), handles.PostModeCell(:, 1));
+Ind=handles.PostModeCell(Msk, 2);
+Ind=Ind{1};
+
+handles.SelPostInd(handles.SelPostInd==Ind)=[];
+handles.UnselPostInd=[handles.UnselPostInd; Ind];
+handles.UnselPostInd=sort(handles.UnselPostInd);
+
+guidata(hObject, handles);
+
+UpdateConfigInterface(hObject);
+
+% --- Executes on selection change in PipeOptList.
+function PipeOptList_Callback(hObject, eventdata, handles)
+% hObject    handle to PipeOptList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if strcmpi(get(handles.MainFig , 'SelectionType') , 'normal')
+    UpdateConfigInterface(hObject);
+else
+    ChangedAction(hObject);
+end
+
+% Hints: contents = cellstr(get(hObject,'String')) returns PipeOptList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from PipeOptList
 
 
 % --- Executes during object creation, after setting all properties.
-function QueueEntry_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to QueueEntry (see GCBO)
+function PipeOptList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to PipeOptList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function InputDirEty_Callback(hObject, eventdata, handles)
+% hObject    handle to InputDirEty (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of InputDirEty as text
+%        str2double(get(hObject,'String')) returns contents of InputDirEty as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function InputDirEty_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to InputDirEty (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -2721,43 +420,562 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --------------------------------------------------------------------
-function RefreshPushtool_ClickedCallback(hObject, eventdata, handles)
-% hObject    handle to RefreshPushtool (see GCBO)
+% --- Executes on button press in InputDirBtn.
+function InputDirBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to InputDirBtn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-RefreshStatus(handles.AliasList, handles.InputListbox, handles.PipelineLog);
 
-% --- Executes on selection change in PopupMenu.
-function PopupMenu_Callback(hObject, eventdata, handles)
-% hObject    handle to PopupMenu (see GCBO)
+if ~isempty(handles.FunPDir)
+    OldPath=handles.FunPDir;
+else
+    OldPath=pwd;
+end
+
+Path=uigetdir(OldPath, 'Path of Functional Dataset');
+if isnumeric(Path)
+    return
+end
+handles.FunPDir=Path;
+set(handles.InputDirEty, 'String', Path)
+guidata(hObject, handles);
+UpdateInputInterface(hObject, 1);
+
+function KeyEty_Callback(hObject, eventdata, handles)
+% hObject    handle to KeyEty (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-switch get(handles.PopupMenu , 'Value')
-    case 1
-        return;
-    case 2
-        PopupText=get(handles.PopupMenu , 'String');
-        if strcmpi(PopupText{2} , 'Connect to GRETNA Calculate')
-            PopupText{2}='Select to UnConnect from GRETNA Calculate';
-            set(handles.PopupMenu , 'String' , PopupText);
-            CalInterface('Connect');
-            handles.ConnectFlag=1;
-        else
-            PopupText{2}='Connect to GRETNA Calculate';
-            set(handles.PopupMenu , 'String' , PopupText);
-            CalInterface('UnConnect');
-            handles.ConnectFlag=0;
-        end
-        guidata(hObject , handles);
-end
-% Hints: contents = cellstr(get(hObject,'String')) returns PopupMenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from PopupMenu
+UpdateInputInterface(hObject, 1);
+% Hints: get(hObject,'String') returns contents of KeyEty as text
+%        str2double(get(hObject,'String')) returns contents of KeyEty as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function PopupMenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to PopupMenu (see GCBO)
+function KeyEty_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to KeyEty (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in InputList.
+function InputList_Callback(hObject, eventdata, handles)
+% hObject    handle to InputList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns InputList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from InputList
+
+
+% --- Executes during object creation, after setting all properties.
+function InputList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to InputList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in OptItemList.
+function OptItemList_Callback(hObject, eventdata, handles)
+% hObject    handle to OptItemList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+Val=get(handles.OptItemList, 'Value');
+Str=get(handles.OptItemList, 'String');
+
+Tar=Str(Val);
+if isempty(Tar)
+    return
+end
+
+Key=handles.CurItemKey;
+if isempty(Key)
+    return
+end
+
+ItemCell=handles.Para.(Key);
+if numel(ItemCell)==1;
+    if ~strcmpi(get(handles.MainFig , 'SelectionType') , 'normal')
+        ChangedAction(hObject);
+        return
+    end
+elseif numel(ItemCell)==2 && iscell(ItemCell{1, 2})
+        ItemCell{1, 1}=Val;
+elseif numel(ItemCell)==3
+    if ~strcmpi(get(handles.MainFig , 'SelectionType') , 'normal')
+        ChangedAction(hObject);
+        return
+    end
+end
+handles.Para.(Key)=ItemCell;
+
+guidata(hObject, handles);
+
+UpdateConfigInterface(hObject);
+
+% Hints: contents = cellstr(get(hObject,'String')) returns OptItemList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from OptItemList
+
+
+% --- Executes during object creation, after setting all properties.
+function OptItemList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to OptItemList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in HelpList.
+function HelpList_Callback(hObject, eventdata, handles)
+% hObject    handle to HelpList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns HelpList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from HelpList
+
+
+% --- Executes during object creation, after setting all properties.
+function HelpList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to HelpList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in PipeOptUp.
+function PipeOptUp_Callback(hObject, eventdata, handles)
+% hObject    handle to PipeOptUp (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SelModeVal=get(handles.PipeOptList, 'Value');
+SelModeStr=get(handles.PipeOptList, 'String');
+SelModeTar=SelModeStr(SelModeVal);
+Msk=cellfun(@(s) strncmpi(SelModeTar{1}, s, length(s)), handles.PreModeCell(:, 1));
+
+if any(Msk) % PreMod
+    Ind=handles.PreModeCell(Msk, 2);
+    Ind=Ind{1};
+    
+    Sel=find(handles.SelPreInd==Ind);
+    handles.SelPreInd([Sel-1, Sel])=handles.SelPreInd([Sel, Sel-1]);
+else % PostMode
+    Msk=cellfun(@(s) strncmpi(SelModeTar{1}, s, length(s)), handles.PostModeCell(:, 1));
+    Ind=handles.PostModeCell(Msk, 2);
+    Ind=Ind{1};
+    
+    Sel=find(handles.SelPostInd==Ind);
+    handles.SelPostInd([Sel-1, Sel])=handles.SelPostInd([Sel, Sel-1]);    
+end
+
+guidata(hObject, handles);
+UpdateConfigInterface(hObject);
+
+% --- Executes on button press in PipeOptDown.
+function PipeOptDown_Callback(hObject, eventdata, handles)
+% hObject    handle to PipeOptDown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+SelModeVal=get(handles.PipeOptList, 'Value');
+SelModeStr=get(handles.PipeOptList, 'String');
+SelModeTar=SelModeStr(SelModeVal);
+Msk=cellfun(@(s) strncmpi(SelModeTar{1}, s, length(s)), handles.PreModeCell(:, 1));
+
+if any(Msk)
+    Ind=handles.PreModeCell(Msk, 2);
+    Ind=Ind{1};
+    
+    Sel=find(handles.SelPreInd==Ind);
+    handles.SelPreInd([Sel, Sel+1])=handles.SelPreInd([Sel+1, Sel]);
+else
+    Msk=cellfun(@(s) strncmpi(SelModeTar{1}, s, length(s)), handles.PostModeCell(:, 1));
+    Ind=handles.PostModeCell(Msk, 2);
+    Ind=Ind{1};
+    
+    Sel=find(handles.SelPostInd==Ind);
+    handles.SelPostInd([Sel, Sel+1])=handles.SelPostInd([Sel+1, Sel]);    
+end
+
+guidata(hObject, handles);
+UpdateConfigInterface(hObject);
+
+% --- Executes on button press in RunBtn.
+function RunBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to RunBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ExitCode=CheckBeforeRun(hObject);
+if ExitCode
+    return;
+end
+Para=handles.Para;
+PreStr=handles.PreModeCell(handles.SelPreInd);
+PostStr=handles.PostModeCell(handles.SelPostInd);
+AllStr=[PreStr; PostStr];
+
+FileList=cellfun(@(S) S.FileList, handles.InputS, 'UniformOutput', false);
+SList=cellfun(@(S) GenSubjLab(S.Lab), handles.InputS, 'UniformOutput', false);
+IndList=arrayfun(@(d) sprintf('%.5d', d), (1:numel(SList))',...
+    'UniformOutput', false);
+Map=[IndList, SList];
+OldInputStr=get(handles.InputList, 'String');
+Pl=[];
+InputSoFileList={};
+InputFDFileList={};
+InputHMFileList={};
+for i=1:numel(AllStr)
+    ModeName=AllStr{i};
+    switch upper(ModeName)
+        case 'DICOM TO NIFTI'
+            PPath=fileparts(handles.FunPDir);
+            OutputFileList=cellfun(...
+                @(s) {fullfile(PPath, 'GretnaFunNIfTI', s, 'rest.nii')},...
+                SList, 'UniformOutput', false);
+            PCell=cellfun(@(in, out) gretna_GEN_EpiDcm2Nii(in, out),...
+                FileList, OutputFileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('EpiDcm2Nii%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell);
+        case 'REMOVE FIRST IMAGES'
+            PCell=cellfun(@(in) gretna_GEN_RmFstImg(in, Para.DelImg{1}),...
+                FileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('RmFstImg%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell);            
+        case 'SLICE TIMING'
+            PCell=cellfun(...
+                @(in) gretna_GEN_SliTim(in, Para.TR{1}, Para.SliOrd{1}, Para.RefSli{1}),...
+                FileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('SliTim%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell);   
+        case 'REALIGN'
+            PCell=cellfun(...
+                @(in) gretna_GEN_Realign(in, Para.NumPasses{1}),...
+                FileList, 'UniformOutput', false);
+            TList=cellfun(@(i) sprintf('Realign%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+            
+            InputSoFileList=cellfun(@(S) S.SoFile, PCell,...
+                'UniformOutput', false);
+            InputHMFileList=cellfun(@(S) S.HMFile, PCell,...
+                'UniformOutput', false);
+            InputFDFileList=cellfun(@(S) S.FDFile, PCell,...
+                'UniformOutput', false);
+            
+            ChkCell=cellfun(...
+                @(in, lab) gretna_GEN_ChkHM(in, lab, handles.FunPDir),...
+                FileList, SList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('ChkHM%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, ChkCell); 
+        case 'NORMALIZE'
+            SourPrefix=Para.SourPrefix{1};            
+            if isempty(InputSoFileList);    
+                InputSoFileList=cellfun(...
+                    @(in) GenSoFile(in, SourPrefix),...
+                    FileList, 'UniformOutput', false);
+                if any(cellfun(@isempty, InputSoFileList))
+                    errordlg('Cannot find source image (e.g. mean*.nii in Functional Directory), Please Check again OR add ''Realign'' step!');
+                    return;
+                end
+            end 
+            
+            if Para.NormSgy{1}==1 % EPI
+                PCell=cellfun(...
+                    @(in, inSo) gretna_GEN_EpiNorm(...
+                    in, inSo, Para.EPITpm{2},...
+                    Para.BBox{1}, Para.VoxSize{1}...
+                    ),...
+                    FileList, InputSoFileList,...
+                    'UniformOutput', false);
+                TList=cellfun(@(i) sprintf('EpiNorm%s', i), IndList,...
+                    'UniformOutput', false);
+                Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+            else
+                % T1 Dicom to NIfTI
+                T1Path=Para.T1Path{2};
+                T1Prefix=Para.T1Prefix{1};
+                T1Dcm2NiiFlag=Para.T1Dcm2NiiFlag{1};
+                InputT1FileList=[];
+                if T1Dcm2NiiFlag==1; 
+                    PPath=fileparts(handles.FunPDir);
+                    InputT1DirList=cellfun(...
+                        @(s) fullfile(T1Path, s),...
+                        SList, 'UniformOutput', false);
+                    InputT1FileList=cellfun(...
+                        @(p) GenT1Dcm(p, T1Prefix), InputT1DirList,...
+                        'UniformOutput', false);
+                    OutputT1FileList=cellfun(...
+                        @(s) {fullfile(PPath, 'GretnaT1NIfTI', s, 'T1.nii')},...
+                        SList, 'UniformOutput', false);
+                    TDNCell=cellfun(@(in, out) gretna_GEN_T1Dcm2Nii(in, out),...
+                        InputT1FileList, OutputT1FileList, 'UniformOutput', false);
+            
+                    TList=cellfun(@(i) sprintf('T1Dcm2Nii%s', i), IndList,...
+                        'UniformOutput', false);
+                    Pl=gretna_FUN_Cell2Pipe(Pl, TList, TDNCell);
+
+                    InputT1FileList=OutputT1FileList;
+                end
+                
+                % Normalize
+                if isempty(InputT1FileList)
+                    InputT1DirList=cellfun(...
+                        @(s) fullfile(T1Path, s),...
+                        SList, 'UniformOutput', false);
+                    InputT1FileList=cellfun(...
+                        @(p) GenT1Nii(p, T1Prefix), InputT1DirList,...
+                        'UniformOutput', false);
+                end
+                
+                if Para.NormSgy{1}==2 % T1 Unified Segmentation
+                    PCell=cellfun(...
+                        @(in, inSo, inT1) gretna_GEN_T1CoregSegNorm(...
+                        in, inSo,...
+                        inT1,...
+                        Para.GMTpm{2}, Para.WMTpm{2}, Para.CSFTpm{2},...
+                        Para.BBox{1}, Para.VoxSize{1}...
+                        ),...
+                        FileList, InputSoFileList, InputT1FileList,...
+                        'UniformOutput', false);
+                    TList=cellfun(@(i) sprintf('T1CoregSegNorm%s', i), IndList,...
+                        'UniformOutput', false);
+                    Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+                else % DARTEL
+                    % Coregister and New Segment
+                    CNSCell=cellfun(...
+                        @(in, inSo, inT1) gretna_GEN_T1CoregNewSeg(...
+                        in, inSo, inT1,...
+                        Para.TPMTpm{2}...
+                        ),...
+                        FileList, InputSoFileList, InputT1FileList,...
+                        'UniformOutput', false);
+                    TList=cellfun(@(i) sprintf('T1CoregNewSeg%s', i), IndList,...
+                        'UniformOutput', false);
+                    Pl=gretna_FUN_Cell2Pipe(Pl, TList, CNSCell);
+                    
+                    C1FileList=cellfun(@(S) S.C1File, CNSCell,...
+                        'UniformOutput', false);
+                    C2FileList=cellfun(@(S) S.C2File, CNSCell,...
+                        'UniformOutput', false);
+                    C3FileList=cellfun(@(S) S.C3File, CNSCell,...
+                        'UniformOutput', false);
+                    RC1FileList=cellfun(@(S) S.RC1File, CNSCell,...
+                        'UniformOutput', false);
+                    RC2FileList=cellfun(@(S) S.RC2File, CNSCell,...
+                        'UniformOutput', false);
+                    
+                    Pl.DartelNormT1=gretna_GEN_DartelNormT1(...
+                        RC1FileList, RC2FileList,...
+                        C1FileList, C2FileList, C3FileList...
+                        );
+                    % Dartel Template List
+                    DTFileList=Pl.DartelNormT1.DTFileList;
+                    FFFileList=Pl.DartelNormT1.FFFileList;
+            
+                    PCell=cellfun(...
+                        @(in, inFF, inDT) gretna_GEN_DartelNormEpi(in, inFF, inDT,...
+                        Para.BBox{1}, Para.VoxSize{1}...
+                        ),...
+                        FileList, FFFileList, DTFileList, 'UniformOutput', false);
+            
+                    TList=cellfun(@(i) sprintf('DartelNormEpi%s', i), IndList,...
+                        'UniformOutput', false);
+                    Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+                end
+            end
+        case 'SPATIALLY SMOOTH'
+            PCell=cellfun(...
+                @(in) gretna_GEN_Smooth(in, Para.FWHM{1}),...
+                FileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('Smooth%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+        case 'REGRESS OUT COVARIATES'
+            % Global Signal
+            GSMsk='';
+            if Para.GSFlag{1}==1  % TRUE
+                GSMsk=Para.GSMsk{1, 2};
+            end
+            % White Matter
+            WMMsk='';
+            if Para.WMFlag{1}==1  % TRUE
+                WMMsk=Para.WMMsk{1, 2};
+            end 
+            % CSF
+            CSFMsk='';
+            if Para.CSFFlag{1}==1 % TRUE
+                CSFMsk=Para.CSFMsk{1, 2};
+            end
+            % HeadMotion
+            if Para.HMFlag{1}==1  % TRUE
+                HMInd=Para.HMSgy{1};
+                if isempty(InputHMFileList)
+                    InputHMFileList=cellfun(...
+                        @(in) GenHMFile(in),...
+                        FileList, 'UniformOutput', false);
+                    if any(cellfun(@isempty, InputHMFileList))
+                        errordlg('Cannot find head motion parameter file (e.g. HeadMotionParameter.txt in Functional Directory), Please Check again OR add ''Realign'' step!');
+                        return;
+                    end
+                end
+            else
+                HMInd=0;
+                % Do Not Used
+                InputHMFileList=cellfun(@(in) [],...
+                    FileList, 'UniformOutput', false);
+            end
+            
+            PCell=cellfun(...
+                @(in, inHM) gretna_GEN_RegressOut(in, GSMsk, WMMsk, CSFMsk, HMInd, inHM),...
+                FileList, InputHMFileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('RegressOut%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+        case 'TEMPORALLY DETREND'
+            PCell=cellfun(...
+                @(in) gretna_GEN_Detrend(in, Para.PolyOrd{1, 1}),...
+                FileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('Detrend%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+        case 'TEMPORALLY FILTER'
+            PCell=cellfun(...
+                @(in) gretna_GEN_Filter(in, Para.TR{1}, Para.Band{1}),...
+                FileList, 'UniformOutput', false);
+            
+            TList=cellfun(@(i) sprintf('Filter%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+        case 'SCRUBBING'
+            if isempty(InputFDFileList);    
+                InputFDFileList=cellfun(...
+                    @(in) GenFDFile(in),...
+                    FileList, 'UniformOutput', false);
+                if any(cellfun(@isempty, InputFDFileList))
+                    errordlg('Cannot find source image (e.g. PowerFD.txt in Functional Directory), Please Check again OR add ''Realign'' step!');
+                    return;
+                end
+            end            
+            PCell=cellfun(...
+                @(in, inFD) gretna_GEN_Scrubbing(...
+                in, inFD, Para.InterSgy{1}, Para.FDTrd{1},...
+                Para.PreNum{1}, Para.PostNum{1}...
+                ),...
+                FileList, InputFDFileList, 'UniformOutput', false); 
+            
+            TList=cellfun(@(i) sprintf('Scrubbing%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+        case 'STATIC CORRELATION'
+            PCell=cellfun(...
+                @(in, lab) gretna_GEN_StaticFC(...
+                in, lab, handles.FunPDir,...
+                Para.FCAtlas{2}, Para.FZTFlag{1}...
+                ),...
+                FileList, SList, 'UniformOutput', false);
+            TList=cellfun(@(i) sprintf('StaticFC%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell); 
+        case 'DYNAMICAL CORRELATION'
+            PCell=cellfun(...
+                @(in, lab) gretna_GEN_DynamicalFC(...
+                in, lab, handles.FunPDir,...
+                Para.FCAtlas{2}, Para.FZTFlag{1},...
+                Para.SWL{1}, Para.SWS{1}...
+                ),...
+                FileList, SList, 'UniformOutput', false);
+            TList=cellfun(@(i) sprintf('DynamicalFC%s', i), IndList,...
+                'UniformOutput', false);
+            Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell);
+    end
+    % Update Input    
+    FileList=cellfun(@(S) S.OutputImgFile, PCell, 'UniformOutput', false);
+end
+
+CInd=get(handles.CType, 'Value');
+switch CInd
+    case 1 %session
+        CTyp='session';
+    case 2 %local
+        if ismac
+            CTyp='background';
+        else
+            CTyp='batch';
+        end
+    case 3 %sqe
+        CTyp='qsub';
+end
+% Option
+Opt.mode               =CTyp;
+Queue=str2num(get(handles.QueueEty, 'String'));
+if isempty(Queue)
+    errordlg('Error: Invalid Queue Number!');
+    return
+end
+Opt.max_queued         =Queue;
+Opt.flag_verbose       =true;
+Opt.flag_pause         =false;
+Opt.flag_update        =false;
+Opt.time_between_checks=5;
+PPath=fileparts(handles.FunPDir);
+PipeLogPath=fullfile(PPath, 'GretnaLogs', 'FunPreproAndNetCon');
+if exist(PipeLogPath, 'dir')==7
+    rmdir(PipeLogPath, 's');
+end
+mkdir(PipeLogPath);
+Opt.path_logs=PipeLogPath;
+
+handles.Map=Map;
+handles.OldInputStr=OldInputStr;
+
+guidata(hObject, handles);
+
+psom_run_pipeline(Pl, Opt);
+
+
+% --- Executes on selection change in CType.
+function CType_Callback(hObject, eventdata, handles)
+% hObject    handle to CType (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns CType contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from CType
+
+% --- Executes during object creation, after setting all properties.
+function CType_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to CType (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -2768,54 +986,1140 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+% --- Executes on button press in SaveBtn.
+function SaveBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to SaveBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[File , Path]=uiputfile('*.mat', 'Save configure' ,...
+    'MyFunPreproAndNetConConfig.mat' );
+if ischar(File)
+    SaveName=fullfile(Path, File);
+    
+    Input=[];Mode=[];
+    % Input Config
+    Input.InputS=handles.InputS;
+    Input.InputKey=get(handles.KeyEty, 'String');
+    Input.FunPDir=handles.FunPDir;
+    % Mode Config
+    Mode.CurItemKey=handles.CurItemKey;
+    
+    Mode.UnselPreInd=handles.UnselPreInd;
+    Mode.SelPreInd=handles.SelPreInd;
+    
+    Mode.UnselPostInd=handles.UnselPostInd;
+    Mode.SelPostInd=handles.SelPostInd;
+    
+    Para=handles.Para;
+    
+    save(SaveName , 'Input', 'Mode', 'Para');
+    msgbox('Configuration Saved!');
+end
+
+% --- Executes on button press in LoadBtn.
+function LoadBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[File, Path] = uigetfile('*.mat' , 'Pick configuration');
+if ischar(File)
+    load(fullfile(Path, File));
+    % Input
+    handles.InputS=Input.InputS;
+    handles.FunPDir=Input.FunPDir;
+    set(handles.InputDirEty, 'String', Input.FunPDir);
+    set(handles.KeyEty, 'String', Input.InputKey);
+    
+    guidata(hObject, handles);
+    UpdateInputInterface(hObject, 2);
+    drawnow;
+    handles=guidata(hObject);
+    
+    % Mode
+    handles.SelPreInd=Mode.SelPreInd;
+    handles.SelPostInd=Mode.SelPostInd;
+    
+    handles.UnselPreInd=Mode.UnselPreInd;
+    handles.UnselPostInd=Mode.UnselPostInd;
+    
+    handles.CurItemKey=Mode.CurItemKey;
+    
+    handles.Para=Para;
+    
+    guidata(hObject, handles);
+    UpdateConfigInterface(hObject);
+    drawnow;
+    
+    msgbox('Configuration Loaded!');
+end
+
+% --- Executes during object deletion, before destroying properties.
+function MainFig_DeleteFcn(hObject, eventdata, handles)
+% hObject    handle to MainFig (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in QuitBtn.
+function QuitBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to QuitBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function QueueEty_Callback(hObject, eventdata, handles)
+% hObject    handle to QueueEty (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of QueueEty as text
+%        str2double(get(hObject,'String')) returns contents of QueueEty as a double
+
+
 % --- Executes during object creation, after setting all properties.
-function PreprocessInterface_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to PreprocessInterface (see GCBO)
+function QueueEty_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to QueueEty (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-
-% --- Executes on button press in ExtractButton.
-function ExtractButton_Callback(hObject, eventdata, handles)
-% hObject    handle to ExtractButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-DataList=handles.DataList;
-if isempty(DataList)
-    errordlg('No Subjects');
-    return
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end
 
-OldDir=fileparts(get(handles.InputEntry, 'String'));
-ParentPath=uigetdir(OldDir, 'Pick Output Directory');
+function UpdateConfigInterface(hObject)
+% Get Handles
+handles=guidata(hObject);
 
-if isnumeric(ParentPath)
-    return
-end
+% Update Mode List
+UnselPreStr=handles.PreModeCell(handles.UnselPreInd, 1);
+PreToRight=UpdateModeList(handles.PreModeList, UnselPreStr);
 
-SubjField=fieldnames(DataList);
-for i=1:numel(SubjField)
-    if iscell(DataList.(SubjField{i}))
-        OneSubj=DataList.(SubjField{i});
-        String=sprintf('Copy ''%s'' etc.', OneSubj{1});
-    else
-        OneSubj={DataList.(SubjField{i})};
-        String=sprintf('Copy ''%s''', OneSubj{1});
-    end
-    Path=fileparts(OneSubj{1});
-    [Path, Subj]=fileparts(Path);
-    SubjPath=fullfile(ParentPath, Subj);
-    fprintf('%s to ''%s''\n', String, SubjPath)
-    if exist(SubjPath, 'dir')~=7
-        mkdir(SubjPath);
-    end
-    cellfun(@(onesubj) copyfile(onesubj, SubjPath), OneSubj);
-    if strfind(OneSubj{1}, 'img')
-        OneSubjHdr=strrep(OneSubj, '.img', '.hdr');
-        cellfun(@(onesubj) movefile(onesubj, SubjPath), OneSubjHdr);
-    end
-end
+UnselPostStr=handles.PostModeCell(handles.UnselPostInd, 1);
+PostToRight=UpdateModeList(handles.PostModeList, UnselPostStr);
 
-handles=UpdateInputListbox(handles);
-fprintf('Done\n')
+% Update Option List
+SelPreStr=handles.PreModeCell(handles.SelPreInd, 1);
+SelPostStr=handles.PostModeCell(handles.SelPostInd, 1);
+[PreToLeft, PostToLeft, OptToUp, OptToDown]=UpdateOptList(handles.PipeOptList, ...
+    SelPreStr, SelPostStr, handles.Para);
+
+% Update Item List
+%UpdateItemList(handles.OptItemList, handles.PipeOptList, handles.Para);
+Key=GenItemKey(handles.PipeOptList);
+UpdateItemList(handles.OptItemList, handles.Para, Key);
+handles.CurItemKey=Key;
+
+% Enable All Obj
+StateObj(handles, 'On');
+
+% Update Button
+set(handles.PreModeToLeft, 'Enable', PreToLeft);
+set(handles.PreModeToRight, 'Enable', PreToRight);
+
+set(handles.PostModeToLeft, 'Enable', PostToLeft);
+set(handles.PostModeToRight, 'Enable', PostToRight);
+
+set(handles.PipeOptUp, 'Enable', OptToUp);
+set(handles.PipeOptDown, 'Enable', OptToDown);
 guidata(hObject, handles);
+
+function BtnToRight=UpdateModeList(ListObj, Str)
+BtnToRight='On';
+if isempty(Str)
+    Val=[];
+    BtnToRight='Off';
+else
+    OldVal=get(ListObj, 'Value');
+    OldStr=get(ListObj, 'String');
+
+    OldTar=OldStr(OldVal);
+    if isempty(OldTar)
+        Val=1;
+    else
+        Val=find(strcmpi(OldTar{1}, Str));
+        if isempty(Val)
+            if OldVal<numel(Str)
+                Val=OldVal;
+            else
+                Val=numel(Str);
+            end
+        end
+    end
+end
+set(ListObj, 'String', Str, 'Value', Val);
+
+function [PreToLeft, PostToLeft, OptToUp, OptToDown]=UpdateOptList(ListObj, PreStr, PostStr, Para)
+PreToLeft='On';
+PostToLeft='On';
+OptToUp='On';
+OptToDown='On';
+
+if isempty(PreStr)
+    PreToLeft='Off';
+end
+
+if isempty(PostStr)
+    PostToLeft='Off';
+end
+
+if isempty([PreStr; PostStr])
+    PreToLeft='Off';
+    PostToLeft='Off';    
+    OptToUp='Off';
+    OptToDown='Off';
+    FinalVal=[];
+    FinalStr=[];
+else
+    OldVal=get(ListObj, 'Value');
+    OldStr=get(ListObj, 'String');
+
+    OldTar=OldStr(OldVal);
+    if isempty(OldTar)
+        ModeVal=1;
+    else
+        % Find Current Mode
+        ModeVal=find(cellfun(@(s) strncmpi(s, OldTar{1}, length(s)), ...
+            [PreStr; PostStr]), 1);
+        if isempty(ModeVal)
+            TmpOldVal=OldVal-1;
+            while TmpOldVal>0
+                TmpOldTar=OldStr(TmpOldVal);
+                ModeVal=find(cellfun(@ (s) strncmpi(s, TmpOldTar{1}, length(s)), ...
+                    [PreStr; PostStr]), 1);
+                if ~isempty(ModeVal)
+                    break
+                end
+                TmpOldVal=TmpOldVal-1;
+            end
+            
+            if isempty(ModeVal)
+                ModeVal=1;
+            end
+            
+            if strcmpi(OldTar{1}(1:2), ' .')
+                PreToLeft='Off';
+                PostToLeft='Off';
+                OptToUp='Off';
+                OptToDown='Off';
+            end
+        end
+    end
+    
+    % Justify To Whether To Left
+    AllStr=[PreStr; PostStr];
+    ModeStr=AllStr(ModeVal);
+    if isempty(find(strcmpi(ModeStr{1}, PreStr), 1))
+        PreToLeft='Off';
+    end
+    if isempty(find(strcmpi(ModeStr{1}, PostStr), 1))
+        PostToLeft='Off';
+    end
+    
+    % Justify Whether Up or Down
+    if ModeVal<=numel(PreStr) % Pre
+        if ModeVal==1
+            OptToUp='Off';
+            if strcmpi(PreStr{ModeVal}, 'DICOM TO NIFTI')
+                OptToDown='Off';
+            end
+        elseif ModeVal==2 && strcmpi(PreStr{1}, 'DICOM TO NIFTI')
+            OptToUp='Off';
+        elseif ModeVal==numel(PreStr)
+            OptToDown='Off';
+        end
+    else % Post
+        if ModeVal==numel(PreStr)+1
+            OptToUp='Off';
+        end
+        if ModeVal==numel([PreStr; PostStr])
+            OptToDown='Off';
+        end 
+        
+        % Disabled Up Down Now;
+        OptToUp='Off';
+        OptToDown='Off';
+    end
+    
+    % Generate PipeOptStr
+    [NameStr, DataStr]=GenOptStr([PreStr; PostStr], ModeVal, Para);
+    
+    FinalStr=ListTextFill(ListObj, NameStr, DataStr, true);
+    
+    if numel(FinalStr)==numel(OldStr) && ~any(cellfun(@(s) strncmpi(s, OldTar{1}, length(s)), [PreStr; PostStr]))
+        % Dirty Code
+        FinalVal=OldVal;
+    else
+        if isempty(OldTar)
+            FinalVal=1;
+        else
+            FinalVal=find(cellfun(@(s) strncmpi(s, OldTar{1}, length(s)), NameStr), 1);
+        end
+        if isempty(FinalVal)
+            if TmpOldVal==0
+                FinalVal=1;
+            else
+                FinalVal=TmpOldVal;
+            end
+        end
+    end    
+end
+
+set(ListObj, 'String', FinalStr, 'Value', FinalVal);
+
+function [NameStr, DataStr]=GenOptStr(Str, ModeVal, Para)
+NameStr=[];
+DataStr=[];
+for s=1:numel(Str)
+    NameStr=[NameStr; Str(s)];
+    DataStr=[DataStr; {''}];
+    %if s==ModeVal
+    switch upper(Str{s})
+        case 'DICOM TO NIFTI'
+            % TP
+            %NameStr=[NameStr;...
+            %    {' . Time Point Number:  '}];
+            %DataStr=[DataStr;...
+            %    {num2str(Para.TP{1})}];
+        case 'REMOVE FIRST IMAGES'
+            % TP to Remove
+            NameStr=[NameStr;...
+                {' . Time Point Number to Remove:  '}];
+            DataStr=[DataStr;...
+                {num2str(Para.DelImg{1})}];
+        case 'SLICE TIMING'
+            % TR
+            NameStr=[NameStr;...
+                {' . TR (s):  '}];
+            DataStr=[DataStr;...
+                {num2str(Para.TR{1})}];
+            % Slice Order
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.SliOrd, ' . Slice Order:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            % Reference Slice
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.RefSli, ' . Reference Slice:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+        case 'REALIGN'
+            % Num Passes
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.NumPasses, ' . Num Passes:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+        case 'NORMALIZE'
+            % Data
+            %NameStr=[NameStr; {' . Source Data '}];
+            %DataStr=[DataStr; {''}];
+            
+            %NameStr=[NameStr; {' . . Source Image Path:  '}];
+            %if isempty(Para.SourPath{1, 2})
+            %    Para.SourPath{1, 1}={'Same to Fun'};
+            %end
+            %DataStr=[DataStr; Para.SourPath{1}];
+            
+            %NameStr=[NameStr; {' . . Source Image Prefix:  '}];
+            %DataStr=[DataStr; Para.SourPrefix];
+            
+            % Normalizing Strategy
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.NormSgy, ' . Normalizing Strategy:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            if Para.NormSgy{1, 1}==1 % EPI
+                % DO NOTHING
+            else % T1 Segment OR DARTEL
+                NameStr=[NameStr; {' . . T1 Data '}];
+                DataStr=[DataStr; {''}];
+                
+                NameStr=[NameStr; {' . . . T1 Image Path:  '}];
+                DataStr=[DataStr; Para.T1Path(1, 1)];  
+                
+                NameStr=[NameStr; {' . . . T1 Image Prefix:  '}];
+                DataStr=[DataStr; Para.T1Prefix]; 
+                
+                [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.T1Dcm2NiiFlag,...
+                    ' . . . T1 DICOM to NIfTI:  ');
+                NameStr=[NameStr; tmp_name_str];
+                DataStr=[DataStr; tmp_data_str];
+                
+                
+                NameStr=[NameStr; {' . . Coregister  '}];
+                DataStr=[DataStr; {''}];
+            end
+            
+            switch Para.NormSgy{1, 1}
+                case 1 % DO NOTHING
+                    NameStr=[NameStr; {' . . EPI Template:  '}];
+                    DataStr=[DataStr; Para.EPITpm(1, 1)];                    
+                case 2 % T1 Segment
+                    NameStr=[NameStr; {' . . Segment  '}];
+                    DataStr=[DataStr; {''}];  
+                    
+                    NameStr=[NameStr; {' . . . Grey Matter Template:  '}];
+                    DataStr=[DataStr; Para.GMTpm(1, 1)];
+                    
+                    NameStr=[NameStr; {' . . . White Matter Template:  '}];
+                    DataStr=[DataStr; Para.WMTpm(1, 1)];
+                    
+                    NameStr=[NameStr; {' . . . CSF Template:  '}];
+                    DataStr=[DataStr; Para.CSFTpm(1, 1)];
+                case 3 % DARTEL
+                    NameStr=[NameStr; {' . . Segment  '}];
+                    DataStr=[DataStr; {''}];
+                    NameStr=[NameStr; {' . . . Tissue Template:  '}];
+                    DataStr=[DataStr; Para.TPMTpm(1, 1)];                    
+            end
+            
+            % Write
+            NameStr=[NameStr; {' . Writing Options  '}];
+            DataStr=[DataStr; {''}];     
+            
+            NameStr=[NameStr; {' . . Bounding Box:  '}];
+            tmp_data_str=Para.BBox{1};
+            DataStr=[DataStr; ...
+                {sprintf('%d x %d %s', size(tmp_data_str, 1), size(tmp_data_str, 2), class(tmp_data_str) )}];  
+                        
+            NameStr=[NameStr; {' . . Voxel Sizes (mm):  '}];
+            DataStr=[DataStr; {['[',num2str(Para.VoxSize{1}), ']']}];
+        case 'SPATIALLY SMOOTH'
+            NameStr=[NameStr; {' . FWHM (mm):  '}];
+            DataStr=[DataStr; {['[',num2str(Para.FWHM{1}), ']']}];            
+        case 'REGRESS OUT COVARIATES'
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.GSFlag,...
+                ' . Global Signal:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            if Para.GSFlag{1}==1
+                NameStr=[NameStr; {' . . Mask:  '}];
+                DataStr=[DataStr; Para.GSMsk(1, 1)];
+            end
+            
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.WMFlag,...
+                ' . White Matter Signal:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            if Para.WMFlag{1}==1
+                NameStr=[NameStr; {' . . Mask:  '}];
+                DataStr=[DataStr; Para.WMMsk(1, 1)];
+            end
+            
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.CSFFlag,...
+                ' . CSF Signal:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            if Para.CSFFlag{1}==1
+                NameStr=[NameStr; {' . . Mask:  '}];
+                DataStr=[DataStr; Para.CSFMsk(1, 1)];
+            end    
+           
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.HMFlag,...
+                ' . Head Motion:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            if Para.HMFlag{1}==1
+                [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.HMSgy,...
+                    ' . . Regressing Out Strategy:  ');
+                NameStr=[NameStr; tmp_name_str];
+                DataStr=[DataStr; tmp_data_str];
+            end              
+        case 'TEMPORALLY DETREND'
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.PolyOrd,...
+                ' . Detrending Order:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+        case 'TEMPORALLY FILTER'
+            NameStr=[NameStr; {' . TR (s):  '}];  
+            DataStr=[DataStr; {num2str(Para.TR{1})}];            
+            NameStr=[NameStr; {' . Band (Hz):  '}];
+            DataStr=[DataStr; {['[',num2str(Para.Band{1}), ']']}];
+        case 'SCRUBBING'
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.InterSgy,...
+                ' . Interpolation Strategy:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];
+            
+            NameStr=[NameStr; {' . FD Threshold:  '}];
+            DataStr=[DataStr; {num2str(Para.FDTrd{1})}];    
+            
+            NameStr=[NameStr; {' . Previous Time Point Number:  '}];
+            DataStr=[DataStr; {num2str(Para.PreNum{1})}];
+            
+            NameStr=[NameStr; {' . Subsequent Time Point Number:  '}];
+            DataStr=[DataStr; {num2str(Para.PostNum{1})}];
+        case 'STATIC CORRELATION'
+            NameStr=[NameStr; {' . Atlas:  '}];
+            DataStr=[DataStr; Para.FCAtlas(1, 1)];  
+            
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.FZTFlag,...
+                ' . Fisher''s Z Transform:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str];            
+        case 'DYNAMICAL CORRELATION'
+            NameStr=[NameStr; {' . Atlas:  '}];
+            DataStr=[DataStr; Para.FCAtlas(1, 1)];  
+            
+            [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.FZTFlag,...
+                ' . Fisher''s Z Transform:  ');
+            NameStr=[NameStr; tmp_name_str];
+            DataStr=[DataStr; tmp_data_str]; 
+            
+            NameStr=[NameStr; {' . Sliding Window Length (time point):  '}];
+            DataStr=[DataStr; {num2str(Para.SWL{1})}];
+            
+            NameStr=[NameStr; {' . Sliding Window Step (time point):  '}];
+            DataStr=[DataStr; {num2str(Para.SWS{1})}];
+    end
+end
+
+function UpdateItemList(ListObj, Para, Key)
+if isempty(Key)
+    Str=[];
+    Val=[];
+else
+    ItemCell=Para.(Key);
+    if numel(ItemCell)==1
+        Str=num2str(ItemCell{1});
+        Val=1;
+        if any(strcmpi(Str, '<-X'))
+            Str='';
+        end
+    else
+        if iscell(ItemCell{1, 2})
+            Val=ItemCell{1, 1};
+            Str=ItemCell{1, 2};
+            Str{Val, 1}=['*', Str{Val, 1}];
+        else
+            Str=ItemCell{1, 2};
+            Val=1;
+            if isempty(Str)
+                Val=[];
+            end
+        end
+    end
+end
+set(ListObj, 'String', Str, 'Value', Val);
+
+function Key=GenItemKey(PipeListObj)
+Key=[];
+
+PipeVal=get(PipeListObj, 'Value');
+PipeStr=get(PipeListObj, 'String');
+
+PipeTar=PipeStr(PipeVal);
+if ~isempty(PipeTar)
+    if strfind(PipeTar{1}, ' . Time Point Number:  ')
+        Key='TP';
+    elseif strfind(PipeTar{1}, ' . Time Point Number to Remove:  ')
+        Key='DelImg';
+    elseif strfind(PipeTar{1}, ' . TR (s):  ')
+        Key='TR';
+    elseif strfind(PipeTar{1}, ' . Slice Order:  ')
+        Key='SliOrd';
+    elseif strfind(PipeTar{1}, ' . Reference Slice:  ')
+        Key='RefSli';
+    elseif strfind(PipeTar{1}, ' . Num Passes:  ')
+        Key='NumPasses';
+    elseif strfind(PipeTar{1}, ' . . Source Image Path:  ')
+        Key='SourPath';
+    elseif strfind(PipeTar{1}, ' . . Source Image Prefix:  ')
+        Key='SourPrefix';        
+    elseif strfind(PipeTar{1}, ' . Normalizing Strategy:  ')
+        Key='NormSgy';
+    elseif strfind(PipeTar{1}, '. . EPI Template:  ')
+        Key='EPITpm';
+    elseif strfind(PipeTar{1}, ' . . . T1 Image Path:  ')
+        Key='T1Path'; 
+    elseif strfind(PipeTar{1}, ' . . . T1 Image Prefix:  ')
+        Key='T1Prefix';        
+    elseif strfind(PipeTar{1}, ' . . . T1 DICOM to NIfTI:  ')
+        Key='T1Dcm2NiiFlag';
+    elseif strfind(PipeTar{1}, ' . . . Grey Matter Template:  ')
+        Key='GMTpm';
+    elseif strfind(PipeTar{1}, ' . . . White Matter Template:  ')
+        Key='WMTpm';        
+    elseif strfind(PipeTar{1}, ' . . . CSF Template:  ')
+        Key='CSFTpm';
+    elseif strfind(PipeTar{1}, ' . . . Tissue Template:  ')
+        Key='TPMTpm';
+    elseif strfind(PipeTar{1}, ' . . Bounding Box:  ')
+        Key='BBox';
+    elseif strfind(PipeTar{1}, ' . . Voxel Sizes (mm):  ')
+        Key='VoxSize';
+    elseif strfind(PipeTar{1}, ' . FWHM (mm):  ')
+        Key='FWHM';
+    elseif strfind(PipeTar{1}, ' . Global Signal:  ')
+        Key='GSFlag';
+    elseif strfind(PipeTar{1}, ' . White Matter Signal:  ')
+        Key='WMFlag';
+    elseif strfind(PipeTar{1}, ' . CSF Signal:  ')
+        Key='CSFFlag';
+    elseif strfind(PipeTar{1}, ' . . Mask:  ')
+        TmpTar=PipeStr(PipeVal-1);
+        if strfind(TmpTar{1}, ' . Global Signal:  ')
+            Key='GSMsk';
+        elseif strfind(TmpTar{1}, ' . White Matter Signal:  ')
+            Key='WMMsk';
+        elseif strfind(TmpTar{1}, ' . CSF Signal:  ')
+            Key='CSFMsk';
+        end
+    elseif strfind(PipeTar{1}, ' . Head Motion:  ')
+        Key='HMFlag';
+    elseif strfind(PipeTar{1}, ' . . Regressing Out Strategy:  ')
+        Key='HMSgy';
+    elseif strfind(PipeTar{1}, ' . Detrending Order:  ')
+        Key='PolyOrd';
+    elseif strfind(PipeTar{1}, ' . Band (Hz):  ')
+        Key='Band';
+    elseif strfind(PipeTar{1}, ' . Interpolation Strategy:  ')
+        Key='InterSgy';        
+    elseif strfind(PipeTar{1}, ' . FD Threshold:  ')
+        Key='FDTrd';
+    elseif strfind(PipeTar{1}, ' . Previous Time Point Number:  ')
+        Key='PreNum';
+    elseif strfind(PipeTar{1}, ' . Subsequent Time Point Number:  ')
+        Key='PostNum';
+    elseif strfind(PipeTar{1}, ' . Atlas:  ')
+        Key='FCAtlas';
+    elseif strfind(PipeTar{1}, ' . Fisher''s Z Transform:  ')
+        Key='FZTFlag'; 
+    elseif strfind(PipeTar{1}, ' . Sliding Window Length (time point):  ')
+        Key='SWL';
+    elseif strfind(PipeTar{1}, ' . Sliding Window Step (time point):  ')
+        Key='SWS';         
+    end
+end
+
+function [NameStr, DataStr]=GenOptionalStr(ItemCell, Title)
+ItemTyp=ItemCell{2};
+ItemStr=ItemTyp{ItemCell{1}};
+NameStr={Title};
+DataStr={ItemStr};
+
+function UpdateInputInterface(hObject, Mode)
+handles=guidata(hObject);
+if Mode==1
+    Prefix=get(handles.KeyEty, 'String');
+    if isempty(Prefix)
+        Prefix='*';
+        set(handles.KeyEty, 'String', Prefix);
+    end
+    FunPDir=handles.FunPDir;
+
+    if isempty(FunPDir)
+        return
+    end
+
+    SubStruct=dir(FunPDir);
+    SubInd=cellfun(...
+        @ (NotDot) (~strcmpi(NotDot, '.') && ~strcmpi(NotDot, '..') && ~strcmpi(NotDot, '.DS_Store')),...
+        {SubStruct.name});
+    SubStruct=SubStruct(SubInd);
+
+    SubDirInd=cell2mat({SubStruct.isdir});
+    SubFileInd=~SubDirInd;
+
+    SubDirStr=cellfun(@(s) fullfile(FunPDir, s), {SubStruct(SubDirInd).name}',...
+        'UniformOutput', false);
+    SubFileStr=cellfun(@(s) fullfile(FunPDir, s), {SubStruct(SubFileInd).name}',...
+        'UniformOutput', false);
+
+    SubDirS=cellfun(@(p) GenSubDirS(p, Prefix, handles.InputList), SubDirStr,...
+        'UniformOutput', false);
+    SubFileS=cellfun(@(p) GenSubFileS(p, Prefix, handles.InputList), SubFileStr,...
+        'UniformOutput', false);
+
+    TmpInd=cellfun(@isempty, SubDirS);
+    SubDirS=SubDirS(~TmpInd);
+    TmpInd=cellfun(@isempty, SubFileS);
+    SubFileS=SubDirS(~TmpInd);
+
+    handles.InputS=[SubDirS; SubFileS];
+    guidata(hObject, handles);
+
+    TextL1=cellfun(@(S) sprintf('%s', S.Lab),...
+        SubDirS, 'UniformOutput', false);
+    TextR1=cellfun(@(S) sprintf('%s (%d Files)', S.Alias, S.Num),...
+        SubDirS, 'UniformOutput', false);
+    TextL2=cellfun(@(S) sprintf('%s', S.Lab),...
+        SubFileS, 'UniformOutput', false);
+    TextR2=cellfun(@(S) sprintf('%s (%d Files)', S.Alias, S.Num),...
+        SubFileS, 'UniformOutput', false);
+
+    TextL=[TextL1; TextL2];
+    TextR=[TextR1; TextR2];
+elseif Mode==2
+    InputS=handles.InputS;
+    TextL=cellfun(@(S) sprintf('%s', S.Lab),...
+        InputS, 'UniformOutput', false);
+    TextR=cellfun(@(S) sprintf('%s (%d Files)', S.Alias, S.Num),...
+        InputS, 'UniformOutput', false);
+end
+
+%Check
+if isempty(TextL) || isempty(TextR)
+    Text=[];
+else
+    Text=ListTextFill(handles.InputList, TextL, TextR, true);
+end
+
+if ~isempty(Text)
+    Val=1;
+else
+    Val=[];
+    warndlg('Cannot find data, check again!');
+end
+set(handles.InputList, 'String', Text, 'Value', Val, 'BackgroundColor', [1, 1, 1]);
+
+function ChangedAction(hObject)
+handles=guidata(hObject);
+
+ItemKey=handles.CurItemKey;
+if ~isempty(ItemKey)
+    Para=handles.Para;
+    ItemCell=Para.(ItemKey);
+    if numel(ItemCell)==1
+        if strcmpi(ItemCell{1}, '<-X');
+            Def={''};
+            Num=1;
+        else
+            Def={num2str(ItemCell{1})};
+            Num=size(Def{1}, 1);
+        end
+        Ans=inputdlg({'Input Current Item'}, 'Current Item',...
+            Num, Def);
+        if isempty(Ans)
+            return
+        end
+        Out=str2num(Ans{1});
+        if isempty(Out)
+            Out=Ans{1};
+        end
+        handles.Para.(ItemKey)={Out};
+        guidata(hObject, handles);
+        
+        UpdateConfigInterface(hObject)
+    else
+        if iscell(ItemCell{1, 2})
+            StateObj(handles, 'Off');
+        else
+            if strcmpi(ItemCell{1, 3}, 'F')
+                [File , Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';}, ...
+                    'Select Brain Image File' , ItemCell{1, 2});
+                if ~ischar(File)
+                    return
+                end
+                ItemCell{1, 1}=File;
+                ItemCell{1, 2}=fullfile(Path, File);
+                handles.Para.(ItemKey)=ItemCell;
+                guidata(hObject, handles);
+                UpdateConfigInterface(hObject);
+            elseif strcmpi(ItemCell{1, 3}, 'D')
+                Path=ItemCell{1, 2};
+                if isempty(Path)
+                    Path=pwd;
+                end
+                Path=uigetdir(Path);
+                if ischar(Path)
+                    ItemCell{1, 1}=Path;
+                    ItemCell{1, 2}=Path;
+                    handles.Para.(ItemKey)=ItemCell;
+                    guidata(hObject, handles);
+                    UpdateConfigInterface(hObject);
+                end
+            end
+        end
+    end
+end
+
+% Extent Function
+function SoFile=GenSoFile(in, Prefix)
+Path=fileparts(in{1});
+D=dir(fullfile(Path, [Prefix, '.nii']));
+if isempty(D)
+    D=dir(fullfile(Path, [Prefix, '.img']));
+end
+SoFile={};
+if ~isempty(D)
+    SoFile={fullfile(Path, D(1).name)};
+end
+
+function FDFile=GenFDFile(in)
+Path=fileparts(in{1});
+D=dir(fullfile(Path, 'PowerFD.txt'));
+
+FDFile={};
+if ~isempty(D)
+    FDFile={fullfile(Path, D(1).name)};
+end
+
+function HMFile=GenHMFile(in)
+Path=fileparts(in{1});
+D=dir(fullfile(Path, 'HeadMotionParameter.txt'));
+
+HMFile={};
+if ~isempty(D)
+    HMFile={fullfile(Path, D(1).name)};
+end
+
+function SubjLab=GenSubjLab(Lab)
+if ~isempty(strfind(Lab, filesep))
+    SubjLab=fileparts(Lab);
+else
+    if ~isempty(strfind(Lab, '.nii')) ||...
+            ~isempty(strfind(Lab, '.img'))
+        SubjLab=Lab(1:end-4);
+    else
+        SubjLab=Lab;
+    end
+end
+
+function FileList=GenT1Nii(Path, Prefix)
+
+D=dir(fullfile(Path, [Prefix, '.nii'])); % Nii
+if isempty(D)
+    D=dir(fullfile(Path, [Prefix, '.img']));
+end
+C={D.name}';
+FileList={fullfile(Path, C{1})};
+
+function FileList=GenT1Dcm(Path, Prefix)
+% DICOM
+D=dir(fullfile(Path, [Prefix, '.dcm'])); % DCM
+if ~isempty(D)
+    C={D.name}';
+    FileList={fullfile(Path, C{1})};
+    return
+end
+
+D=dir(fullfile(Path, [Prefix, '*.IMA'])); % DCM
+if ~isempty(D)
+    C={D.name}';
+    FileList={fullfile(Path, C{1})};
+    return
+end
+
+D=dir(fullfile(Path, Prefix)); % Unknown
+Ind=cellfun(...
+    @(IsDir, NotDot) IsDir && (~strcmpi(NotDot, '.') && ~strcmpi(NotDot, '..') && ~strcmpi(NotDot, '.DS_Store')),...
+    {D.isdir}, {D.name});
+D=D(Ind);
+if ~isempty(D)
+    C={D.name}';
+    FileList={fullfile(Path, C{1})};
+    return
+end
+
+function S=GenSubFileS(File, Prefix, ListObj)
+S=[];
+[PPath, Name, Ext]=fileparts(File);
+
+% Update Display
+set(ListObj, 'String', sprintf('%s Loaded', [Name, Ext]), 'Value', 1,...
+    'BackgroundColor', [0, 0.9, 0]);
+drawnow;
+
+if strncmpi(Name, Prefix(1:end-1), length(Prefix(1:end-1))) &&...
+        (strcmpi(Ext, '.nii') || strcmpi(Ext, '.img'))
+    Nii=nifti(File);
+    S.Num=size(Nii.dat, 4);
+    S.FileList={File};
+    S.Alias='NII4D';
+    S.Lab=[Name, Ext];
+end
+
+function S=GenSubDirS(Path, Prefix, ListObj)
+S=[];
+[PPath, SPath]=fileparts(Path);    
+% NIfTI File
+D=dir(fullfile(Path, [Prefix, '.nii'])); % Nii
+
+% Update Display
+set(ListObj, 'String', sprintf('%s Loaded', SPath), 'Value', 1,...
+    'BackgroundColor', [0, 0.9, 0]);
+drawnow;
+
+if ~isempty(D)
+    S.Alias='NII';
+else
+    D=dir(fullfile(Path, [Prefix, '.img']));
+    if ~isempty(D)
+        S.Alias='PAIRS';
+    end
+end
+
+%   3D OR 4D
+if ~isempty(D)
+    C={D.name}';
+    if numel(C)==1
+        Nii=nifti(fullfile(Path, C{1}));
+        S.Num=size(Nii.dat, 4);
+        S.FileList={fullfile(Path, C{1})};
+        S.Alias=[S.Alias, '4D'];
+        S.Lab=fullfile(SPath, C{1});
+    else
+        S.Num=numel(C);
+        S.FileList=cellfun(@(s) fullfile(Path, s), C, 'UniformOutput', false);
+        S.Alias=[S.Alias, '3D'];
+        S.Lab=SPath;
+    end
+    return
+end
+
+% DICOM
+D=dir(fullfile(Path, [Prefix, '.dcm'])); % DCM
+if ~isempty(D)
+    C={D.name}';
+    S.Num=numel(C);
+    S.FileList={fullfile(Path, C{1})};
+    S.Alias='DCM';
+    S.Lab=SPath;
+    return
+end
+
+D=dir(fullfile(Path, [Prefix, '*.IMA'])); % DCM
+if ~isempty(D)
+    C={D.name}';
+    S.Num=numel(C);
+    S.FileList={fullfile(Path, C{1})};
+    S.Alias='IMA';
+    S.Lab=SPath;
+    return
+end
+
+D=dir(fullfile(Path, Prefix)); % Unknown
+Ind=cellfun(...
+    @(IsDir, NotDot) IsDir && (~strcmpi(NotDot, '.') && ~strcmpi(NotDot, '..') && ~strcmpi(NotDot, '.DS_Store')),...
+    {D.isdir}, {D.name});
+D=D(Ind);
+if ~isempty(D)
+    C={D.name}';
+    S.Num=numel(C);
+    S.FileList={fullfile(Path, C{1})};
+    S.Alias='UNKNOWN';
+    S.Lab=SPath;
+    return
+end
+
+% State Objs
+function StateObj(handles, State)
+set(handles.PreModeToLeft,   'Enable', State);
+set(handles.PreModeToRight,  'Enable', State);
+set(handles.PostModeToLeft,  'Enable', State);
+set(handles.PostModeToRight, 'Enable', State);
+set(handles.PreModeList,     'Enable', State);
+set(handles.PostModeList,    'Enable', State);
+set(handles.PipeOptDown,     'Enable', State);
+set(handles.PipeOptUp,       'Enable', State);
+set(handles.PipeOptList,     'Enable', State);
+
+set(handles.InputList,       'Enable', State);
+set(handles.KeyEty,          'Enable', State);
+set(handles.InputDirEty,     'Enable', State);
+set(handles.InputDirBtn,     'Enable', State);
+
+function str=ListTextFill(obj, left, right, tflag)
+
+% function str = cfg_textfill(obj, left, right)
+% Fill a text object, so that the left part is left justified and the
+% right part right justified. If tflag is set, try to fit text in widget
+% by truncating right until at least 5 characters are displayed.
+%
+% This code is part of a batch job configuration system for MATLAB. See 
+%      help matlabbatch
+% for a general overview.
+%_______________________________________________________________________
+% Copyright (C) 2007 Freiburg Brain Imaging
+
+% Volkmar Glauche
+% $Id: cfg_textfill.m 2138 2008-09-22 13:27:44Z volkmar $
+% Inherit from SPM8 by Sandy (cfg_textfill)
+
+% Set OBJ TO POINTS
+set(obj, 'units', 'points')
+
+TempObj=copyobj(obj,get(obj,'Parent'));
+set(TempObj,'Visible','off','Max',100);
+
+% Find max extent of left string
+lext = cfg_maxextent(TempObj, left);
+mlext = max(lext);
+
+% Find max extent of right string
+rext = cfg_maxextent(TempObj, right);
+mrext = max(rext);
+
+% Find extent of single space
+% Work around MATLAB inaccuracy by measuring 100 spaces and dividing by 100
+spext = cfg_maxextent(TempObj, {repmat(' ',1,100)})/100;
+
+% try to work out slider size
+pos = get(TempObj,'Position');
+oldun = get(TempObj,'units');
+
+set(TempObj,'units','points');
+ppos = get(TempObj,'Position');
+set(TempObj,'units',oldun);
+sc = 1;%pos(3)/ppos(3);
+% assume slider width of 15 points
+swidth=10*sc;
+
+pos = get(obj,'Position');
+width = max(mlext+mrext,pos(3)-swidth);
+if tflag && mlext+mrext > pos(3)-swidth
+    newrext = max(5*spext, pos(3)-swidth-mlext);
+    trind = find(rext > newrext);
+    for k = 1:numel(trind)
+        tright = right{trind(k)};
+        set(TempObj,'String',['...' tright]);
+        ext = get(TempObj,'Extent');
+        while ext(3) > newrext
+            tright = tright(2:end);
+            set(TempObj,'String',['...' tright]);
+            ext = get(TempObj,'Extent');
+        end;
+        right{trind(k)} = ['...' tright];
+        rext(trind(k)) = ext(3);
+    end;
+    % Re-estimate max extent of trimmed right string
+    rext = cfg_maxextent(TempObj, right);
+    mrext = max(rext);
+    width = mlext+mrext;
+end;
+
+fillstr = cell(size(left));
+for k = 1:numel(left)
+    fillstr{k} = repmat(' ',1,floor((width-(lext(k)+rext(k)))/spext));
+end;
+str = strcat(left, fillstr, right);
+delete(TempObj);
+set(obj,'units','normalized');
+
+function ext = cfg_maxextent(obj, str)
+
+% CFG_MAXEXTENT Returns the maximum extent of cellstr STR 
+% Returns the maximum extent of obj OBJ when the cellstr STR will be
+% rendered in it. MATLAB is not able to work this out correctly on its own
+% for multiline strings. Therefore each line will be tried separately and
+% its extent will be returned. To avoid 'flicker' appearance, OBJ should be
+% invisible. The extent does not include the width of a scrollbar.
+%
+% This code is part of a batch job configuration system for MATLAB. See 
+%      help matlabbatch
+% for a general overview.
+%_______________________________________________________________________
+% Copyright (C) 2007 Freiburg Brain Imaging
+
+% Volkmar Glauche
+% $Id: cfg_maxextent.m 3282 2009-07-23 07:44:16Z volkmar $
+% Inherit from SPM8 by Sandy
+
+rev = '$Rev: 3282 $'; %#ok
+ext = zeros(size(str));
+for k = 1:numel(str)
+    set(obj,'String',str(k));
+    next = get(obj, 'Extent');
+    ext(k) = next(3);
+end;
+
+function WarningObj(Obj)
+
+for i=1:5
+    set(Obj, 'BackgroundColor' , 'Red');
+    pause(0.08);
+    set(Obj, 'BackgroundColor' , 'White');
+    pause(0.08);
+end
+
+
+function ExitCode=CheckBeforeRun(hObject)
+ExitCode=0;
+
+handles=guidata(hObject);
+
+InputS=handles.InputS;
+if isempty(InputS);
+    ExitCode=1;
+    warndlg('Please select the directory of functional dataset first!');
+    WarningObj(handles.InputList);
+    return;
+end
+
+Para=handles.Para;
+OptStr=get(handles.PipeOptList, 'String');
+
+PreStr=handles.PreModeCell(handles.SelPreInd, 1);
+PostStr=handles.PostModeCell(handles.SelPostInd, 1);
+AllStr=[PreStr; PostStr];
+for s=1:numel(AllStr)
+    switch upper(AllStr{s})
+        case 'DICOM TO NIFTI'
+        case 'REMOVE FIRST IMAGES'
+            Num=str2num(Para.DelImg{1});
+            if isempty(Num)
+                ExitCode=1;
+                warndlg('Error: Invalid ''Time Point Number to Remove''');
+                Val=find(~cellfun(...
+                    @isempty, ...
+                    strfind(OptStr, ' . Time Point Number to Remove:  ')...
+                    )...
+                    );
+                CurItemKey='DelImg';
+                break;
+            end            
+        case 'SLICE TIMING'
+            Num=str2num(Para.TR{1});
+            if isempty(Num)
+                ExitCode=1;
+                warndlg('Error: Invalid ''TR (s)''');
+                Val=find(~cellfun(...
+                    @isempty, ...
+                    strfind(OptStr, ' . TR (s):  ')...
+                    )...
+                    );
+                CurItemKey='TR';
+                break;
+            end  
+        case 'REALIGN'
+        case 'NORMALIZE'
+            NormInd=Para.NormSgy{1};
+            if NormInd~=1
+                Path=Para.T1Path{2};
+                if isempty(Path)
+                    ExitCode=1;
+                    warndlg('Error: Invalid ''T1 Image Path''');
+                    Val=find(~cellfun(...
+                        @isempty, ...
+                        strfind(OptStr, ' . . . T1 Image Path:  ')...
+                        )...
+                        );
+                    CurItemKey='TR';
+                    break;
+                end
+            end
+        case 'SPATIALLY SMOOTH'         
+        case 'REGRESS OUT COVARIATES'           
+        case 'TEMPORALLY DETREND'
+        case 'TEMPORALLY FILTER'
+            Num=str2num(Para.TR{1});
+            if isempty(Num)
+                ExitCode=1;
+                warndlg('Error: Invalid ''TR (s)''');
+                Val=find(~cellfun(...
+                    @isempty, ...
+                    strfind(OptStr, ' . TR (s):  ')...
+                    )...
+                    );
+                CurItemKey='TR';
+                break;
+            end
+        case 'SCRUBBING'
+        case 'STATIC CORRELATION'
+        case 'DYNAMICAL CORRELATION'
+    end
+end
+
+handles.CurItemKey=CurItemKey;
+guidata(hObject, handles);
+set(handles.PipeOptList, 'Value', Val);
+WarningObj(handles.PipeOptList);

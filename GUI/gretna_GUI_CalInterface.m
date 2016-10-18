@@ -966,7 +966,10 @@ function RunEvent(hObject , handles)
     RefreshStatus(handles.AliasList, handles.DataListbox, handles.PipelineLog);
 
 function RefreshStatus(AliasList, ListboxObject, LogDir)
-handles=guidata(gcf);
+handles=guidata(ListboxObject);
+warning('off');
+
+OldNumOfName=0;
 while 1
     try 
         Struct=load(fullfile(LogDir, 'PIPE_status.mat'));
@@ -974,77 +977,106 @@ while 1
         continue;
     end
     Name=fieldnames(Struct);
-    if ~isempty(Name)
-        ErrorFlag=[];
-        Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
-            'UniformOutput', false);
-        Text=cell(size(AliasList));
     
-        for i=1:numel(AliasList)
-            ExitCode=0;
-        
-            CurrName=Name(Index{i});
-            if isempty(CurrName)
-                Text{i, 1}=sprintf('(%s/%s): %s)',...
-                    AliasList{i}, 'All', 'waiting');
-                continue;
-            end
-            StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
-        
-            if sum(strcmpi('running', StateCell))
-                CurrIndex=strcmpi('running', StateCell);
-                CurrName=CurrName(CurrIndex);
-                StateText='';
-                for j=1:numel(CurrName)
-                    StateText=[StateText,...
-                        sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
-                end
-                if strcmpi(StateText(end), ',')
-                    StateText=StateText(1:end-1);
-                end
-                Flag='running';
-            elseif sum(strcmpi('failed', StateCell))
-                LogStruct=load(fullfile(LogDir, 'PIPE_logs.mat'));
-                CurrIndex=strcmpi('failed', StateCell);
-                CurrName=CurrName(CurrIndex);
-                
-                StateText='';
-                for j=1:numel(CurrName)
-                    StateText=[StateText,...
-                        sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
-                    LogString=LogStruct.(CurrName{j});
-                    ErrorFlag{1, 1}=CurrName{j};
-                    ErrorFlag{2, 1}=LogString;
-                end
-                if strcmpi(StateText(end), ',')
-                    StateText=StateText(1:end-1);
-                end
-                Flag='failed';
-                ExitCode=1; 
-            elseif all(strcmpi('finished', StateCell))
-                StateText='All';
-                Flag='finished';
-                ExitCode=1;
-            elseif (strcmpi('none', StateCell))
-                StateText='All';
-                Flag='waiting';
-            else
-                StateText='';
-                Flag='waiting';
-            end
-            Text{i, 1}=sprintf('(%s/%s): %s)',...
-                AliasList{i}, StateText, Flag);
-        end
-        set(ListboxObject , 'String', Text, 'Value' , 1);
-        drawnow;
-        if ~isempty(ErrorFlag)
-            fprintf('====================%s====================\n', ErrorFlag{1, 1});
-            error('%s\n\n', ErrorFlag{2, 1});
-        end
-        if ExitCode || strcmpi(get(handles.RunPushtool, 'Enable'), 'On')
-            break;
-        end
+    if isempty(Name)
+        continue;
     end
+    
+    NewNumOfName=numel(Name);
+    if OldNumOfName < NewNumOfName
+        OldNumOfName=NewNumOfName;
+    elseif OldNumOfName > NewNumOfName
+        continue;
+    end
+    
+    Index=cellfun(@(list) strncmpi(list, Name, length(list)), AliasList,...
+        'UniformOutput', false);
+    Text=cell(size(AliasList));
+    
+    FailedSubj=[];
+    ExitCode=0;  
+    for i=1:numel(AliasList)
+    
+        CurrName=Name(Index{i});
+        if isempty(CurrName)
+            Text{i, 1}=sprintf('(%s/%s): %s)',...
+                AliasList{i}, 'All', 'waiting');
+            continue;
+        end        
+        StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
+    
+        if sum(strcmpi('running', StateCell))
+            CurrIndex=strcmpi('running', StateCell);
+            CurrName=CurrName(CurrIndex);
+            StateText='';
+            for j=1:numel(CurrName)
+                StateText=[StateText,...
+                    sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];
+            end
+            if strcmpi(StateText(end), ',')
+                StateText=StateText(1:end-1);
+            end
+            Flag='running';
+        elseif sum(strcmpi('failed', StateCell))
+            CurrIndex=strcmpi('failed', StateCell);
+            CurrName=CurrName(CurrIndex);
+            
+            StateText='';
+            for j=1:numel(CurrName)
+                StateText=[StateText,...
+                    sprintf('%s,',CurrName{j}(length(AliasList{i})+2:end))];             
+            end
+            if strcmpi(StateText(end), ',')
+                StateText=StateText(1:end-1);
+            end
+            Flag='failed';
+            ExitCode=1;
+            FailedSubj=[FailedSubj; i];            
+        elseif all(strcmpi('finished', StateCell))
+            StateText='All';
+            Flag='finished';
+            ExitCode=1;
+        elseif (strcmpi('none', StateCell))
+            StateText='All';
+            Flag='waiting';
+        else
+            StateText='';
+            Flag='submitted';
+        end
+        Text{i, 1}=sprintf('(%s/%s): %s)',...
+            AliasList{i}, StateText, Flag);
+    end
+    
+    set(ListboxObject , 'String', Text, 'Value' , 1);
+    drawnow;
+        
+    if ~isempty(FailedSubj)
+        StopFlag=dir(fullfile(LogDir, 'PIPE.lock'));
+        if ~isempty(StopFlag)
+            delete(fullfile(LogDir, 'PIPE.lock'));
+        end
+        LogStruct=load(fullfile(LogDir, 'PIPE_logs.mat'));
+        ErrMsg=[];
+        for i=1:numel(FailedSubj)
+            CurrName=Name(Index{i});
+            StateCell=cellfun(@(h) Struct.(h), CurrName, 'UniformOutput', false);
+            
+            CurrIndex=strcmpi('failed', StateCell);
+            CurrName=CurrName(CurrIndex);
+            for j=1:numel(CurrName)
+                LogString=LogStruct.(CurrName{j});
+                
+                ErrMsg=[ErrMsg, sprintf('====================%s====================\n', CurrName{j})];
+                ErrMsg=[ErrMsg, LogString];             
+            end
+        end
+        error('%s\n\n', ErrMsg);
+    end
+    
+    if ExitCode || strcmpi(get(handles.RunPushtool, 'Enable'), 'On')
+        break;
+    end
+    pause(5);
 end
 
 function List=CutOffAlias(List)

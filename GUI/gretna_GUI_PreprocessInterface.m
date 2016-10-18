@@ -22,7 +22,7 @@ function varargout = gretna_GUI_PreprocessInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_PreprocessInterface
 
-% Last Modified by GUIDE v2.5 17-Oct-2016 19:02:34
+% Last Modified by GUIDE v2.5 18-Oct-2016 15:02:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -923,7 +923,7 @@ for i=1:numel(AllStr)
     FileList=cellfun(@(S) S.OutputImgFile, PCell, 'UniformOutput', false);
 end
 
-CInd=get(handles.CType, 'Value');
+CInd=get(handles.CTypePopup, 'Value');
 switch CInd
     case 1 %session
         CTyp='session';
@@ -964,18 +964,18 @@ guidata(hObject, handles);
 psom_run_pipeline(Pl, Opt);
 
 
-% --- Executes on selection change in CType.
-function CType_Callback(hObject, eventdata, handles)
-% hObject    handle to CType (see GCBO)
+% --- Executes on selection change in CTypePopup.
+function CTypePopup_Callback(hObject, eventdata, handles)
+% hObject    handle to CTypePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns CType contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from CType
+% Hints: contents = cellstr(get(hObject,'String')) returns CTypePopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from CTypePopup
 
 % --- Executes during object creation, after setting all properties.
-function CType_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to CType (see GCBO)
+function CTypePopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to CTypePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -2055,8 +2055,8 @@ for s=1:numel(AllStr)
     switch upper(AllStr{s})
         case 'DICOM TO NIFTI'
         case 'REMOVE FIRST IMAGES'
-            Num=str2num(Para.DelImg{1});
-            if isempty(Num)
+            Num=Para.DelImg{1};
+            if ~isnumeric(Num)
                 ExitCode=1;
                 warndlg('Error: Invalid ''Time Point Number to Remove''');
                 Val=find(~cellfun(...
@@ -2068,8 +2068,8 @@ for s=1:numel(AllStr)
                 break;
             end            
         case 'SLICE TIMING'
-            Num=str2num(Para.TR{1});
-            if isempty(Num)
+            Num=Para.TR{1};
+            if ~isnumeric(Num)
                 ExitCode=1;
                 warndlg('Error: Invalid ''TR (s)''');
                 Val=find(~cellfun(...
@@ -2101,8 +2101,8 @@ for s=1:numel(AllStr)
         case 'REGRESS OUT COVARIATES'           
         case 'TEMPORALLY DETREND'
         case 'TEMPORALLY FILTER'
-            Num=str2num(Para.TR{1});
-            if isempty(Num)
+            Num=Para.TR{1};
+            if ~isnumeric(Num)
                 ExitCode=1;
                 warndlg('Error: Invalid ''TR (s)''');
                 Val=find(~cellfun(...
@@ -2119,6 +2119,9 @@ for s=1:numel(AllStr)
     end
 end
 
+if ~ExitCode
+    return
+end
 handles.CurItemKey=CurItemKey;
 guidata(hObject, handles);
 set(handles.PipeOptList, 'Value', Val);

@@ -799,7 +799,7 @@ Opt.time_between_checks=5;
 PPath=fileparts(handles.OutputDir);
 PipeLogPath=fullfile(PPath, 'GretnaLogs', 'FunPreproAndNetCon');
 if exist(PipeLogPath, 'dir')==7
-    rmdir(PipeLogPath, 's');
+    ans=rmdir(PipeLogPath, 's');
 end
 mkdir(PipeLogPath);
 Opt.path_logs=PipeLogPath;
@@ -1079,7 +1079,7 @@ set(ListObj, 'String', Str, 'Value', Val);
 function [PreToLeft, PostToLeft, OptToUp, OptToDown]=UpdateOptList(ListObj, GlobalStr, NodalStr, Para)
 % Get Offset
 if ~isempty(GlobalStr)
-    OptOffset=10;
+    OptOffset=11;
 else
     OptOffset=9;
 end

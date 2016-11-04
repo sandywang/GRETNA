@@ -960,7 +960,7 @@ Opt.time_between_checks=5;
 PPath=fileparts(handles.FunPDir);
 PipeLogPath=fullfile(PPath, 'GretnaLogs', 'FunPreproAndNetCon');
 if exist(PipeLogPath, 'dir')==7
-    rmdir(PipeLogPath, 's');
+    ans=rmdir(PipeLogPath, 's');
 end
 mkdir(PipeLogPath);
 Opt.path_logs=PipeLogPath;

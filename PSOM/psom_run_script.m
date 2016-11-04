@@ -253,9 +253,17 @@ if ~isempty(cmd)
     instr_job = sprintf('"%s" %s "%s %s,exit"',opt.command_matlab,opt_matlab,opt.init_matlab,cmd);
     if ~isempty(logs)
         if opt.flag_debug
-            instr_job = sprintf('%s >"%s" 2>&1\n',instr_job,logs.txt);
+            if ispc
+                instr_job = sprintf('%s -logfile "%s" 2>&1\n',instr_job,logs.txt);
+            else
+                instr_job = sprintf('%s >"%s" 2>&1\n',instr_job,logs.txt);
+            end
         else
-            instr_job = sprintf('%s >"%s"\n',instr_job,logs.txt);
+            if ispc
+                instr_job = sprintf('%s -logfile "%s"\n',instr_job,logs.txt);
+            else
+                instr_job = sprintf('%s >"%s"\n',instr_job,logs.txt);
+            end
         end
     else
         instr_job = sprintf('%s\n',instr_job);

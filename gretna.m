@@ -85,7 +85,7 @@ function CalButton_Callback(hObject, eventdata, handles)
 % hObject    handle to CalButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-gretna_GUI_CalInterface;
+gretna_GUI_NetAnalysisInterface;
 
 
 % --- Executes on button press in CompButton.

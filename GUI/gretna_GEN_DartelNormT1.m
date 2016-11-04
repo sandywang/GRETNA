@@ -29,13 +29,13 @@ Process.opt.C3FileList=C3FileList;
 
 Process.files_in=[RC1FileList; RC2FileList; C1FileList; C2FileList; C3FileList];
 
-
 FFFileList=cellfun(@(inRC1) GenFFFile(inRC1), RC1FileList, 'UniformOutput', false);
-DTFileList=cellfun(@(inRC1) GenDTFile(inRC1), RC1FileList, 'UniformOutput', false);
-
+FstSubjFile=RC1FileList{1};
+[FstSubjPath, File, Ext]=fileparts(FstSubjFile);
+DTFile=fullfile(FstSubjPath, ['Template_6', Ext]);
 Process.FFFileList=FFFileList;
-Process.DTFileList=DTFileList;
-Process.files_out=[DTFileList; FFFileList];
+Process.DTFile=DTFile;
+Process.files_out=[{DTFile}; FFFileList];
 
 function DTFile=GenDTFile(in)
 [Path, Name, Ext]=fileparts(in);

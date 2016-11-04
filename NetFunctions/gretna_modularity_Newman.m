@@ -48,9 +48,8 @@ Bsub=B;         %Bsub is used for the subdivision after the first split
 Nsub=N;
 
 while isSplit(1)
-    [V,D]=eig(Bsub);
-    [d1, n1]=max(real(diag(D))); % Modified by Sandy, real part of maximal positive 
-    v1=V(:,n1);
+    [V, D]=eigs(Bsub, 1); % support sparse matrix
+    v1=V;
     
     S=ones(Nsub,1);
     S(v1<0)=-1;
@@ -72,7 +71,6 @@ while isSplit(1)
             %end
             Qit=Qmax-4*Sit.*(Bsub*Sit); % Reference: BCT's modularity_und.m
             [Qmax, imax]=max(Qit.*indSub);
-            %imax=((Qit.*indSub)==Qmax); % Added by Sandy ###
             Sit(imax)=-Sit(imax);
             indSub(imax)=nan;
             if Qmax>dQ

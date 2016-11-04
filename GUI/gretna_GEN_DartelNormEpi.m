@@ -31,7 +31,7 @@ Process.opt.BBox=BBox;
 Process.opt.VoxSize=VoxSize;
 
 % Input Files
-Process.files_in=[InputFile; {FFFile}; {DTFile}];
+Process.files_in=[InputFile; {DTFile}; {FFFile}];
 % Output Files
 Process.OutputImgFile=OutputFile;
 Process.files_out=OutputFile;

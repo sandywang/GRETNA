@@ -56,7 +56,7 @@ function gretna_GUI_PreprocessInterface_OpeningFcn(hObject, eventdata, handles, 
 
 % Init Input Structure
 handles.InputS=[];
-
+handles.PipeLogPath=[];
 % Init Preprocess Procedures
 handles.PreModeCell={...
     'DICOM to NIfTI',         1;...
@@ -75,7 +75,6 @@ GRETNAPath=fileparts(which('gretna.m'));
 
 % DICOM to NIfTI
 %   Time Points
-handles.Para.TP={'<-X'};
 
 % Remove First Images
 %   Removed Images
@@ -339,7 +338,7 @@ UnselModeVal=get(handles.PostModeList, 'Value');
 UnselModeStr=get(handles.PostModeList, 'String');
 UnselModeTar=UnselModeStr(UnselModeVal);
 Msk=strcmpi(UnselModeTar{1}, handles.PostModeCell(:, 1));
-Ind=handles.PreModeCell(Msk, 2);
+Ind=handles.PostModeCell(Msk, 2);
 Ind=Ind{1};
 
 handles.UnselPostInd(handles.UnselPostInd==Ind)=[];
@@ -732,6 +731,12 @@ for i=1:numel(AllStr)
                     InputT1FileList=cellfun(...
                         @(p) GenT1Dcm(p, T1Prefix), InputT1DirList,...
                         'UniformOutput', false);
+                    
+                    if any(cellfun(@isempty, InputT1FileList))
+                        errordlg('Cannot find T1 image (e.g. *.dcm in T1 Directory), Please Check again!');
+                        return;
+                    end
+                    
                     OutputT1FileList=cellfun(...
                         @(s) {fullfile(PPath, 'GretnaT1NIfTI', s, 'T1.nii')},...
                         SList, 'UniformOutput', false);
@@ -753,6 +758,10 @@ for i=1:numel(AllStr)
                     InputT1FileList=cellfun(...
                         @(p) GenT1Nii(p, T1Prefix), InputT1DirList,...
                         'UniformOutput', false);
+                    if any(cellfun(@isempty, InputT1FileList))
+                        errordlg(sprintf('Cannot find T1 image (e.g. %s.nii in T1 Directory), Please Check again!', T1Prefix));
+                        return;
+                    end
                 end
                 
                 if Para.NormSgy{1}==2 % T1 Unified Segmentation
@@ -797,14 +806,14 @@ for i=1:numel(AllStr)
                         C1FileList, C2FileList, C3FileList...
                         );
                     % Dartel Template List
-                    DTFileList=Pl.DartelNormT1.DTFileList;
+                    DTFile=Pl.DartelNormT1.DTFile;
                     FFFileList=Pl.DartelNormT1.FFFileList;
             
                     PCell=cellfun(...
-                        @(in, inFF, inDT) gretna_GEN_DartelNormEpi(in, inFF, inDT,...
+                        @(in, inFF) gretna_GEN_DartelNormEpi(in, inFF, DTFile,...
                         Para.BBox{1}, Para.VoxSize{1}...
                         ),...
-                        FileList, FFFileList, DTFileList, 'UniformOutput', false);
+                        FileList, FFFileList, 'UniformOutput', false);
             
                     TList=cellfun(@(i) sprintf('DartelNormEpi%s', i), IndList,...
                         'UniformOutput', false);
@@ -956,13 +965,34 @@ end
 mkdir(PipeLogPath);
 Opt.path_logs=PipeLogPath;
 
+handles.PipeLogPath=PipeLogPath;
 handles.Map=Map;
 handles.OldInputStr=OldInputStr;
 
 guidata(hObject, handles);
 
 psom_run_pipeline(Pl, Opt);
+PipeStatus=load(fullfile(PipeLogPath, 'PIPE_status.mat'));
+PipeLogs=load(fullfile(PipeLogPath, 'PIPE_logs.mat'));
 
+FStatus=structfun(@(s) strcmpi(s, 'failed'), PipeStatus);
+if any(FStatus)
+    FN=fieldnames(PipeLogs);
+    FFN=FN(FStatus);
+    Str=[];
+    for i=1:numel(FFN)
+        if strcmpi(FFN{i}, 'DartelNormT1')
+            SubjString=[];
+        else
+            Ind=FFN{i}(end-4:end);
+            SubjLab=SList(strcmpi(IndList, Ind));
+            SubjString=SubjLab{1};
+        end
+        Str=[Str,'\n', SubjString, '\n',...
+            psom_pipeline_visu(PipeLogPath, 'log', FFN{i}, false)];
+    end
+    error(Str);
+end
 
 % --- Executes on selection change in CTypePopup.
 function CTypePopup_Callback(hObject, eventdata, handles)
@@ -1058,14 +1088,20 @@ function MainFig_DeleteFcn(hObject, eventdata, handles)
 % hObject    handle to MainFig (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+PipeLogPath=handles.PipeLogPath;
+if ~isempty(PipeLogPath)
+    LockFile=fullfile(PipeLogPath, 'PIPE.lock');
+    if exist(LockFile, 'file')==2
+        delete(LockFile);
+    end
+end
 
 % --- Executes on button press in QuitBtn.
 function QuitBtn_Callback(hObject, eventdata, handles)
 % hObject    handle to QuitBtn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+delete(handles.MainFig);
 
 
 function QueueEty_Callback(hObject, eventdata, handles)
@@ -1780,8 +1816,13 @@ D=dir(fullfile(Path, [Prefix, '.nii'])); % Nii
 if isempty(D)
     D=dir(fullfile(Path, [Prefix, '.img']));
 end
-C={D.name}';
-FileList={fullfile(Path, C{1})};
+
+if ~isempty(D)
+    C={D.name}';
+    FileList={fullfile(Path, C{1})};
+else
+    FileList={};
+end
 
 function FileList=GenT1Dcm(Path, Prefix)
 % DICOM
@@ -1807,7 +1848,8 @@ D=D(Ind);
 if ~isempty(D)
     C={D.name}';
     FileList={fullfile(Path, C{1})};
-    return
+else
+    FileList=[];
 end
 
 function S=GenSubFileS(File, Prefix, ListObj)
@@ -2051,6 +2093,12 @@ OptStr=get(handles.PipeOptList, 'String');
 PreStr=handles.PreModeCell(handles.SelPreInd, 1);
 PostStr=handles.PostModeCell(handles.SelPostInd, 1);
 AllStr=[PreStr; PostStr];
+
+if isempty(AllStr)
+    ExitCode=1;
+    WarningObj(handles.PipeOptList);
+    return
+end
 for s=1:numel(AllStr)
     switch upper(AllStr{s})
         case 'DICOM TO NIFTI'

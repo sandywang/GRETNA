@@ -27,7 +27,9 @@ spm_jobman('run', SpmJob.matlabbatch);
 
 % Normalize T1
 FFFile=cellfun(@(inRC1) GenFFFile(inRC1), RC1FileList, 'UniformOutput', false);
-DTFile=cellfun(@(inRC1) GenDTFile(inRC1), RC1FileList, 'UniformOutput', false);
+FstSubjFile=RC1FileList{1};
+[FstSubjPath, File, Ext]=fileparts(FstSubjFile);
+DTFile={fullfile(FstSubjPath, ['Template_6', Ext])};
 
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_DartelT1Normalization.mat');
 SpmJob=load(JM);
@@ -39,9 +41,7 @@ SpmJob.matlabbatch{1, 1}.spm.tools.dartel.mni_norm.data.subjs.images{1,1}=C1File
 SpmJob.matlabbatch{1, 1}.spm.tools.dartel.mni_norm.data.subjs.images{1,2}=C2FileList;
 SpmJob.matlabbatch{1, 1}.spm.tools.dartel.mni_norm.data.subjs.images{1,3}=C3FileList;
 
-function DTFile=GenDTFile(in)
-[Path, Name, Ext]=fileparts(in);
-DTFile=fullfile(Path, ['Template_6', Ext]);
+spm_jobman('run', SpmJob.matlabbatch);
     
 function FFFile=GenFFFile(in)
 [Path, Name, Ext]=fileparts(in);

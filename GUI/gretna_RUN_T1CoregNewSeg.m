@@ -4,7 +4,6 @@ function gretna_RUN_T1CoregNewSeg(InputFile, SoFile, InputT1File, TPMTpm)
 %   Input:
 %   InputFile    - The input file list, Nx1 cell (1x1 cell for 4D NIfTI)
 %   SourPath     - The path of source image
-%   SourPrefix   - The prefix of source image
 %   InputT1File  - The input T1 file list, 1x1 cell
 %   TPMTpm       - The tiusse template file, string
 %-------------------------------------------------------------------------%

@@ -24,8 +24,16 @@ Process.opt.AllInteMatList=AllInteMatList;
 % Input Files
 InputMatList=[];
 for i=1:numel(AllIndiMatList)
-    InputMatList=[InputMatList; AllIndiMatList{i}];
+    Grp=AllIndiMatList{i};
+    for j=1:numel(Grp)
+        InputMatList=[InputMatList; Grp{j}];
+    end
+end
+OutputMatList=[];
+for i=1:numel(AllInteMatList)
+    Grp=AllInteMatList{i};
+    OutputMatList=[OutputMatList; Grp];
 end
 Process.files_in=InputMatList;
 % Output Files
-Process.files_out=AllInteMatList;
+Process.files_out=OutputMatList;

@@ -102,7 +102,7 @@ handles.Para.NumPasses={1, ...
 
 % Normalize
 handles.Para.NormSgy={3, ...
-    {'EPI Template'; ' T1 Unified Segmentation'; 'DARTEL'}};
+    {'EPI Template'; 'T1 Unified Segmentation'; 'DARTEL'}};
 
 handles.Para.SourPath={'Same To Fun', '', 'D'};
 handles.Para.SourPrefix={'mean*'};

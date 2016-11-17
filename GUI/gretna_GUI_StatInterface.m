@@ -478,36 +478,51 @@ switch Value
         OutputT=fullfile(OutputDir, [Prefix, '_R.txt']);
 end
 
-Correct=get(handles.CorrectPopup, 'Value');
-PThrd=str2double(get(handles.PEntry, 'String'));
-if isnan(PThrd)
-    errordlg('Invalid P Value');
-    return
+if numel(P)>1
+    NumOfMetrics=numel(P);
+    PThrd_Bonferroni=0.05/NumOfMetrics;
+    OutputPB=fullfile(OutputDir, [Prefix, '_alpha05_Bonferroni_P_Threshold.txt']);
+    save(OutputPB, 'PThrd_Bonferroni', '-ASCII', '-DOUBLE', '-TABS');
+    
+    PThrd_FDR=gretna_FDR(P, 0.05);
+    if isempty(PThrd_FDR)
+        OutputPF=fullfile(OutputDir, [Prefix, '_FDR_Correction_Failed.txt']);
+        save(OutputPF, 'PThrd_FDR', '-ASCII', '-DOUBLE', '-TABS'); 
+    else
+        OutputPF=fullfile(OutputDir, [Prefix, '_q05_FDR_P_Threshold.txt']);
+        save(OutputPF, 'PThrd_FDR', '-ASCII', '-DOUBLE', '-TABS');
+    end
 end
-
-switch Correct
-    case 1 %None
-        Index = P < PThrd;
-        T(~Index)=0;
-        %P(~Index)=0;
-    case 2 %FDR
-        [pID, pN]=gretna_FDR(P, PThrd);
-        if isempty(pID)
-            warndlg('NO Corrected P Values');
-            %T=zeros(size(T));
-            %P=ones(size(P));
-            return
-        end
-        Index = P < pID;
-        T(~Index)=0;
-        %P(~Index)=0;
-    case 3 %Bonferroni
-        NumOfMetric=size(S{1}, 2);
-        PThrd=PThrd/NumOfMetric;
-        Index = P < PThrd;
-        T(~Index)=0;
-        %P(~Index)=0;
-end
+% Correct=get(handles.CorrectPopup, 'Value');
+% PThrd=str2double(get(handles.PEntry, 'String'));
+% if isnan(PThrd)
+%     errordlg('Invalid P Value');
+%     return
+% end
+% 
+% switch Correct
+%     case 1 %None
+%         Index = P < PThrd;
+%         T(~Index)=0;
+%         %P(~Index)=0;
+%     case 2 %FDR
+%         [pID, pN]=gretna_FDR(P, PThrd);
+%         if isempty(pID)
+%             warndlg('NO Corrected P Values');
+%             %T=zeros(size(T));
+%             %P=ones(size(P));
+%             return
+%         end
+%         Index = P < pID;
+%         T(~Index)=0;
+%         %P(~Index)=0;
+%     case 3 %Bonferroni
+%         NumOfMetric=size(S{1}, 2);
+%         PThrd=PThrd/NumOfMetric;
+%         Index = P < PThrd;
+%         T(~Index)=0;
+%         %P(~Index)=0;
+% end
 
 save(OutputT, 'T', '-ASCII', '-DOUBLE', '-TABS');
 save(OutputP, 'P', '-ASCII', '-DOUBLE', '-TABS');

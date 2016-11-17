@@ -225,7 +225,7 @@ end
 switch gb_psom_language
     case 'matlab'
         if ispc
-            opt_matlab = '-automation -nodesktop -r';
+            opt_matlab = '-automation -noFigureWindows -nodesktop -r';
         else
             opt_matlab = '-nosplash -nodesktop -r';
         end        

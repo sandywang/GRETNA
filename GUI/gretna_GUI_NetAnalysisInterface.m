@@ -22,7 +22,7 @@ function varargout = gretna_GUI_NetAnalysisInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_NetAnalysisInterface
 
-% Last Modified by GUIDE v2.5 04-Nov-2016 00:01:33
+% Last Modified by GUIDE v2.5 16-Nov-2016 13:13:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -68,7 +68,7 @@ handles.Para.NetSign={1,...
 handles.Para.ThresType={1,...
     {'Network Sparsity';...
     'Similarity Threshold'}};
-handles.Para.Thres={0.05:0.01:0.5};
+handles.Para.Thres={0.05:0.05:0.5};
 handles.Para.NetType={1,...
     {'Binary';...
     'Weighted'}};
@@ -81,11 +81,9 @@ handles.GlobalModeCell={...
     'Global - Small-World',     1;...
     'Global - Efficiency',      2;...
     'Global - Rich-Club',       3;...
-    'Global - Sparsity',        4;...
-    'Global - Component Size',  5;...
-    'Global - Assortativity',   6;...
-    'Global - Synchronization', 7;...
-    'Global - Hierarchy',       8};
+    'Global - Assortativity',   4;...
+    'Global - Synchronization', 5;...
+    'Global - Hierarchy',       6};
 
 % Global - Small-World
 handles.Para.ClustAlgor={1,...
@@ -118,7 +116,7 @@ handles.NodalModeCell={...
 
 handles.Para.CIndex={'<-X'};
 % Init Mode List Index
-handles.UnselPreInd=(1:8)';
+handles.UnselPreInd=(1:6)';
 handles.SelPreInd=[];
 handles.UnselPostInd=(1:6)';
 handles.SelPostInd=[];
@@ -359,7 +357,7 @@ function KeyEty_Callback(hObject, eventdata, handles)
 % hObject    handle to KeyEty (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-UpdateInputInterface(hObject, 1);
+UpdateInputInterface(hObject, 2);
 % Hints: get(hObject,'String') returns contents of KeyEty as text
 %        str2double(get(hObject,'String')) returns contents of KeyEty as a double
 
@@ -572,7 +570,8 @@ Pl=[];
 
 % Network Construction
 % Thresholding Connectivity Matrix to Construct Network
-FileList=cellfun(@(S) S.File,  handles.InputS, 'UniformOutput', false);
+FileList=cellfun(@(S) S.File, handles.InputS, 'UniformOutput', false);
+GrpID=cellfun(@(S) S.GrpID, handles.InputS);
 OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'RealNet.mat'),...
     AList, 'UniformOutput', false);
 PCell=cellfun(@(mat, in, out)...
@@ -607,7 +606,7 @@ for n=1:numel(AllStr)
         case 'GLOBAL - SMALL-WORLD'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'SW.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'SmallWorld', 'SmallWorld.mat');
+            InterMat=GenInterMat(OutputDir, 'SmallWorld', GrpID);
             PCell=cellfun(@(in, rnd, out)...
                 gretna_GEN_SmallWorld(in, rnd, out, Para.NetType{1}, Para.ClustAlgor{1}, AUCInterval),...
                 RealNetList, RandNetList, OutputMatList,...
@@ -619,7 +618,7 @@ for n=1:numel(AllStr)
         case 'GLOBAL - EFFICIENCY'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'EFF.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'NetworkEfficiency', 'NetworkEfficiency.mat');            
+            InterMat=GenInterMat(OutputDir, 'NetworkEfficiency', GrpID);
             PCell=cellfun(@(in, rnd, out)...
                 gretna_GEN_GEfficiency(in, rnd, out, Para.NetType{1}, AUCInterval),...
                 RealNetList, RandNetList, OutputMatList,...
@@ -643,7 +642,7 @@ for n=1:numel(AllStr)
         case 'GLOBAL - RICH-CLUB'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'RC.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'RichClub', 'RichClub.mat');                                    
+            InterMat=GenInterMat(OutputDir, 'RichClub', GrpID);
             PCell=cellfun(@(in, rnd, out)...
                 gretna_GEN_RichClub(in, rnd, out, Para.NetType{1}),...
                 RealNetList, RandNetList, OutputMatList,...
@@ -655,7 +654,7 @@ for n=1:numel(AllStr)
         case 'GLOBAL - ASSORTATIVITY'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'ASS.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'Assortativity', 'Assortativity.mat');                                    
+            InterMat=GenInterMat(OutputDir, 'Assortativity', GrpID);
             PCell=cellfun(@(in, rnd, out)...
                 gretna_GEN_Assortativity(in, rnd, out, Para.NetType{1}),...
                 RealNetList, RandNetList, OutputMatList,...
@@ -667,7 +666,7 @@ for n=1:numel(AllStr)
         case 'GLOBAL - SYNCHRONIZATION'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'SYN.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'Synchronization', 'Synchronization.mat');
+            InterMat=GenInterMat(OutputDir, 'Synchronization', GrpID);
             PCell=cellfun(@(in, rnd, out)...
                 gretna_GEN_Synchronization(in, rnd, out, Para.NetType{1}),...
                 RealNetList, RandNetList, OutputMatList,...
@@ -679,7 +678,7 @@ for n=1:numel(AllStr)
         case 'GLOBAL - HIERARCHY'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'HIE.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'Hierarchy', 'Hierarchy.mat');
+            InterMat=GenInterMat(OutputDir, 'Hierarchy', GrpID);
             PCell=cellfun(@(in, rnd, out)...
                 gretna_GEN_Hierarchy(in, rnd, out, Para.NetType{1}),...
                 RealNetList, RandNetList, OutputMatList,...
@@ -691,7 +690,7 @@ for n=1:numel(AllStr)
         case 'NODAL - COMMUNITY INDEX'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'CI.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'CommunityIndex', 'CommunityIndex.mat');                        
+            InterMat=GenInterMat(OutputDir, 'CommunityIndex', GrpID);
             PCell=cellfun(@(in, out)...
                 gretna_GEN_CommunityIndex(in, out, Para.NetType{1}, Para.ModulAlgor{1}, Para.DDPcFlag{1}),...
                 RealNetList, OutputMatList,...
@@ -703,7 +702,7 @@ for n=1:numel(AllStr)
         case 'NODAL - PARTICIPANT COEFFICIENT'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'PC.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'ParticipantCoefficient', 'ParticipantCoefficient.mat');                        
+            InterMat=GenInterMat(OutputDir, 'ParticipantCoefficient', GrpID);
             PCell=cellfun(@(in, out)...
                 gretna_GEN_ParticipantCoefficient(in, out, Para.CIndex{1}),...
                 RealNetList, OutputMatList,...
@@ -715,7 +714,7 @@ for n=1:numel(AllStr)
         case 'MODULAR - INTERACTION'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'MI.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'ModularInteraction', 'ModularInteraction.mat');                        
+            InterMat=GenInterMat(OutputDir, 'ModularInteraction', GrpID);
             PCell=cellfun(@(in, out)...
                 gretna_GEN_ModularInteraction(in, out, Para.NetType{1}, Para.CIndex{1}),...
                 RealNetList, OutputMatList,...
@@ -727,7 +726,7 @@ for n=1:numel(AllStr)
         case 'NODAL - DEGREE CENTRALITY'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'DC.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'DegreeCentrality', 'DegreeCentrality.mat');
+            InterMat=GenInterMat(OutputDir, 'DegreeCentrality', GrpID);
             PCell=cellfun(@(in, out)...
                 gretna_GEN_DegreeCentrality(in, out, Para.NetType{1}, AUCInterval),...
                 RealNetList, OutputMatList,...
@@ -739,7 +738,7 @@ for n=1:numel(AllStr)
         case 'NODAL - BETWEENNESS CENTRALITY'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'BC.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'BetweennesssCentrality', 'BetweennessCentrality.mat');
+            InterMat=GenInterMat(OutputDir, 'BetweennessCentrality', GrpID);
             PCell=cellfun(@(in, out)...
                 gretna_GEN_BetweennessCentrality(in, out, Para.NetType{1}, AUCInterval),...
                 RealNetList, OutputMatList,...
@@ -756,7 +755,7 @@ for n=1:numel(AllStr)
         case 'NODAL - EFFICIENCY'
             OutputMatList=cellfun(@(a) fullfile(OutputDir, a, 'NE.mat'),...
                 AList, 'UniformOutput', false);
-            InterMat=fullfile(OutputDir, 'NodalEfficiency', 'NodalEfficiency.mat');
+            InterMat=GenInterMat(OutputDir, 'NodalEfficiency', GrpID);
             PCell=cellfun(@(in, out)...
                 gretna_GEN_NodalEfficiency(in, out, Para.NetType{1}, AUCInterval),...
                 RealNetList, OutputMatList,...
@@ -766,7 +765,7 @@ for n=1:numel(AllStr)
                 'UniformOutput', false);
             Pl=gretna_FUN_Cell2Pipe(Pl, TList, PCell);
     end
-    AllIndiMatList{n, 1}=OutputMatList;
+    AllIndiMatList{n, 1}=GenIndiMat(OutputMatList, GrpID);
     AllInteMatList{n, 1}=InterMat;
 end
 Pl.ResultIntegrating=gretna_GEN_ResultIntegrating(AllIndiMatList, AllInteMatList);
@@ -797,7 +796,7 @@ Opt.flag_pause         =false;
 Opt.flag_update        =false;
 Opt.time_between_checks=5;
 PPath=fileparts(handles.OutputDir);
-PipeLogPath=fullfile(PPath, 'GretnaLogs', 'FunPreproAndNetCon');
+PipeLogPath=fullfile(PPath, 'GretnaLogs', 'NetAnalysis');
 if exist(PipeLogPath, 'dir')==7
     ans=rmdir(PipeLogPath, 's');
 end
@@ -960,9 +959,56 @@ if iscell(File)
     File=File';
     MatCell=cellfun(@(f) fullfile(Path, f), File, 'UniformOutput', false);
     handles.InputMatCell=[handles.InputMatCell; MatCell];
+    
+    set(handles.InputList, 'BackgroundColor', [0, 0.9, 0]);
+    drawnow;
+
+    FileS=cellfun(@(f) GenMatFileS(f, handles.InputList) , MatCell, 'UniformOutput', false);
+
+    InputS=[];
+    for i=1:numel(FileS)
+        if iscell(FileS{i})
+           tmp=FileS{i};
+        else
+           tmp=FileS(i);
+        end
+        InputS=[InputS; tmp];
+    end
+    handles.InputS=[handles.InputS; InputS];
     guidata(hObject, handles);
-    UpdateInputInterface(hObject, 1);
+    
+    UpdateInputInterface(hObject, 2);
 end
+
+% --- Executes on button press in GrpIDBtn.
+function GrpIDBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to GrpIDBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+Val=get(handles.InputList, 'Value');
+if Val==0
+    return
+end
+InputS=handles.InputS;
+
+GrpID=cellfun(@(S) S.GrpID, InputS);
+
+Ans=inputdlg({'Input Current Item'}, 'Current Item',...
+    1, {num2str(GrpID')});
+if isempty(Ans)
+    return
+end
+GrpID=str2num(Ans{1})';
+
+for i=1:numel(InputS)
+    InputS{i}.GrpID=GrpID(i);
+end
+handles.InputS=InputS;
+guidata(hObject, handles);
+
+UpdateInputInterface(hObject, 2);
+
+
 
 % --- Executes on button press in ShowAllBtn.
 function ShowAllBtn_Callback(hObject, eventdata, handles)
@@ -1408,7 +1454,7 @@ if Mode==1
 
 elseif Mode==2
     InputS=handles.InputS;
-    TextL=cellfun(@(S) sprintf('%s', S.Lab),...
+    TextL=cellfun(@(S) sprintf('[Group: %d] %s', S.GrpID, S.Lab),...
         InputS, 'UniformOutput', false);
     TextR=cellfun(@(S) sprintf('(%d - %d)', S.Size(1, 1), S.Size(1, 2)),...
         InputS, 'UniformOutput', false);
@@ -1426,7 +1472,7 @@ if ~isempty(Text)
     Val=1;
 else
     Val=[];
-    warndlg('Cannot find data, check again!');
+    %warndlg('Cannot find data, check again!');
     DisplayFlag='Off';
 end
 set(handles.ShowAllBtn, 'Enable', DisplayFlag);
@@ -1518,11 +1564,12 @@ end
 
 % Extent Function
 function S=GenMatFileS(in, ListObj)
+set(ListObj, 'String', sprintf('%s%s Loaded', in), 'Value', 1,...
+    'BackgroundColor', [0, 0.9, 0]);
+drawnow;
+
 M=load(in);
 S=GenMatS(M, in);
-set(ListObj, 'String', sprintf('%s%s Loaded', in), 'Value', 1,...
-    'BackgroundColor', [0, 0.9, 0])
-drawnow;
 
 function S=GenMatS(M, in)
 [Path, File, Ext]=fileparts(in);
@@ -1535,6 +1582,7 @@ if isnumeric(M)
     S.Size=size(M);
     S.Lab=sprintf('%s', FileExt);
     S.Mat=M;
+    S.GrpID=1;
 elseif isstruct(M)
     FN=fieldnames(M);
     for n=1:numel(FN)
@@ -1551,6 +1599,7 @@ elseif isstruct(M)
                     FileExt, TmpS.Type, FN{n}, i);
                 TmpS.Alias=sprintf('%s_%s_%s%.5d', ...
                     File, TmpS.Type, FN{n}, i);
+                TmpS.GrpID=1;
                 TmpS.Mat=TmpM{i};
                 TmpC{i, 1}=TmpS;
             end
@@ -1567,6 +1616,7 @@ elseif isstruct(M)
                     FileExt, TmpS.Type, FN{n}, SubFN{i});
                 TmpS.Alias=sprintf('%s_%s_%s_%s',...
                     File, TmpS.Type, FN{n}, SubFN{i});
+                TmpS.GrpID=1;
                 TmpS.Mat=TmpM.(SubFN{i});
                 TmpC{i, 1}=TmpS;
             end
@@ -1579,6 +1629,7 @@ elseif isstruct(M)
             TmpS.Lab=sprintf('%s: [%s]%s',...
                 FileExt, TmpS.Type, FN{n});
             TmpS.Alias=sprintf('%s_%s_%s', File, TmpS.Type, FN{n});
+            TmpS.GrpID=1;
             TmpS.Mat=TmpM;
             S=[S; {TmpS}];
         else
@@ -1680,6 +1731,28 @@ end;
 str = strcat(left, fillstr, right);
 delete(TempObj);
 set(obj,'units','normalized');
+
+function InterCell=GenInterMat(OutputDir, Alias, GrpID)
+U=unique(GrpID);
+if numel(U)==1
+    InterCell={fullfile(OutputDir, Alias, sprintf('%s.mat', Alias))};
+else
+    InterCell=cell(numel(U), 1);
+    for i=1:numel(U)
+        InterCell{i, 1}=fullfile(OutputDir, Alias, sprintf('Group%d', U(i)), sprintf('%s.mat', Alias));
+    end
+end
+
+function IndiCell=GenIndiMat(OutputMatList, GrpID)
+U=unique(GrpID);
+if numel(U)==1
+    IndiCell={OutputMatList};
+else
+    IndiCell=cell(numel(U), 1);
+    for i=1:numel(U)
+        IndiCell{i, 1}=OutputMatList(GrpID==U(i), 1);
+    end
+end
 
 function ext = cfg_maxextent(obj, str)
 

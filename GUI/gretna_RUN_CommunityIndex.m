@@ -51,10 +51,10 @@ N=size(Matrix, 1);
 CompIndex=Ci>0;
 TmpMatrix=Matrix(CompIndex, CompIndex);
 
-ModNum=size(unique(Ci), 1);
+ModNum=size(unique(Ci(CompIndex)), 1);
 ModCell=cell(1, ModNum);
 for m=1:ModNum
-    ModCell{1, m}=find(Ci==m);
+    ModCell{1, m}=find(Ci(CompIndex)==m);
 end
 
 PcStruct=gretna_parcoeff(TmpMatrix, ModCell);
@@ -78,9 +78,9 @@ TmpMatrix=Matrix(CompIndex, CompIndex);
 
 if ~RealFlag
     if MType==1
-        [TmpCi, Q]=gretna_modularity_Danon(TmpMatrix);
+        [TmpCi, Q]=gretna_modularity_Danon(double(TmpMatrix));
     elseif MType==2
-        [TmpCi, Q]=gretna_modularity_Newman(TmpMatrix);
+        [TmpCi, Q]=gretna_modularity_Newman(double(TmpMatrix));
     end
     Ci=zeros(N, 1);
     Ci(CompIndex, 1)=TmpCi;

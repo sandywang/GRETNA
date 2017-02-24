@@ -22,7 +22,7 @@ function varargout = gretna(varargin)
 
 % Edit the above text to modify the response to help gretna
 
-% Last Modified by GUIDE v2.5 13-Jul-2014 12:52:10
+% Last Modified by GUIDE v2.5 21-Feb-2017 16:30:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,9 +51,24 @@ function gretna_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to gretna (see VARARGIN)
+GRETNAPath=fileparts(which('gretna.m'));
+vfid=fopen(fullfile(GRETNAPath, 'VERSION'), 'r');
+v=textscan(vfid, '%s');
+fclose(vfid);
+VERSION=v{1}{1};
 
+fprintf('\tThank you for using GRETNA (v%s)\n\n', VERSION);
+fprintf('\tPlease cite:\n') 
+fprintf('\tWang, J., Wang, X., Xia, M., Liao, X., Evans, A., & He, Y. (2015).\n')
+fprintf('\t\tGRETNA: a graph theoretical network analysis toolbox for imaging connectomics.\n')
+fprintf('\t\tFrontiers in human neuroscience, 9, 386.\n');
 % Choose default command line output for gretna
 handles.output = hObject;
+axes(handles.LogoAxes);
+axis image;
+GRETNAPath=fileparts(which('gretna.m'));
+[A, map]=imread(fullfile(GRETNAPath, 'logo.png'));
+h=imshow(A, map);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -94,3 +109,18 @@ function CompButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 gretna_GUI_CompInterface;
+
+
+% --- Executes on button press in PlotButton.
+function PlotButton_Callback(hObject, eventdata, handles)
+% hObject    handle to PlotButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+gretna_GUI_PlotBBVInterface;
+
+
+% --- Executes on button press in GannmBtn.
+function GannmBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to GannmBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

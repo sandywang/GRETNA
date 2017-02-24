@@ -1,41 +1,39 @@
-function  [mdl] = gretna_plot_regression(Xdata, Ydata, Type, Type_hist)
+function  gretna_plot_regression(Xdata, Ydata, NumDegree, Type_hist)
 
 %==========================================================================
 % This function is used to plot a linear fitted line between two variables.
 %
 %
-% Syntax: function [mdl] = gretna_plot_regression(Xdata, Ydata, Type, Type_hist)
+% Syntax: function gretna_plot_regression(Xdata, Ydata, NumDegree, Type_hist)
 %
 % Inputs:
-%    Xdata:
-%           N*1 data array for the x-axis.
-%    Ydata:
-%           N*1 data array for the y-axis.
-%     Type:
-%           'ci' or 'CI': 95% confidence intervals for the fitted line 
-%                         evaluated at the values in Xdata (default).
-%           'pi' or 'PI': 95% prediction intervals for new observations at
-%                          the values in Xdata.
-% Type_hist:
-%           'on' or 'off'.
-%
-% Output:
-%       md1:
-%           The linear fitted model.
+%      Xdata:
+%            N*1 data array for the x-axis.
+%      Ydata:
+%            N*1 data array for the y-axis.
+%  NumDegree:
+%            Degree of polynomial fit, specified as a positive integer
+%            scalar [e.g., 1 or 2 or 3 etc.]
+%  Type_hist:
+%            'on' or 'off'.
 %
 % Example:
 %          X = [143 145 146 147 149 150 153 154 155 156 157 158 159 160 162 164]';
 %          Y = [88 85 88 91 92 93 93 95 96 98 97 96 98 99 100 102]';
-%          [mdl] = gretna_plot_regression(X, Y, 'ci');
+%          gretna_plot_regression(X, Y, 1);
 %
 % Hao WANG, CCBD, HZNU, Hangzhou, 2015/11/18, hall.wong@outlook.com
+%
+% Change log:
+% 2016-11-24: Fix some bugs, display figure title, and discard the function
+% (fitlm.m); Modified by Hao Wang.
 %==========================================================================
 
 if nargin < 2
     error('At least two arguments are needed!'); end
 
 if nargin == 2
-    Type = 'ci';  Type_hist = 'off'; end
+    NumDegree = 1;  Type_hist = 'off'; end
 
 if nargin == 3
     Type_hist = 'off'; end
@@ -47,31 +45,36 @@ end
 if size(Xdata,2) ~= 1 || size(Ydata,2) ~= 1
     error('The input X and Y must be n-by-1 arrays'); end
 
-FullMatlabVersion = sscanf(version,'%d.%d.%d.%d%s');
-if (FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4)
-    tbl = table(Ydata, Xdata); %Modified by Sandy
-    mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'off');    
-else
-    mdl= regstats(Ydata, Xdata, 'linear');
-end
-%tbl = table(Ydata, Xdata); %Modified by Sandy
-%mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'on');
+% FullMatlabVersion = sscanf(version,'%d.%d.%d.%d%s');
+% if (FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4)
+%     tbl = table(Ydata, Xdata); 
+%     mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'off');
+% else
+%     mdl= regstats(Ydata, Xdata, 'linear');
+% end
+% tbl = table(Ydata, Xdata); %Modified by Sandy
+% mdl = fitlm(tbl, 'Ydata~1+Xdata', 'RobustOpts', 'on');
 
-Xdata = Xdata'; Ydata = Ydata';
-[p, s] = polyfit(Xdata, Ydata, 1);
+[r_tmp, p_tmp] = corr(Xdata, Ydata,'type','pearson');
 
-switch lower(Type)
-    case 'ci'
-        [yfit, dy] = polyconf(p, Xdata, s, 'predopt', 'curve');       %  'curve' to compute confidence intervals.
-    case 'pi'
-        [yfit, dy] = polyconf(p, Xdata, s, 'predopt', 'observation'); %  'observation' to compute prediction intervals.
-    otherwise
-        error('The inputted Type is not recognized, please check it!');
+if NumDegree == 1
+    fprintf('\n')
+    fprintf('====================================================\n')
+    fprintf('%s \n',['The Pearson correlation coefficient is ', num2str(r_tmp, '%.3f')])
+    fprintf('%s \n',['The P value is ', num2str(p_tmp)])
+    fprintf('====================================================\n')
 end
+
+% To ensure data monotony
+[Xdata,index] = sort(Xdata);
+Ydata = Ydata(index);
+[p, s] = polyfit(Xdata, Ydata, NumDegree);
+[yfit, dy] = polyconf(p, Xdata, s, 'predopt', 'curve');       %  'curve' to compute confidence intervals.
 
 switch lower(Type_hist)
     case 'on'
-        scatterhist(Xdata, Ydata, 'Marker','.','MarkerSize', 12, 'Color', 'k', 'Nbins', round(length(Xdata)./3), 'Direction','out','Kernel','overlay'); % Nbin: the number of the bins.
+        scatterhist(Xdata, Ydata, 'Marker','.','MarkerSize', 12,'Color', 'k',...
+            'Nbins', round(length(Xdata)./3),'Direction','out','Kernel','off'); % Nbin: the number of the bins.
     case 'off'
         plot(Xdata, Ydata, 'k.' ,'Markersize', 12);
     otherwise
@@ -80,30 +83,23 @@ end
 
 hold on;
 
-Xraw = Xdata;
-
 % plot shade
-Border    = [yfit+dy; yfit-dy];
-[Xdata,index] = sort(Xdata);
-Border    = Border(:,index);
+Border = [yfit+dy, yfit-dy]';
+Xdata  = Xdata';
 fill([Xdata fliplr(Xdata)], [Border(1,:) fliplr(Border(2,:))], [0.5 0.5 0.5], 'FaceAlpha', 0.4, 'linestyle', 'none');
 
 % plot fit curve
-[~,ind1] = min(Xraw);
-[~,ind2] = max(Xraw);
+plot(Xdata, yfit, 'color', [0 0.45 0.74], 'Linewidth', 2);
 
-plot([Xraw(ind1); Xraw(ind2)], [yfit(ind1); yfit(ind2)], 'color', [0 0.45 0.74], 'Linewidth', 2);
-
-% Add a legend
-switch lower(Type)
-    case 'ci'
-        legend('Data', 'Fitted curve', '95% CI');
-    case 'pi'
-        legend('Data', 'Fitted curve', '95% PI');
-end
-
-set(gca, 'TickDir', 'out', 'box', 'on', 'Xlim', [min(Xdata) max(Xdata)]);
+% Add title and legend 
+title(['{\it Fit: }','\it',gretna_polystr(round(100*p)/100)],'FontSize',12,...
+    'FontName','Times New Roman');
+legend('Data', '95% CI', 'Fitted curve','Location','best');
+legend('boxoff');
+set(gca, 'TickDir', 'in', 'box', 'on', 'Xlim', [min(Xdata) max(Xdata)]);
 
 hold off;
 
-return
+end
+
+

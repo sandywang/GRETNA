@@ -22,8 +22,8 @@ function [Fdata] = gretna_fill_nan(Data)
 % Hao WANG, CCBD, HZNU, Hangzhou, 2015/12/03, hall.wong@outlook.com
 % =========================================================================
 
-if iscell(Data) == 0;
-    error('The inputted Data must be a 1¡ÁN cell, please check it!'); end
+if iscell(Data) == 0
+    error('The inputted Data must be a 1×N cell, please check it!'); end
 
 [~,Numgroup] = size(Data);
 [~,Numcol] = size(Data{1,1});

@@ -33,6 +33,11 @@ function gretna_plot_shade(Xdata, Ydata, Gname, FaceAlpha, Type)
 %        gretna_plot_shade(S, {data1,data2}, {'AD','HC'})
 %
 % Hao WANG, CCBD, HZNU, Hangzhou, 2015/3/30, hall.wong@outlook.com
+%
+% Change log:
+% 2016-11-24: Reconfigure the color; Modified by Hao Wang.
+% 2016-05-09: Fix some bugs for the version below Matlab R2014b and add
+% plot GUI; Modified by Sandy.
 %==========================================================================
 
 if nargin < 3
@@ -57,81 +62,51 @@ end
 Dim2     = size(Ydata, 2);
 Numgname = size(Gname, 2);
 
-if Numgname ~= Dim2;
+if Numgname ~= Dim2
     error('The number of groups must be equal to the number of inputted group names');
 end
 
-if Numgname < 8
-    Color = [0.078 0.631 0.678; 0.878 0.671 0.031; 0.973 0.212 0.047;...
-        0.47 0.67 0.19; 0.49 0.18 0.56; 0.8 0.8 0.8; 0.3 0.75 0.93];
+if Numgname <= 8
+    load('gretna_plot_colorpara.mat');
 else
     Color = distinguishable_colors(100);
 end
 
-FullMatlabVersion = sscanf(version,'%d.%d.%d.%d%s');
-
-if FullMatlabVersion(1)*1000+FullMatlabVersion(2)>=8*1000+4  % Modified by Sandy
-    
+if sscanf(version,'%f',1)*1000 >= 8400
     H = gobjects(1,Dim2);
-    
-    for i = 1:Dim2
-        Datatmp = Ydata{1,i};
-        Xbar    = mean(Datatmp);  N = size(Datatmp,1);
-        
-        switch lower(Type)
-            case 'sd'
-                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp) fliplr(Xbar-std(Datatmp))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-            case 'sem'
-                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp)/sqrt(N) fliplr(Xbar-std(Datatmp)/sqrt(N))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-            case 'ci'
-                ts = tinv([0.975 0.025], N-1);                % T-Score
-                UpCI = Xbar + ts(1)*(std(Datatmp)/sqrt(N));   % upper boundary of 95% confidence interval
-                LoCI = Xbar + ts(2)*(std(Datatmp)/sqrt(N));   % lower boundary of 95% confidence interval
-                fill([Xdata fliplr(Xdata)], [UpCI fliplr(LoCI)], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-            otherwise
-                error('The inputted Type is not recognized, please check it!')
-        end
-        
-        hold on;
-        
-        H(i) = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
-        set(gca, 'Xlim', [min(Xdata) max(Xdata)], 'Tickdir', 'out');
-    end
-    
-    legend(H, Gname, 'Location', 'northeast');
-    
 else
-    
-    H = cell(1,Dim2);
-    
-    for i = 1:Dim2
-        Datatmp = Ydata{1,i};
-        Xbar    = mean(Datatmp);  N = size(Datatmp,1);
-        
-        switch lower(Type)
-            case 'sd'
-                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp) fliplr(Xbar-std(Datatmp))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-            case 'sem'
-                fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp)/sqrt(N) fliplr(Xbar-std(Datatmp)/sqrt(N))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-            case 'ci'
-                ts = tinv([0.975 0.025], N-1);                % T-Score
-                UpCI = Xbar + ts(1)*(std(Datatmp)/sqrt(N));   % upper boundary of 95% confidence interval
-                LoCI = Xbar + ts(2)*(std(Datatmp)/sqrt(N));   % lower boundary of 95% confidence interval
-                fill([Xdata fliplr(Xdata)], [UpCI fliplr(LoCI)], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
-            otherwise
-                error('The inputted Type is not recognized, please check it!')
-        end
-        
-        hold on;
-        
-        H{i} = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
-        set(gca, 'Xlim', [min(Xdata) max(Xdata)], 'Tickdir', 'out');
-    end
-    
-    legend(cell2mat(H)', Gname', 'Location', 'northeast');
-    
+    H = zeros(1,Dim2);
 end
 
+for i = 1:Dim2
+    Datatmp = Ydata{1,i};
+    Xbar    = mean(Datatmp);  N = size(Datatmp,1);
+    
+    switch lower(Type)
+        case 'sd'
+            fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp) fliplr(Xbar-std(Datatmp))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+        case 'sem'
+            fill([Xdata fliplr(Xdata)], [Xbar+std(Datatmp)/sqrt(N) fliplr(Xbar-std(Datatmp)/sqrt(N))], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+        case 'ci'
+            ts = tinv([0.975 0.025], N-1);                % T-Score
+            UpCI = Xbar + ts(1)*(std(Datatmp)/sqrt(N));   % upper boundary of 95% confidence interval
+            LoCI = Xbar + ts(2)*(std(Datatmp)/sqrt(N));   % lower boundary of 95% confidence interval
+            fill([Xdata fliplr(Xdata)], [UpCI fliplr(LoCI)], Color(i,:), 'FaceAlpha', FaceAlpha, 'linestyle', 'none');
+        otherwise
+            error('The inputted Type is not recognized, please check it!')
+    end
+    
+    hold on;
+    if sscanf(version,'%f',1)*1000 >= 8400
+        H(i) = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
+    else
+        H(i) = plot(Xdata, Xbar, 'color', Color(i,:), 'linewidth', 1.5);
+    end
+    set(gca, 'Xlim', [min(Xdata) max(Xdata)], 'Tickdir', 'in');
+end
+
+legend(H, Gname, 'Orientation','horizontal','Location','northoutside');
+legend('boxoff');
 hold off;
 
 return

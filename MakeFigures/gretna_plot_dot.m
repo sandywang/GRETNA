@@ -30,6 +30,12 @@ function gretna_plot_dot(Data, Gname, Lname, Type)
 %       gretna_plot_dot({data1,data2},{'AD','HC'},{'Reg1','Reg2','Reg3'},'ci')
 %
 % Hao WANG, CCBD, HZNU, Hangzhou, 2015/11/11, hall.wong@outlook.com
+%
+% Change log:
+% 2016-11-24: Fix some bugs, reconfigure the color, plot dividing line, and
+% replace the mean line by a red dot; Modified by Hao Wang.
+% 2016-05-09: Fix some bugs for the version below Matlab R2014b and add
+% plot GUI; Modified by Sandy.
 %==========================================================================
 
 if nargin < 3
@@ -69,6 +75,12 @@ if Numgroup ~= Numgname
 if Numregion ~= Numlname
     error('The number of variables must be equal to the number of inputted variable names'); end
 
+if Numgname <= 8
+    load('gretna_plot_colorpara.mat');
+else
+    Color = distinguishable_colors(100);
+end
+
 ratio = 0.15;
 
 hold on;
@@ -77,11 +89,9 @@ switch lower(Type)
     case 'sd'
         for i = 1:Dim2
             rectangle('Position', [i-ratio, yMean(i)-yStd(i), 2*ratio, 2*yStd(i)], 'FaceColor', [0.83 0.83 0.78], 'Linestyle', 'none');
-            % rectangle('Position',[i-ratio,yMean(i)-yCI(i),2*ratio,2*yCI(i)],'FaceColor',[0.5 0.5 0.5],'Linestyle','none');
         end
     case 'sem'
         for i = 1:Dim2
-            % rectangle('Position',[i-ratio,yMean(i)-yCI(i),2*ratio,2*yCI(i)],'FaceColor',[0.5 0.5 0.5],'Linestyle','none');
             rectangle('Position', [i-ratio, yMean(i)-ySem(i), 2*ratio, 2*ySem(i)], 'FaceColor', [0.83 0.83 0.78], 'Linestyle', 'none');
         end
     case 'ci'
@@ -93,32 +103,30 @@ switch lower(Type)
 end
 
 Ch = plotSpread(Data);
-%H  = Ch{1,3}.Children; Compatibility Sandy
 H  = get(Ch{1,3}, 'Children');
-
-if Numgname < 8
-    Color = [0.078 0.631 0.678; 0.878 0.671 0.031; 0.973 0.212 0.047;...
-        0.47 0.67 0.19; 0.49 0.18 0.56; 0.8 0.8 0.8; 0.3 0.75 0.93];
-else
-    Color = distinguishable_colors(100);
-end
 
 for j = 1:Numgroup
     set(H(j:Numgroup:Dim2), 'Color', Color(Numgroup+1-j,:), 'MarkerSize', 10, 'Marker', '.', 'markerfacecolor', 'none');
 end
 
-Databar = nanmean(Data);
-Lxlim   = (1:Dim2) - ratio; Rxlim = (1:Dim2) + ratio;
-plot([Lxlim; Rxlim],[Databar; Databar], 'k-', 'linewidth', 1.5);
-set(gca, 'TickDir', 'out', 'XLim', [0.5 Dim2+0.5], 'YLim', [min(Data(:))-0.309*range(Data(:)), max(Data(:))+0.309*range(Data(:))]);  % 0.309 (0.618/2) to Visualize Better
+plot(yMean, 'Color',[1 0 0], 'LineStyle','none','MarkerSize',15,'Marker','.');
+set(gca, 'TickDir', 'in', 'XLim', [0.5 Dim2+0.5], 'YLim', [min(Data(:))-0.309*range(Data(:)), max(Data(:))+0.309*range(Data(:))]);  % 0.309 (0.618/2) to Visualize Better
+
+% line positions
+xlines = (Numgroup+0.5):Numgroup:(Dim2+0.5-Numgroup);
+hx     = zeros(size(xlines));
+
+for n  = 1:length(xlines)
+    hx(n) = line([xlines(n) xlines(n)], get(gca,'ylim'), 'Linestyle' ,'-.',...
+        'color', [0.83 0.82 0.78], 'tag', 'separator', 'LineWidth', 0.5);
+end
 
 ax = gca;
-%ax.XTick = ((1 + Numgroup)/2):Numgroup:(Dim2 - (Numgroup -(1 + Numgroup)/2));
-%ax.XTickLabel = Lname;
 set(ax, 'XTick', ((1 + Numgroup)/2):Numgroup:(Dim2 - (Numgroup -(1 + Numgroup)/2)));
 set(ax, 'XTickLabel', Lname);
 
-legend(H(Numgroup:1), Gname, 'Location', 'northeast');
+legend(H(Numgroup:1), Gname, 'Orientation','horizontal','Location','northoutside');
+legend('boxoff');
 
 hold off;
 

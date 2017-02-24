@@ -30,7 +30,14 @@ function gretna_plot_bar(Data, Gname, Lname, Type)
 %       gretna_plot_bar({data1,data2},{'AD','HC'},{'Reg1','Reg2','Reg3'},'ci')
 %
 % Hao WANG, CCBD, HZNU, Hangzhou, 2015/05/19, hall.wong@outlook.com
+%
+% Change log:
+% 2016-11-24: Make the Code more simple and reconfigure the color; Modified
+% by Hao Wang.
+% 2016-05-09: Fix some bugs for the version below Matlab R2014b and add
+% plot GUI; Modified by Sandy.
 % =========================================================================
+
 
 if nargin < 3
     error('At least three arguments are needed!'); end
@@ -77,9 +84,8 @@ yCI   = reshape(yCI, Numgroup, Numregion)';
 groupwidth = min(0.8, Numgroup/(Numgroup+1.5));
 % criteria = groupwidth/(4*Numgroup-1)*0.5;
 
-if Numgname < 8
-    Color = [0.078 0.631 0.678; 0.878 0.671 0.031; 0.973 0.212 0.047;...
-        0.47 0.67 0.19; 0.49 0.18 0.56; 0.8 0.8 0.8; 0.3 0.75 0.93];
+if Numgname <= 8
+    load('gretna_plot_colorpara.mat');
 else
     Color = distinguishable_colors(100);
 end
@@ -89,10 +95,10 @@ if Numgroup == 1
     x = 1:Numregion;
     H = bar(yMean, 'LineStyle', '-');
     set(H, 'BarWidth', 0.66, 'FaceColor', [0.49 0.49 0.49]);
-    set(gca, 'xlim', [0 Numregion+1], 'xtick', x, 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
+    set(gca, 'Xlim', [0.38 Numregion + 0.62], 'xtick', x, 'YGrid', 'off', 'box', 'off', 'TickDir', 'in');
     
     hold on;
-    %% Modified by Sandy, Show the upper or lower half error bar
+   % Modified by Sandy, Show the upper or lower half error bar
     switch lower(Type)
         case 'sd'
             %plot([x; x], [yMean - yStd yMean + yStd]', 'color', [0.49 0.49 0.49], 'LineWidth', 2);
@@ -131,8 +137,8 @@ else
         
         hold on;
         
-        for i = 1:Numgroup;
-           %% Modified by Sandy, Show the upper or lower half error bar
+        for i = 1:Numgroup
+           % Modified by Sandy, Show the upper or lower half error bar
             switch lower(Type)
                 case 'sd'
                     %plot([i; i], [yMean(:,i) - yStd(:,i);  yMean(:,i) + yStd(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
@@ -160,13 +166,13 @@ else
             plot([i; i], yErrBar',  'color', Color(i,:), 'LineWidth', 2);
         end
         
-        set(gca, 'xlim', [0 Numgroup + 1], 'xtick', median(1:Numgroup), 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
+        set(gca, 'Xlim', [0.38 Numgroup + 0.62], 'xtick', median(1:Numgroup), 'YGrid', 'off', 'box', 'off', 'TickDir', 'in');
         
     else
         
         H = bar(yMean, 'LineStyle', '-');
         hold on;
-        set(gca, 'Xlim', [0.3 Numregion + 0.7], 'xtick', 1:Numregion, 'YGrid', 'off', 'box', 'off', 'TickDir', 'out');
+        set(gca, 'Xlim', [0.38 Numregion + 0.62], 'xtick', 1:Numregion, 'YGrid', 'off', 'box', 'off', 'TickDir', 'in');
         
         for i = 1:Numgroup
             
@@ -174,19 +180,19 @@ else
             
             % Aligning error bar with individual bar (Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange)
             x = (1:Numregion) - groupwidth/2 + (2*i-1) * groupwidth / (2*Numgroup);
-           %% Modified by Sandy, Show the upper or lower half error bar 
+            % Modified by Sandy, Show the upper or lower half error bar 
             switch lower(Type)
                 case 'sd'
                     %plot([x; x], [yMean(:,i) - yStd(:,i)  yMean(:,i) + yStd(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
-                    % plot([x-criteria; x+criteria],[yMean(:,i)+yStd(:,i) yMean(:,i)+yStd(:,i)]','color',color(i,:),'LineWidth', 2);
+                    %plot([x-criteria; x+criteria],[yMean(:,i)+yStd(:,i) yMean(:,i)+yStd(:,i)]','color',color(i,:),'LineWidth', 2);
                     yErr = yStd;
                 case 'sem'
                     %plot([x; x], [yMean(:,i) - ySem(:,i)  yMean(:,i) + ySem(:,i)]', 'color', Color(i,:), 'LineWidth', 2);
-                    % plot([x-criteria; x+criteria],[yMean(:,i)+ySem(:,i) yMean(:,i)+ySem(:,i)]','color',color(i,:),'LineWidth', 2);
+                    %plot([x-criteria; x+criteria],[yMean(:,i)+ySem(:,i) yMean(:,i)+ySem(:,i)]','color',color(i,:),'LineWidth', 2);
                     yErr = ySem;
                 case 'ci'
                     %plot([x; x], [yMean(:,i) - yCI(:,i)   yMean(:,i) + yCI(:,i)]',  'color', Color(i,:), 'LineWidth', 2);
-                    % plot([x-criteria; x+criteria],[yMean(:,i)+yCI(:,i)  yMean(:,i)+yCI(:,i)]','color',color(i,:),'LineWidth', 2);
+                    %plot([x-criteria; x+criteria],[yMean(:,i)+yCI(:,i)  yMean(:,i)+yCI(:,i)]','color',color(i,:),'LineWidth', 2);
                     yErr = yCI;
                 otherwise
                     error('The inputted Type is not recognized, please check it');
@@ -213,7 +219,7 @@ ax = gca;
 %ax.XTickLabel = Lname; Modified by Sandy, Compatibility
 set(ax, 'XTickLabel', Lname);
 
-legend(H, Gname, 'Location', 'northeast');
+legend(H, Gname, 'Orientation','horizontal','Location','northoutside');
 legend('boxoff');
 
 hold off;

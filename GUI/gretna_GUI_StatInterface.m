@@ -61,7 +61,6 @@ set(handles.StatPopup, 'Value', Value);
 handles=StatType(handles);
 %handles=ClearConfigure(handles);
 handles.SampleCells={};
-handles.CovImageCells={};
 handles.CurDir=pwd;
 
 % Choose default command line output for gretna_GUI_StatInterface
@@ -103,7 +102,7 @@ BaseFlag='Off';
 switch Value
     case 1
         handles.SampleNum=1;
-        Prefix='T';
+        Prefix='T1';
         BaseFlag='On';
     case 2
         handles.SampleNum=2;
@@ -245,47 +244,6 @@ if Value==0
 end
 RemoveString(handles.CovTextListbox, Value);
 
-% --- Executes on button press in CovImageAddButton.
-function CovImageAddButton_Callback(hObject, eventdata, handles)
-% hObject    handle to CovImageAddButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-Path=uigetdir(handles.CurDir, 'Pick Covariate Images Directory');
-if isnumeric(Path)
-    return
-end
-[handles.CurDir, Name]=fileparts(Path);
-
-D=dir(fullfile(Path, '*.hdr'));
-if isempty(D)
-    D=dir(fullfile(Path, '*.nii'));
-end
-
-if isempty(D)
-    D=dir(fullfile(Path, '*.nii.gz'));
-end
-NameCell={D.name}';
-Num=numel(NameCell);
-CovImageCell=cellfun(@(Name) fullfile(Path, Name), NameCell,...
-    'UniformOutput', false);
-handles.CovImageCells{numel(handles.CovImageCells)+1}=CovImageCell;
-StringOne={sprintf('[%d] (%s) %s', Num, Name, Path)};
-AddString(handles.CovImageListbox, StringOne);
-guidata(hObject, handles);
-
-% --- Executes on button press in CovImageRemoveButton.
-function CovImageRemoveButton_Callback(hObject, eventdata, handles)
-% hObject    handle to CovImageRemoveButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-Value=get(handles.CovImageListbox, 'Value');
-if Value==0
-    return
-end
-handles.CovImageCells(Value)=[];
-RemoveString(handles.CovImageListbox, Value);
-guidata(hObject, handles);
-
 % --- Executes on button press in SampleAddButton.
 function SampleAddButton_Callback(hObject, eventdata, handles)
 % hObject    handle to SampleAddButton (see GCBO)
@@ -324,41 +282,6 @@ end
 handles.SampleCells(Value)=[];
 RemoveString(handles.SampleListbox, Value);
 guidata(hObject, handles);
-
-
-function MaskEntry_Callback(hObject, eventdata, handles)
-% hObject    handle to MaskEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of MaskEntry as text
-%        str2double(get(hObject,'String')) returns contents of MaskEntry as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function MaskEntry_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to MaskEntry (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in MaskButton.
-function MaskButton_Callback(hObject, eventdata, handles)
-% hObject    handle to MaskButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-[Name, Path]=uigetfile({'*.img;*.nii;*.nii.gz','Brain Image Files (*.img;*.nii;*.nii.gz)';'*.*', 'All Files (*.*)';},...
-    'Pick the Covariate Images');
-if isnumeric(Name)
-    return
-end
-set(handles.MaskEntry, 'String', fullfile(Path, Name));
 
 
 function OutputDirEntry_Callback(hObject, eventdata, handles)
@@ -446,8 +369,8 @@ if isempty(OutputDir)
     OutputDir=fileparts(handles.CurDir);
 end
 Prefix=get(handles.PrefixEntry, 'String');
-OutputT=fullfile(OutputDir, [Prefix, '_T.txt']);
-OutputP=fullfile(OutputDir, [Prefix, '_P.txt']);
+OutputS=fullfile(OutputDir, [Prefix, '_TVector.txt']);
+OutputP=fullfile(OutputDir, [Prefix, '_PVector.txt']);
 
 Value=get(handles.StatPopup, 'Value');
 switch Value
@@ -457,74 +380,60 @@ switch Value
             errordlg('Invalid Base Value');
             return
         end
-        [T, P]=gretna_TTest1(S, TextCell, Base);
+        [S, P]=gretna_TTest1(S, TextCell, Base);
     case 2 %Two-Sample
-        [T, P]=gretna_TTest2(S, TextCell);
+        [S, P]=gretna_TTest2(S, TextCell);
     case 3 %Paired
-        [T, P]=gretna_TTestPaired(S, TextCell);      
+        [S, P]=gretna_TTestPaired(S, TextCell);      
     case 4 %ANCOVA
-        [T, P]=gretna_ANCOVA1(S, TextCell);
-        OutputT=fullfile(OutputDir, [Prefix, '_F.txt']);
+        [S, P]=gretna_ANCOVA1(S, TextCell);
+        OutputS=fullfile(OutputDir, [Prefix, '_FVector.txt']);
     case 5 %ANCOVA Repeat
-        [T, P]=gretna_ANCOVA1_Repeated(S, TextCell);
-        OutputT=fullfile(OutputDir, [Prefix, '_F.txt']);
+        [S, P]=gretna_ANCOVA1_Repeated(S, TextCell);
+        OutputS=fullfile(OutputDir, [Prefix, '_FVector.txt']);
     case 6 %Corr
         SeedFile=get(handles.CorrSeedListbox, 'String');
         if iscell(SeedFile)
             SeedFile=SeedFile{1};
         end
         SeedSeries={load(SeedFile)};        
-        [T, P]=gretna_Correlation(S, SeedSeries, TextCell);
-        OutputT=fullfile(OutputDir, [Prefix, '_R.txt']);
+        [S, P]=gretna_Correlation(S, SeedSeries, TextCell);
+        OutputS=fullfile(OutputDir, [Prefix, '_RVector.txt']);
 end
 
-if numel(P)>1
-    NumOfMetrics=numel(P);
-    PThrd_Bonferroni=0.05/NumOfMetrics;
-    OutputPB=fullfile(OutputDir, [Prefix, '_alpha05_Bonferroni_P_Threshold.txt']);
-    save(OutputPB, 'PThrd_Bonferroni', '-ASCII', '-DOUBLE', '-TABS');
-    
-    PThrd_FDR=gretna_FDR(P, 0.05);
-    if isempty(PThrd_FDR)
-        OutputPF=fullfile(OutputDir, [Prefix, '_FDR_Correction_Failed.txt']);
-        save(OutputPF, 'PThrd_FDR', '-ASCII', '-DOUBLE', '-TABS'); 
-    else
-        OutputPF=fullfile(OutputDir, [Prefix, '_q05_FDR_P_Threshold.txt']);
-        save(OutputPF, 'PThrd_FDR', '-ASCII', '-DOUBLE', '-TABS');
-    end
+Correct=get(handles.CorrectPopup, 'Value');
+PThrd=str2double(get(handles.PEntry, 'String'));
+if isnan(PThrd)
+    errordlg('Invalid P Value');
+    return
 end
-% Correct=get(handles.CorrectPopup, 'Value');
-% PThrd=str2double(get(handles.PEntry, 'String'));
-% if isnan(PThrd)
-%     errordlg('Invalid P Value');
-%     return
-% end
-% 
-% switch Correct
-%     case 1 %None
-%         Index = P < PThrd;
-%         T(~Index)=0;
-%         %P(~Index)=0;
-%     case 2 %FDR
-%         [pID, pN]=gretna_FDR(P, PThrd);
-%         if isempty(pID)
-%             warndlg('NO Corrected P Values');
-%             %T=zeros(size(T));
-%             %P=ones(size(P));
-%             return
-%         end
-%         Index = P < pID;
-%         T(~Index)=0;
-%         %P(~Index)=0;
-%     case 3 %Bonferroni
-%         NumOfMetric=size(S{1}, 2);
-%         PThrd=PThrd/NumOfMetric;
-%         Index = P < PThrd;
-%         T(~Index)=0;
-%         %P(~Index)=0;
-% end
 
-save(OutputT, 'T', '-ASCII', '-DOUBLE', '-TABS');
+switch Correct
+    case 1 %None
+        Index=P<PThrd;
+        SThrd=min(abs(S(Index)));
+    case 2 %FDR
+        [pID, pN]=gretna_FDR(P, PThrd);
+        if isempty(pID)
+            warndlg('There is no metric left after FDR correction');
+            return
+        end
+        Index=P<pID;
+        SThrd=min(abs(S(Index)));
+        PThrd=pID;
+    case 3 %Bonferroni
+        NumOfMetric=size(S{1}, 2);
+        PThrd=PThrd/NumOfMetric;
+        Index = P < PThrd;
+        SThrd=min(abs(S(Index)));        
+end
+OutputSThrd=fullfile(OutputDir, [Prefix, '_TThrd.txt']);
+OutputPThrd=fullfile(OutputDir, [Prefix, '_PThrd.txt']);
+
+
+save(OutputSThrd, 'SThrd', '-ASCII', '-DOUBLE', '-TABS');
+save(OutputPThrd, 'PThrd', '-ASCII', '-DOUBLE', '-TABS');
+save(OutputS, 'S', '-ASCII', '-DOUBLE', '-TABS');
 save(OutputP, 'P', '-ASCII', '-DOUBLE', '-TABS');
 
 % --- Executes on button press in HelpButton.
@@ -536,35 +445,33 @@ Value=get(handles.StatPopup, 'Value');
 switch Value
     case 1
         msgbox({'One-Sample T-Test:';...
-            'Please specify the group images (Only one group)';...
-            'Base means the null hypothesis is that the group mean equals to the base value. Default: 0';...
-            'The degree of freedom information is stored in the header of the output image file.';...
+            'Please specify only one group metric file and corresponding covariate file (e.g., age, if yes).';...
+            'Base means the null hypothesis is that the group mean equals to the base value.';...
             },'Help');
     case 2
         msgbox({'Two-Sample T-Test:';...
-            'If only the group images are specified, then perform voxel-wise Two-Sample T-Test.';...
-            'If the covariate images are also specified (e.g. gray matter proportion images), then voxel-wise Two-Sample T-Test is performed while take each voxel in the covariate images as a covaraite. Please make sure the correspondence between the group images and the covariate images.';...
-            'Text covariate can be also specified as text files. (E.g. age, brain size, IQ etc.)';...
-            'The value of each voxel in the output image is a T statistic value (positive means the mean of Group 1 is greater than the mean of Group 2). The degree of freedom information is stored in the header of the output image file.';...
+            'Please specify two group metric files and corresponding covariate files (e.g., brain size, IQ etc., if yes).';...
+            'The value of each metric in the output files is a T statistic value (positive means the mean of Group 1 is greater than the mean of Group 2).';...
             },'Help');
     case 3
         msgbox({'Paired T-Test:';...
-            'Paired T-Test is performed between the two conditions. Please make sure the correspondence of the images between the two paired conditions.';...
-            'The value of each voxel in the output image is a T statistic value (positive means Condition 1 is greater than Condition 2). The degree of freedom information is stored in the header of the output image file.';...
+            'Please specify two paired group metric files and corresponding covariate files (e.g., training scores etc., if yes)';...
+            'The value of each metric in the output file is a T statistic value (positive means Condition 1 is greater than Condition 2).';...
             },'Help');        
     case 4
         msgbox({'ANOVA or ANCOVA analysis:';...
-            'If only the group images are specified, then perform voxel-wise ANOVA analysis.';...
-            'If the covariate images are also specified (e.g. gray matter proportion images), then voxel-wise ANCOVA analysis is performed while take each voxel in the covariate images as a covaraite. Please make sure the correspondence between the group images and the covariate images.';...
-            'Text covariate can be also specified as text files. (E.g. age, brain size, IQ etc.)';...
-            'The value of each voxel in the output image is an F statistic value. The degree of freedom information is stored in the header of the output image file.';...
+            'Please specify three or more group metric files and corresponding covariate files (e.g., brain size, IQ etc., if yes).';...            
+            'The value of each metric in the output file is an F statistic value.';...
             },'Help');
+    case 5
+        msgbox({'ANOVA or ANCOVA analysis (Repeated Measure):';...
+            'Please specify three or more paired group metric files and corresponding covariate files (e.g., brain size, IQ etc., if yes).';...            
+            'The value of each metric in the output file is an F statistic value.';...
+            },'Help');        
     case 6
         msgbox({'Correlation Analysis:';...
-            'If only the group images and the seed variate are specified, then perform Pearson''s correlation analysis.';...
-            'If the covariate images are also specified (e.g. gray matter proportion images), then partial correlation analysis is performed while take each voxel in the covariate images as a covaraite. Please make sure the correspondence between the group images and the covariate images.';...
-            'Text covariate can be also specified as text files. (E.g. age, brain size, IQ etc.)';...
-            'The value of each voxel in the output image is an R statistic value. The degree of freedom information is stored in the header of the output image file.';...
+            'Please specify only one group metric file, corresponding covariate file (e.g., age, if yes) and also the series correlated with group metric.';...            
+            'The value of each metric in the output image is an R statistic value.';...
             },'Help');
 end
 

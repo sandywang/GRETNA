@@ -22,7 +22,7 @@ function varargout = gretna_GUI_NetAnalysisInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_NetAnalysisInterface
 
-% Last Modified by GUIDE v2.5 16-Nov-2016 13:13:59
+% Last Modified by GUIDE v2.5 21-Feb-2017 14:49:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -985,8 +985,7 @@ function GrpIDBtn_Callback(hObject, eventdata, handles)
 % hObject    handle to GrpIDBtn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-Val=get(handles.InputList, 'Value');
-if Val==0
+if isempty(handles.InputS)
     return
 end
 InputS=handles.InputS;
@@ -1454,10 +1453,15 @@ if Mode==1
 
 elseif Mode==2
     InputS=handles.InputS;
-    TextL=cellfun(@(S) sprintf('[Group: %d] %s', S.GrpID, S.Lab),...
-        InputS, 'UniformOutput', false);
-    TextR=cellfun(@(S) sprintf('(%d - %d)', S.Size(1, 1), S.Size(1, 2)),...
-        InputS, 'UniformOutput', false);
+    if isempty(InputS)
+        TextL=[];
+        TextR=[];
+    else
+        TextL=cellfun(@(S) sprintf('[Group: %d] %s', S.GrpID, S.Lab),...
+            InputS, 'UniformOutput', false);
+        TextR=cellfun(@(S) sprintf('(%d - %d)', S.Size(1, 1), S.Size(1, 2)),...
+            InputS, 'UniformOutput', false);
+    end
 end
 
 %Check
@@ -1863,3 +1867,12 @@ handles.CurItemKey=CurItemKey;
 guidata(hObject, handles);
 set(handles.PipeOptList, 'Value', Val);
 WarningObj(handles.PipeOptList);
+
+
+% --- Executes when MainFig is resized.
+function MainFig_ResizeFcn(hObject, eventdata, handles)
+% hObject    handle to MainFig (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+UpdateInputInterface(hObject, 2);
+UpdateConfigInterface(hObject);

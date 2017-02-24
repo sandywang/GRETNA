@@ -22,7 +22,7 @@ function varargout = gretna_GUI_EdgeInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_EdgeInterface
 
-% Last Modified by GUIDE v2.5 02-Jul-2014 11:57:47
+% Last Modified by GUIDE v2.5 23-Feb-2017 17:41:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -245,46 +245,58 @@ switch Value
         CorrectLabelString='Threshold Type';
         CorrectPopupString={'Similarity threshold';'Sparsity';'LANS'};
         CorrectPupupValue=2;
+        TLFlag='Off';
+        TPFlag='Off';
+        PLFlag='Off';
+        PEFlag='Off';
         PLabelString='Threshold';
         PEntryString='0.05';
         G2Flag='Off';
         CFlag='Off';
         BFlag='Off';
-        NFlag='On';
         handles.Group2Cells={};
-    case 3 %One Sample T-test
-        CorrectLabelString='Correct Method';
-        CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
-        CorrectPupupValue=1;
-        PLabelString='Edge P';
-        PEntryString='0.05';
-        G2Flag='Off'; 
-        CFlag='On';
-        BFlag='On';
-        NFlag='Off';
-        handles.Group2Cells={};
-    case 4 %Two Sample T-test
-        CorrectLabelString='Correct Method';
-        CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
-        CorrectPupupValue=1;
-        PLabelString='Edge P';
-        PEntryString='0.05';
-        G2Flag='On';
-        CFlag='On';
-        BFlag='Off';
-        NFlag='Off';
-        handles.Group2Cells={};        
     case 2 %Backbone
         CorrectLabelString='Threshold Type';
         CorrectPopupString={'Edge Probability'};
-        CorrectPupupValue=1;  
+        CorrectPupupValue=1;
+        TLFlag='On';
+        TPFlag='On';
+        PLFlag='On';
+        PEFlag='On';        
         PLabelString='Threshold';
         PEntryString='0.25';
         G2Flag='Off';
         CFlag='Off';
         BFlag='Off';
-        NFlag='Off';
-        handles.Group2Cells={};        
+        handles.Group2Cells={};            
+    case 3 %One Sample T-test
+        CorrectLabelString='Correct Method';
+        CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
+        CorrectPupupValue=1;
+        TLFlag='On';
+        TPFlag='On';
+        PLFlag='On';
+        PEFlag='On';         
+        PLabelString='Edge P';
+        PEntryString='0.05';
+        G2Flag='Off'; 
+        CFlag='On';
+        BFlag='On';
+        handles.Group2Cells={};
+    case 4 %Two Sample T-test
+        CorrectLabelString='Correct Method';
+        CorrectPopupString={'None';'FDR';'Bonferroni';'NBS'};
+        CorrectPupupValue=1;
+        TLFlag='On';
+        TPFlag='On';
+        PLFlag='On';
+        PEFlag='On';         
+        PLabelString='Edge P';
+        PEntryString='0.05';
+        G2Flag='On';
+        CFlag='On';
+        BFlag='Off';
+        handles.Group2Cells={};            
 end
 set(handles.BaseLabel, 'Visible', BFlag);
 set(handles.BaseEntry, 'Visible', BFlag);
@@ -292,17 +304,25 @@ set(handles.Group2Button, 'Visible', G2Flag);
 set(handles.CovAddButton, 'Enable', CFlag);
 set(handles.CovRemoveButton, 'Enable', CFlag);
 set(handles.CovListbox, 'Enable', CFlag, 'String', '');
-set(handles.NetCutLabel, 'Visible', NFlag);
-set(handles.NetCutPopup, 'Visible', NFlag);
 handles.CovCells={};
-handles=GenDataListbox(handles);
 
-set(handles.CorrectLabel, 'String', CorrectLabelString);
-set(handles.CorrectPopup, 'String', CorrectPopupString, 'Value', CorrectPupupValue);
-set(handles.PLabel, 'String', PLabelString);
-set(handles.PEntry, 'String', PEntryString);
-set(handles.IterLabel, 'Visible', 'Off');
-set(handles.IterEntry, 'Visible', 'Off');
+handles.Group1Cells={};
+handles.Group2Cells={};
+set(handles.GroupListbox, 'String', '');
+%handles=GenDataListbox(handles);
+
+set(handles.CorrectLabel, 'String', CorrectLabelString, 'Visible', TLFlag);
+set(handles.CorrectPopup, 'String', CorrectPopupString, 'Visible', TPFlag,...
+    'Value', CorrectPupupValue);
+set(handles.PLabel, 'String', PLabelString, 'Visible', PLFlag);
+set(handles.PEntry, 'String', PEntryString, 'Visible', PEFlag);
+set(handles.IterLabel,  'Visible', 'Off');
+set(handles.IterEntry,  'Visible', 'Off');
+set(handles.CPLabel,    'Visible', 'Off');
+set(handles.CPEntry,    'Visible', 'Off');
+set(handles.NMskLabel,  'Visible', 'Off');
+set(handles.NMskEntry,  'Visible', 'Off', 'String', '');
+set(handles.NMskButton, 'Visible', 'Off');
 guidata(hObject, handles);
 
 % Hints: contents = cellstr(get(hObject,'String')) returns TypePopup contents as cell array
@@ -357,15 +377,12 @@ if TypeValue==1
         case 1 %Similarity threshold
             PLabelString='Threshold';
             Flag='Off';
-            NFlag='On';
         case 2 %Sparity
             PLabelString='Threshold';
             Flag='Off';
-            NFlag='On';
         case 3 %LANS
             PLabelString='Alpha';
             Flag='Off';
-            NFlag='Off';
     end
 elseif TypeValue==2
     switch Value
@@ -376,7 +393,6 @@ elseif TypeValue==2
             PLabelString='Edge P';
             Flag='Off'; 
     end
-    NFlag='Off';
 else
     switch Value
         case 1 %None
@@ -392,13 +408,15 @@ else
             PLabelString='Edge P';
             Flag='On';
     end
-    NFlag='Off';
 end
-set(handles.NetCutLabel, 'Visible', NFlag);
-set(handles.NetCutPopup, 'Visible', NFlag);
-set(handles.PLabel, 'String', PLabelString);
-set(handles.IterLabel, 'VIsible', Flag);
-set(handles.IterEntry, 'Visible', Flag);
+set(handles.PLabel,     'String',  PLabelString);
+set(handles.IterLabel,  'VIsible', Flag);
+set(handles.IterEntry,  'Visible', Flag);
+set(handles.CPLabel,    'Visible', Flag);
+set(handles.CPEntry,    'Visible', Flag);
+set(handles.NMskLabel,  'Visible', Flag);
+set(handles.NMskEntry,  'Visible', Flag);
+set(handles.NMskButton, 'Visible', Flag);
 % Hints: contents = cellstr(get(hObject,'String')) returns CorrectPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from CorrectPopup
 
@@ -486,6 +504,8 @@ if isempty(handles.Group1Cells)
     return;
 end
 
+fprintf('Computing...\n');
+
 Type=get(handles.TypePopup, 'Value');
 if Type==4
     if isempty(handles.Group2Cells)
@@ -505,7 +525,6 @@ if isempty(OutputDir)
     OutputDir=fileparts(handles.CurDir);
 end
 Prefix=get(handles.PrefixEntry, 'String');
-NetCut=get(handles.NetCutPopup, 'Value');
 switch Type
     case 1 %Average
         AllMatrix=zeros([size(MatrixGroup1{1}),numel(MatrixGroup1)]);
@@ -515,34 +534,8 @@ switch Type
             AllMatrix(:,:,i)=Matrix;
         end
         Matrix=mean(AllMatrix, 3);
-        ThresType=get(handles.CorrectPopup, 'Value');
-        ThresValue=str2double(get(handles.PEntry, 'String')); %Fixed a bug, thanks Michielse Stijn! 
-        if ThresType~=3
-            switch NetCut
-                case 1 %Origin
-                case 2 %Positive
-                    Matrix=Matrix.*(Matrix>0);
-                case 3 %Negative
-                    Matrix=Matrix.*(Matrix<0);
-                case 4 %Absolute
-                    Matrix=abs(Matrix);
-            end
-            switch ThresType
-                case 1 %r
-                    T='r';
-                case 2 %sparity
-                    T='s';
-            end
-            BMap=gretna_R2b(Matrix, T, ThresValue);
-            AMap=BMap.*Matrix;
-        else
-            BMap=gretna_LANS(Matrix, ThresValue, 'UND');
-            AMap=BMap.*Matrix;
-        end
 
-        save(fullfile(OutputDir, [Prefix, '_Avg.txt']), 'AMap', '-ASCII', '-DOUBLE', '-TABS');
-        save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
-        
+        save(fullfile(OutputDir, [Prefix, '_Avg.txt']), 'Matrix', '-ASCII', '-DOUBLE', '-TABS');        
         fprintf('\nFinished.\n');
     case 2 % Structural Backbone
         AllRawMatrix=zeros([size(MatrixGroup1{1}),numel(MatrixGroup1)]);
@@ -580,15 +573,6 @@ switch Type
         end
         [n1, n2, n3]=size(AllMatrix);
         AllMatrix=reshape(AllMatrix, [], n3);
-%         MIndex=false(n1, n2);
-%         MIndex=reshape(MIndex, [], 1);
-%         for i=1:size(AllMatrix, 1)
-%             if any(AllMatrix(i, :))
-%                 MIndex(i)=true;
-%             end
-%         end
-%         MIndex=reshape(MIndex, [n1, n2]);
-%         MIndex=triu(MIndex, 1);
         MIndex=triu(true(n1, n2), 1);
         AllMatrix=AllMatrix(MIndex(:), :);
         
@@ -603,58 +587,72 @@ switch Type
         CorrectValue=get(handles.CorrectPopup, 'Value');
         PorQ=str2double(get(handles.PEntry, 'String'));
         if CorrectValue==1 %None
-            Index=P<PorQ;
-            %P(~Index)=0;
-            T(~Index)=0;
-        elseif CorrectValue==2 %FDR
-            PThr=gretna_FDR(P, PorQ);
-            if isempty(PThr)
-                msgbox('No Edge Left'); 
+            PThrd=PorQ;
+            Index=find(P<PThrd);
+            if isempty(Index)
+                msgbox('No Edge Left');
+                fprintf('\n\tApplying Edge P: Done.\n');
                 return
             end
-            Index=P<PThr;
-            %P(~Index)=0;
-            T(~Index)=0;
+            TThrd=min(abs(T(Index)));
+            fprintf('\n\tApplying Edge P: Done.\n');                        
+        elseif CorrectValue==2 %FDR
+            PThrd=gretna_FDR(P, PorQ);
+            if isempty(PThrd)
+                msgbox('No Edge Left'); 
+                fprintf('\n\tFDR: Done.\n');
+                return
+            end
+            TThrd=min(abs(T(P<PThrd)));            
             fprintf('\n\tFDR: Done.\n');
         elseif CorrectValue==3 %Bonferroni
             N=length(P);
-            PThr=PorQ/N;
-            Index=P<PThr;
-            %P(~Index)=0;
-            T(~Index)=0;
+            PThrd=PorQ/N;
+            Index=find(P<PThrd);
+            if isempty(Index)
+                msgbox('No Edge Left\n'); 
+                fprintf('\n\Bonferroni: Done.\n');
+                return
+            end
+            TThrd=min(abs(T(Index)));            
             fprintf('\n\tBonferroni: Done.\n');
         elseif CorrectValue==4 %NBS
-            TMap=zeros(n1*n2, 1);
+            PThrd=PorQ;
+            Index=find(P<PThrd);
+            if isempty(Index)
+                msgbox('No Edge Left'); 
+                fprintf('\n\Applying Edge P: Done.\n');
+                return
+            end            
+            TThrd=min(abs(T(Index)));
+            CPThrd=str2num(get(handles.CPEntry, 'String'));
+            
+            % NBS
+            NMskName=get(handles.NMskEntry, 'String');
+            if isempty(NMskName)
+                NMsk=true(n1, n2);
+            else
+                NMsk=load(NMskName);
+            end
             PMap=zeros(n1*n2, 1);
-            TMap(MIndex(:))=T;
             PMap(MIndex(:))=P;
-            TMap=reshape(TMap, [n1, n2]);
             PMap=reshape(PMap, [n1, n2]);
-            TMap=TMap+TMap';
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix,...
-                MIndex, CovCells, Base, PorQ, 0.05, TMap, PMap, M);
+            [Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix,...
+                NMsk, CovCells, Base, PThrd, CPThrd, PMap, M);
+            if isempty(Comnet)
+                msgbox(sprintf('No Comnet Left under Edge P<%f, Comnet P < %f', PThrd, CPThrd));
+            else
+                save(fullfile(OutputDir, [Prefix, '_ComnetMat.mat']), 'Comnet', 'Comnet_P');
+                save(fullfile(OutputDir, [Prefix, '_ComnetP.txt']),  'Comnet_P', '-ASCII',  '-DOUBLE', '-TABS');
+                for c=1:numel(Comnet)
+                    comnet=Comnet{c};
+                    save(fullfile(OutputDir, sprintf('%s_Comnet%.2d.txt', Prefix, c)),  'comnet', '-ASCII',  '-DOUBLE', '-TABS');
+                end
+            end
             fprintf('\n\tNBS: Done.\n');
-%             switch NetCut
-%                 case 1 %Origin
-%                 case 2 %Positive
-%                     TMap=TMap.*(TMap>0);
-%                 case 3 %Negative
-%                     TMap=TMap.*(TMap<0);
-%                 case 4 %Absolute
-%                     TMap=abs(TMap);
-%             end
-                    
-            BMap=logical(TMap);
-            BMap=double(BMap);
-            
-            save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
-            save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
-            save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
-            save(fullfile(OutputDir, [Prefix, '_Comnet.mat']), 'Comnet', 'Comnet_P');
-            return
         end
         TMap=zeros(n1*n2, 1);
         PMap=zeros(n1*n2, 1);
@@ -664,22 +662,11 @@ switch Type
         PMap=reshape(PMap, [n1, n2]);
         TMap=TMap+TMap';
         PMap=PMap+PMap';
-        switch NetCut
-            case 1 %Origin
-            case 2 %Positive
-                TMap=TMap.*(TMap>0);
-            case 3 %Negative
-                TMap=TMap.*(TMap<0);
-            case 4 %Absolute
-                TMap=abs(TMap);
-        end
                     
-        BMap=logical(TMap);
-        BMap=double(BMap);
-        save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
-        save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
-        save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
-        
+        save(fullfile(OutputDir, [Prefix, '_TNet.txt']),  'TMap', '-ASCII', '-DOUBLE', '-TABS');
+        save(fullfile(OutputDir, [Prefix, '_PNet.txt']),  'PMap', '-ASCII', '-DOUBLE', '-TABS');        
+        save(fullfile(OutputDir, [Prefix, '_TThrd.txt']), 'TThrd', '-ASCII', '-DOUBLE', '-TABS');
+        save(fullfile(OutputDir, [Prefix, '_PThrd.txt']), 'PThrd', '-ASCII', '-DOUBLE', '-TABS');        
         fprintf('\nFinished.\n');
     case 4 %Two Sample T-test
         [MatrixGroup2, AliasList2]=GetGroupData(handles.Group2Cells);
@@ -724,56 +711,72 @@ switch Type
         CorrectValue=get(handles.CorrectPopup, 'Value');
         PorQ=str2double(get(handles.PEntry, 'String'));
         if CorrectValue==1 %None
-            Index=P<PorQ;
-            %P(~Index)=0;
-            T(~Index)=0;
-        elseif CorrectValue==2 %FDR
-            PThr=gretna_FDR(P, PorQ);
-            if isempty(PThr)
-                msgbox('No Edge Left'); 
+            PThrd=PorQ;
+            Index=find(P<PThrd);
+            if isempty(Index)
+                msgbox('No Edge Left');
+                fprintf('\n\tApplying Edge P: Done.\n');
                 return
             end
-            Index=P<PThr;
-            %P(~Index)=0;
-            T(~Index)=0;
+            TThrd=min(abs(T(Index)));
+            fprintf('\n\tApplying Edge P: Done.\n');            
+        elseif CorrectValue==2 %FDR
+            PThrd=gretna_FDR(P, PorQ);
+            if isempty(PThrd)
+                msgbox('No Edge Left'); 
+                fprintf('\n\tFDR: Done.\n');
+                return
+            end
+            TThrd=min(abs(T(P<PThrd)));            
             fprintf('\n\tFDR: Done.\n');
         elseif CorrectValue==3 %Bonferroni
             N=length(P);
-            PThr=PorQ/N;
-            Index=P<PThr;
-            %P(~Index)=0;
-            T(~Index)=0;
+            PThrd=PorQ/N;
+            Index=find(P<PThrd);
+            if isempty(Index)
+                msgbox('No Edge Left\n'); 
+                fprintf('\n\Bonferroni: Done.\n');
+                return
+            end
+            TThrd=min(abs(T(Index)));            
             fprintf('\n\tBonferroni: Done.\n');
         elseif CorrectValue==4 %NBS
-            TMap=zeros(n11*n12, 1);
+            PThrd=PorQ;
+            Index=find(P<PThrd);
+            if isempty(Index)
+                msgbox('No Edge Left'); 
+                fprintf('\n\tApplying Edge P: Done.\n');
+                return
+            end            
+            TThrd=min(abs(T(Index)));
+            CPThrd=str2num(get(handles.CPEntry, 'String'));
+            
+            % NBS
+            NMskName=get(handles.NMskEntry, 'String');
+            if isempty(NMskName)
+                NMsk=true(n11, n12);
+            else
+                NMsk=load(NMskName);
+            end
             PMap=zeros(n11*n12, 1);
-            TMap(MIndex(:))=T;
             PMap(MIndex(:))=P;
-            TMap=reshape(TMap, [n11, n12]);
             PMap=reshape(PMap, [n11, n12]);
-            TMap=TMap+TMap';
             PMap=PMap+PMap';
             M=str2double(get(handles.IterEntry, 'String'));
             
-            [TMap, PMap, Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, PorQ, 0.05, TMap, PMap, M);
-            fprintf('\n\tNBS: Done.\n');
-%             switch NetCut
-%                 case 1 %Origin
-%                 case 2 %Positive
-%                     TMap=TMap.*(TMap>0);
-%                 case 3 %Negative
-%                     TMap=TMap.*(TMap<0);
-%                 case 4 %Absolute
-%                     TMap=abs(TMap);
-%             end
-            BMap=logical(TMap);
-            BMap=double(BMap);
-            
-            save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
-            save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
-            save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS');
-            save(fullfile(OutputDir, [Prefix, '_Comnet.mat']), 'Comnet', 'Comnet_P');
-            return
+            [Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix,...
+                NMsk, CovCells, PThrd, CPThrd, PMap, M);
+            if isempty(Comnet)
+                msgbox(sprintf('No Comnet Left under Edge P < %g, Comnet P < %g', PThrd, CPThrd));
+            else
+                save(fullfile(OutputDir, [Prefix, '_ComnetMat.mat']), 'Comnet', 'Comnet_P');
+                save(fullfile(OutputDir, [Prefix, '_ComnetP.txt']),  'Comnet_P', '-ASCII',  '-DOUBLE', '-TABS');
+                for c=1:numel(Comnet)
+                    comnet=Comnet{c};
+                    save(fullfile(OutputDir, sprintf('%s_Comnet%.2d', Prefix, c)),  'comnet', '-ASCII',  '-DOUBLE', '-TABS');
+                end
+            end
+            fprintf('\n\tNBS: Done.\n'); 
         end
         TMap=zeros(n11*n12, 1);
         PMap=zeros(n11*n12, 1);
@@ -783,21 +786,11 @@ switch Type
         PMap=reshape(PMap, [n11, n12]);
         TMap=TMap+TMap';
         PMap=PMap+PMap';
-        switch NetCut
-            case 1 %Origin
-            case 2 %Positive
-                TMap=TMap.*(TMap>0);
-            case 3 %Negative
-                TMap=TMap.*(TMap<0);
-            case 4 %Absolute
-                TMap=abs(TMap);
-        end
-                    
-        BMap=logical(TMap);
-        BMap=double(BMap);
-        save(fullfile(OutputDir, [Prefix, '_T.txt']), 'TMap', '-ASCII', '-DOUBLE', '-TABS');
-        save(fullfile(OutputDir, [Prefix, '_P.txt']), 'PMap', '-ASCII', '-DOUBLE', '-TABS');
-        save(fullfile(OutputDir, [Prefix, '_B.txt']), 'BMap', '-ASCII', '-DOUBLE', '-TABS'); 
+   
+        save(fullfile(OutputDir, [Prefix, '_TNet.txt']),  'TMap', '-ASCII',  '-DOUBLE', '-TABS');
+        save(fullfile(OutputDir, [Prefix, '_PNet.txt']),  'PMap', '-ASCII',  '-DOUBLE', '-TABS');        
+        save(fullfile(OutputDir, [Prefix, '_TThrd.txt']), 'TThrd', '-ASCII', '-DOUBLE', '-TABS');
+        save(fullfile(OutputDir, [Prefix, '_PThrd.txt']), 'PThrd', '-ASCII', '-DOUBLE', '-TABS'); 
         fprintf('\nFinished.\n');
 end
 
@@ -933,6 +926,7 @@ function handles=GenDataListbox(handles)
     end
     
     set(handles.GroupListbox , 'String' , present_list, 'Value', Value);
+    drawnow;
 
 
 % --- Executes on selection change in NetCutPopup.
@@ -1077,3 +1071,64 @@ function BaseEntry_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function CPEntry_Callback(hObject, eventdata, handles)
+% hObject    handle to CPEntry (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of CPEntry as text
+%        str2double(get(hObject,'String')) returns contents of CPEntry as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function CPEntry_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to CPEntry (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function NMskEntry_Callback(hObject, eventdata, handles)
+% hObject    handle to NMskEntry (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of NMskEntry as text
+%        str2double(get(hObject,'String')) returns contents of NMskEntry as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function NMskEntry_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to NMskEntry (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in NMskButton.
+function NMskButton_Callback(hObject, eventdata, handles)
+% hObject    handle to NMskButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[Name, Path]=uigetfile({'*.txt;*.csv;*.tsv','Text Covariates File (*.txt;*.csv;*.tsv)';'*.*', 'All Files (*.*)';},...
+    'Pick the Text Covariates');
+if isnumeric(Name)
+    return
+end
+
+FullPath=fullfile(Path, Name);
+set(handles.NMskEntry, 'String', FullPath);

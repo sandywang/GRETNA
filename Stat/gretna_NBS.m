@@ -171,7 +171,7 @@ if sum(Mat_suprathres(:))/2 > 2
     end
     
     for i = 1:N_com
-        P_com(i) = length(find(max_NumofEdge_rand > NumofEdge_real(i)))/M;
+        P_com(i)=(1+length(find(max_NumofEdge_rand >= NumofEdge_real(i))))/(1+M);
     end
     
 else

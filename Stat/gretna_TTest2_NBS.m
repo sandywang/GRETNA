@@ -1,9 +1,12 @@
-function [TMap, PMap, Comnet, P_com, NumofEdge_real, max_NumofEdge_rand] = gretna_TTest2_NBS(GroupMatrix, MIndex, CovCells, PThr, PThr_Comp, TMap, PMap, M)
+function [Comnet, P_com, NumofEdge_real, max_NumofEdge_rand] = gretna_TTest2_NBS(GroupMatrix, NMsk, CovCells, PThr, PThr_Comp, PMap, M)
 % Reference
 % 1.Zalesky et al. (2010): Network-based statistic: Identifying differences
 %   in brain networks. Neuroimage.
 %
-% Xindi WANG, NKLCNL, BNU, BeiJing, 2014/07/02, sandywang.rest@gmail.com
+% Written by Xindi WANG
+% State Key Laboratory of Cognitive Neuroscience and Learning & IDG/McGovern 
+% Institute for Brain Research, Beijing Normal University, Beijing, China
+% sandywang.rest@gmail.com
 %==========================================================================
 I=PMap < PThr;
 N=size(I, 1);    
@@ -34,8 +37,10 @@ NumOfSample1=size(GroupMatrix{1}, 1);
 NumOfSample2=size(GroupMatrix{2}, 1);
 RandMat=cat(1, GroupMatrix{1}, GroupMatrix{2});
 max_NumofEdge_rand = zeros(M,1);
-    
-for num = 1:M
+
+MIndex=triu(true(N), 1);
+MIndex=MIndex(:);
+parfor num = 1:M
     fprintf('NBS-->Iteration: %d\n', num);
     RandIndex = randperm(NumOfSample1+NumOfSample2);
     RandGroup=cell(2, 1);
@@ -51,10 +56,11 @@ for num = 1:M
     PMap_rand=reshape(PMap_rand, [N, N]);
     %TMap_rand=TMap_rand+TMap_rand';
     PMap_rand=PMap_rand+PMap_rand';
+    PMap_rand=PMap_rand.*logical(NMsk);    
     PMap_rand=PMap_rand < PThr;
     
     [ci_rand, sizes_rand] = components(sparse(PMap_rand));
-    NumofEdge_rand = zeros(length(sizes_rand),1);
+    NumofEdge_rand = zeros(length(sizes_rand), 1);
         
     for j = 1:length(sizes_rand)
         index_subn = find(ci_rand == j);
@@ -69,15 +75,14 @@ for num = 1:M
 end
     
 for i = 1:N_com
-    P_com(i) = length(find(max_NumofEdge_rand > NumofEdge_real(i)))/M;
+    P_com(i)=(1+length(find(max_NumofEdge_rand >= NumofEdge_real(i))))/(1+M);
 end
 
-Net=zeros(N);
+RmInd=true(N_com, 1);
 for i = 1:N_com
     if P_com(i)<PThr_Comp
-        Net=Net+Comnet{i};
+        RmInd(i)=false;
     end
 end
-Net=logical(Net);
-%PMap(~Net)=0;
-TMap(~Net)=0;
+Comnet(RmInd)=[];
+P_com(RmInd)=[];

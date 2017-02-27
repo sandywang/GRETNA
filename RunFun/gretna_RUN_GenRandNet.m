@@ -33,18 +33,42 @@ RType='1';
 Rand=cell(RandNum, 1);
 if NType==1
     if strcmpi(RType, '1')
-        Rand=cellfun(@(r) gretna_gen_random_network1(A), Rand,...
+        Rand=cellfun(@(r) GenBRandNet1(A), Rand,...
             'UniformOutput', false);
     elseif strcmpi(RType, '2')
-        Rand=cellfun(@(r) gretna_gen_random_network2(A), Rand,...
+        Rand=cellfun(@(r) GenBRandNet2(A), Rand,...
             'UniformOutput', false);
     end
 elseif NType==2
     if strcmpi(RType, '1')
-        Rand=cellfun(@(r) gretna_gen_random_network1_weight(A), Rand,...
+        Rand=cellfun(@(r) GenWRandNet1(A), Rand,...
             'UniformOutput', false);
     elseif strcmpi(RType, '2')
-        Rand=cellfun(@(r) gretna_gen_random_network2_weight(A), Rand,...
+        Rand=cellfun(@(r) GenWRandNet2(A), Rand,...
             'UniformOutput', false);
     end
+end
+
+function RandNet=GenBRandNet1(RealNet)
+RandNet=gretna_gen_random_network1(RealNet);
+if size(RandNet, 1)>500
+    RandNet=sparse(RandNet);
+end
+
+function RandNet=GenBRandNet2(RealNet)
+RandNet=gretna_gen_random_network2(RealNet);
+if size(RandNet, 1)>500
+    RandNet=sparse(RandNet);
+end
+
+function RandNet=GenWRandNet1(RealNet)
+RandNet=gretna_gen_random_network1_weight(RealNet);
+if size(RandNet, 1)>500
+    RandNet=sparse(RandNet);
+end
+
+function RandNet=GenWRandNet2(RealNet)
+RandNet=gretna_gen_random_network2_weight(RealNet);
+if size(RandNet, 1)>500
+    RandNet=sparse(RandNet);
 end

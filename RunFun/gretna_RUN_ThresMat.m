@@ -42,7 +42,7 @@ end
 A=arrayfun(@(t) logical(gretna_R2b(Mat, TType, t)), Thres,...
     'UniformOutput', false);
 if NType==2
-    A=cellfun(@(bin) bin.*single(Mat), A, 'UniformOutput', false);
+    A=cellfun(@(bin) bin.*Mat, A, 'UniformOutput', false);
 end
 A=cellfun(@(a) a, A, 'UniformOutput', false);
 

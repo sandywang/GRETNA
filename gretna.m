@@ -22,7 +22,7 @@ function varargout = gretna(varargin)
 
 % Edit the above text to modify the response to help gretna
 
-% Last Modified by GUIDE v2.5 21-Feb-2017 16:30:50
+% Last Modified by GUIDE v2.5 27-Feb-2017 22:55:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -124,3 +124,4 @@ function GannmBtn_Callback(hObject, eventdata, handles)
 % hObject    handle to GannmBtn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+gretna_GUI_GannmInterface;

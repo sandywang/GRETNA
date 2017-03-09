@@ -69,7 +69,7 @@ if ~isempty(Rand)
     Lambda=Lp./mean(Lprand);
     Sigma=Gamma./Lambda;
     save(OutputFile, 'Gamma', 'Lambda', 'Sigma', '-append');
-    if AUCInterval>1
+    if AUCInterval>0
         deltas=AUCInterval;
         aGamma=(sum(Gamma)-sum(Gamma([1 end]))/2)*deltas;
         aLambda=(sum(Lambda)-sum(Lambda([1 end]))/2)*deltas;

@@ -36,8 +36,8 @@ end
 
 function Ne=NodalEfficiency(Matrix, NType)
 if NType==1
-    [avgNe, Ne]=gretna_node_betweenness(Matrix);
+    [avgNe, Ne]=gretna_node_global_efficiency(Matrix);
 elseif NType==2
-    [avgNe, Ne]=gretna_node_betweenness_weight(Matrix);
+    [avgNe, Ne]=gretna_node_global_efficiency_weight(Matrix);
 end
 Ne=Ne';

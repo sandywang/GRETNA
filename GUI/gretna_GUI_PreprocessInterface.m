@@ -1929,6 +1929,26 @@ if ~isempty(D)
     return
 end
 
+D=dir(fullfile(Path, [Prefix, '.DCM'])); % DCM
+if ~isempty(D)
+    C={D.name}';
+    S.Num=numel(C);
+    S.FileList={fullfile(Path, C{1})};
+    S.Alias='DCM';
+    S.Lab=SPath;
+    return
+end
+
+D=dir(fullfile(Path, [Prefix, '*.ima'])); % DCM
+if ~isempty(D)
+    C={D.name}';
+    S.Num=numel(C);
+    S.FileList={fullfile(Path, C{1})};
+    S.Alias='IMA';
+    S.Lab=SPath;
+    return
+end
+
 D=dir(fullfile(Path, [Prefix, '*.IMA'])); % DCM
 if ~isempty(D)
     C={D.name}';
@@ -1941,8 +1961,8 @@ end
 
 D=dir(fullfile(Path, Prefix)); % Unknown
 Ind=cellfun(...
-    @(IsDir, NotDot) IsDir && (~strcmpi(NotDot, '.') && ~strcmpi(NotDot, '..') && ~strcmpi(NotDot, '.DS_Store')),...
-    {D.isdir}, {D.name});
+    @(IsDir, IsDot) ~IsDir && (~strcmpi(IsDot, '.') && ~strcmpi(IsDot, '..') && ~strcmpi(IsDot, '.DS_Store')),...
+    {D.isdir}', {D.name}');
 D=D(Ind);
 if ~isempty(D)
     C={D.name}';

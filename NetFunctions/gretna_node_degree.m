@@ -22,6 +22,7 @@ function [averk ki] = gretna_node_degree(A)
 
 A = abs(A);
 A = A - diag(diag(A));
+A = logical(A);
 
 ki = sum(A);
 averk = mean(ki);

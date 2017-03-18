@@ -1,12 +1,11 @@
 function [ANCOVA_F, ANCOVA_P] = gretna_ANCOVA1_Repeated(DependentFiles, Covariates)
-% TTest1_T = gretna_TTest1(DependentDirs, OutputName, OtherCovariates, Base)
-% Perform two sample t test.
+% Perform One-Way ANCOVA/ANOVA (Repeated Measured)
 % Input:
 %   DependentFiles - the metric file of dependent variable. 1 by 1 cell
 %   OutputName - the output name.
 %   Covariates - The other covariates. 1 by 1 cell 
 % Output:
-%   TTest1_T - the T value, also write image file out indicated by OutputName
+%   ANCOVA_F - the F value, also write image file out indicated by OutputName
 %___________________________________________________________________________
 % Written by Wang Xindi 140615.
 % State Key Laboratory of Cognitive Neuroscience and Learning, Beijing Normal University, China

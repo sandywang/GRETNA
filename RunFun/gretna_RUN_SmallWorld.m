@@ -74,7 +74,7 @@ if ~isempty(Rand)
         aGamma=(sum(Gamma)-sum(Gamma([1 end]))/2)*deltas;
         aLambda=(sum(Lambda)-sum(Lambda([1 end]))/2)*deltas;
         aSigma=(sum(Sigma)-sum(Sigma([1 end]))/2)*deltas;
-        save(SWMat, 'aGamma', 'aLambda', 'aSigma', '-append');
+        save(OutputFile, 'aGamma', 'aLambda', 'aSigma', '-append');
     end
 end
 

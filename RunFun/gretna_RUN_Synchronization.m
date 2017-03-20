@@ -1,4 +1,4 @@
-function gretna_RUN_Synchronization(InputFile, RandNetFile, OutputFile, NType)
+function gretna_RUN_Synchronization(InputFile, RandNetFile, OutputFile, NType, AUCInterval)
 %-------------------------------------------------------------------------%
 %   RUN Global - Synchronization
 %   Input:
@@ -8,6 +8,7 @@ function gretna_RUN_Synchronization(InputFile, RandNetFile, OutputFile, NType)
 %   NType       - The type of network
 %                 1: Binary
 %                 2: Weighted
+%   AUCInterval - The interval to estimate AUC, 0 if just one threshold
 %-------------------------------------------------------------------------%
 %   Written by Sandy Wang (sandywang.rest@gmail.com) 20161013.
 %   Copyright (C) 2013-2016
@@ -35,12 +36,23 @@ if exist(SPath, 'dir')~=7
 end
 save(OutputFile, 's');
 
+if AUCInterval>0
+    deltas=AUCInterval;
+    as= (sum(s)-sum(s([1 end]))/2)*deltas;
+    save(OutputFile, 'as', '-append');
+end
+
 if ~isempty(Rand)
     srand=cellfun(@(rn) RandSynchronization(rn, NType), Rand,...
         'UniformOutput', false);
     szscore=(s-cell2mat(cellfun(@(m) Mean(m), srand, 'UniformOutput', false)))...
         ./cell2mat(cellfun(@(m) Std(m), srand, 'UniformOutput', false));
     save(OutputFile, 'szscore', '-append');
+    if AUCInterval>0
+        deltas=AUCInterval;
+        aszscore= (sum(szscore)-sum(szscore([1 end]))/2)*deltas;
+        save(OutputFile, 'aszscore', '-append');
+    end    
 end
 
 function s=Synchronization(Matrix, NType)

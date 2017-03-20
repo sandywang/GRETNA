@@ -1,4 +1,4 @@
-function gretna_RUN_Assortativity(InputFile, RandNetFile, OutputFile, NType)
+function gretna_RUN_Assortativity(InputFile, RandNetFile, OutputFile, NType, AUCInterval)
 %-------------------------------------------------------------------------%
 %   RUN Global - Assortativity
 %   Input:
@@ -8,6 +8,7 @@ function gretna_RUN_Assortativity(InputFile, RandNetFile, OutputFile, NType)
 %   NType       - The type of network
 %                 1: Binary
 %                 2: Weighted
+%   AUCInterval - The interval to estimate AUC, 0 if just one threshold
 %-------------------------------------------------------------------------%
 %   Written by Sandy Wang (sandywang.rest@gmail.com) 20161013.
 %   Copyright (C) 2013-2016
@@ -34,6 +35,11 @@ if exist(SPath, 'dir')~=7
     mkdir(SPath);
 end
 save(OutputFile, 'r');
+if AUCInterval>0
+    deltas=AUCInterval;
+    ar= (sum(r)-sum(r([1 end]))/2)*deltas;
+    save(OutputFile, 'ar', '-append');
+end
 
 if ~isempty(Rand)
     rrand=cellfun(@(rn) RandAssortativity(rn, NType), Rand,...
@@ -41,6 +47,11 @@ if ~isempty(Rand)
     rzscore=(r-cell2mat(cellfun(@(m) Mean(m), rrand, 'UniformOutput', false)))...
         ./cell2mat(cellfun(@(m) Std(m), rrand, 'UniformOutput', false));
     save(OutputFile, 'rzscore', '-append');
+    if AUCInterval>0
+        deltas=AUCInterval;
+        arzscore= (sum(rzscore)-sum(rzscore([1 end]))/2)*deltas;
+        save(OutputFile, 'arzscore', '-append');
+    end
 end
 
 function r=Assortativity(Matrix, NType)

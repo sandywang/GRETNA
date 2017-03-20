@@ -1,4 +1,4 @@
-function Process=gretna_GEN_Assortativity(InputFile, RandNetFile, OutputFile, NType)
+function Process=gretna_GEN_Assortativity(InputFile, RandNetFile, OutputFile, NType, AUCInterval)
 %-------------------------------------------------------------------------%
 %   Generate psom-used struct for Global - Assortativity
 %   Input:
@@ -8,6 +8,7 @@ function Process=gretna_GEN_Assortativity(InputFile, RandNetFile, OutputFile, NT
 %   NType       - The type of network
 %                 1: Binary
 %                 2: Weighted
+%   AUCInterval - The interval to estimate AUC, 0 if just one threshold
 %
 %   Output:
 %   Process     - The output process structure used by psom
@@ -19,12 +20,13 @@ function Process=gretna_GEN_Assortativity(InputFile, RandNetFile, OutputFile, NT
 %   Beijing Normal University,
 %   Beijing, PR China.
 
-Process.command='gretna_RUN_Assortativity(opt.InputFile, opt.RandNetFile, opt.OutputFile, opt.NType)';
+Process.command='gretna_RUN_Assortativity(opt.InputFile, opt.RandNetFile, opt.OutputFile, opt.NType, opt.AUCInterval)';
 % Option 
 Process.opt.InputFile=InputFile;
 Process.opt.RandNetFile=RandNetFile;
 Process.opt.OutputFile=OutputFile;
 Process.opt.NType=NType;
+Process.opt.AUCInterval=AUCInterval;
 
 % Output Directory
 % Input Files

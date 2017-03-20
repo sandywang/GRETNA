@@ -1,4 +1,4 @@
-function gretna_RUN_Hierarchy(InputFile, RandNetFile, OutputFile, NType)
+function gretna_RUN_Hierarchy(InputFile, RandNetFile, OutputFile, NType, AUCInterval)
 %-------------------------------------------------------------------------%
 %   RUN Global - Hierarchy
 %   Input:
@@ -8,6 +8,7 @@ function gretna_RUN_Hierarchy(InputFile, RandNetFile, OutputFile, NType)
 %   NType       - The type of network
 %                 1: Binary
 %                 2: Weighted
+%   AUCInterval - The interval to estimate AUC, 0 if just one threshold
 %-------------------------------------------------------------------------%
 %   Written by Sandy Wang (sandywang.rest@gmail.com) 20161013.
 %   Copyright (C) 2013-2016
@@ -35,12 +36,24 @@ if exist(SPath, 'dir')~=7
 end
 save(OutputFile, 'b');
 
+if AUCInterval>0
+    deltas=AUCInterval;
+    ab= (sum(b)-sum(b([1 end]))/2)*deltas;
+    save(OutputFile, 'ab', '-append');
+end
+
 if ~isempty(Rand)
     brand=cellfun(@(rn) RandHierarchy(rn, NType), Rand,...
         'UniformOutput', false);
     bzscore=(b-cell2mat(cellfun(@(m) Mean(m), brand, 'UniformOutput', false)))...
         ./cell2mat(cellfun(@(m) Std(m), brand, 'UniformOutput', false));
     save(OutputFile, 'bzscore', '-append');
+    
+    if AUCInterval>0
+        deltas=AUCInterval;
+        abzscore= (sum(bzscore)-sum(bzscore([1 end]))/2)*deltas;
+        save(OutputFile, 'abzscore', '-append');
+    end    
 end
 
 function b=Hierarchy(Matrix, NType)

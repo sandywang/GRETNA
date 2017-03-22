@@ -67,7 +67,7 @@ handles.Para.NetSign={1,...
     'Absolute'}};
 handles.Para.ThresType={1,...
     {'Network Sparsity';...
-    'Similarity Threshold'}};
+    'Value of Matrix Element'}};
 handles.Para.Thres={0.05:0.05:0.5};
 handles.Para.NetType={1,...
     {'Binary';...
@@ -107,12 +107,13 @@ handles.Para.DDPcFlag={1,...
 %     'Nodal - Participant Coefficient', 8};
 % Init Postprocess Procedures
 handles.NodalModeCell={...
-    'Nodal - Community Index',         1;...
-    'Nodal - Participant Coefficient', 2;...
-    'Modular - Interaction',           3;...
-    'Nodal - Degree Centrality',       4;...
-    'Nodal - Betweenness Centrality',  5;...
-    'Nodal - Efficiency',              6};
+
+    'Nodal - Degree Centrality',       1;...
+    'Nodal - Betweenness Centrality',  2;...
+    'Nodal - Efficiency',              3;...
+    'Nodal - Community Index',         4;...
+    'Nodal - Participant Coefficient', 5;...
+    'Modular - Interaction',           6};
 
 handles.Para.CIndex={'<-X'};
 % Init Mode List Index
@@ -1263,13 +1264,13 @@ end
 NameStr=[NameStr; {'Network Configuration'}];
 DataStr=[DataStr; {''}];
 
-NameStr=[NameStr; {' . Identify How to Manipulate the Sign of Matrix'}];
+NameStr=[NameStr; {' . Sign of Matrix'}];
 DataStr=[DataStr; {''}];    
 [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.NetSign, ' . . Sign:  ');
 NameStr=[NameStr; tmp_name_str];
 DataStr=[DataStr; tmp_data_str];
     
-NameStr=[NameStr; {' . Identify the Method to Thresholding'}];
+NameStr=[NameStr; {' . Thresholding Method'}];
 DataStr=[DataStr; {''}];     
 [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.ThresType, ' . . Method:  ');
 NameStr=[NameStr; tmp_name_str];
@@ -1284,13 +1285,13 @@ else
 end
 DataStr=[DataStr; {tmp_data_str}]; 
 
-NameStr=[NameStr; {' . Identify Network Type'}];
+NameStr=[NameStr; {' . Network Type'}];
 DataStr=[DataStr; {''}];    
 [tmp_name_str, tmp_data_str]=GenOptionalStr(Para.NetType, ' . . Type:  ');
 NameStr=[NameStr; tmp_name_str];
 DataStr=[DataStr; tmp_data_str]; 
 if any(~cellfun(@isempty, strfind(Str, 'Global -')))
-    NameStr=[NameStr; {' . Generate Random Networks'}];
+    NameStr=[NameStr; {' . Random Network Generation'}];
     DataStr=[DataStr; {''}]; 
     NameStr=[NameStr; {' . . Random Network Number:  '}];  
     DataStr=[DataStr; {num2str(Para.RandNum{1})}]; 

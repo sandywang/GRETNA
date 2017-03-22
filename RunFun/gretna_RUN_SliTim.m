@@ -61,7 +61,7 @@ switch RInd
         error('Error: Reference Slice Index')
 end
 
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_Slicetiming.mat');
 SpmJob=load(JM);
 SpmJob.matlabbatch{1, 1}.spm.temporal.st.scans{1}=InputCell;

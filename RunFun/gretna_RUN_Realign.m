@@ -29,7 +29,7 @@ else
     InputCell=InputFile;    
 end
 
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_Realignment.mat');
 SpmJob=load(JM);
 SpmJob.matlabbatch{1, 1}.spm.spatial.realign.estwrite.data{1}=InputCell;

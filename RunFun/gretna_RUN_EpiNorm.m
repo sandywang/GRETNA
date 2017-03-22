@@ -26,7 +26,7 @@ else
     InputCell=InputFile;    
 end
 
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_EPINormalization.mat');
 SpmJob=load(JM);
 SpmJob.matlabbatch{1, 1}.spm.spatial.normalise.estwrite.subj.resample=InputCell;

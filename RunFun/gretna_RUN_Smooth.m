@@ -21,7 +21,7 @@ else
     InputCell=InputFile;    
 end
 
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_Smooth.mat');
 SpmJob=load(JM);
 SpmJob.matlabbatch{1, 1}.spm.spatial.smooth.data=InputCell;

@@ -22,7 +22,7 @@ FstFile=InputFile{1};
 [Path, Name, Ext]=fileparts(FstFile);
 
 % Coregister
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_Coregister.mat');
 SpmJob=load(JM);
 SpmJob.matlabbatch{1, 1}.spm.spatial.coreg.estimate.source = InputT1File;

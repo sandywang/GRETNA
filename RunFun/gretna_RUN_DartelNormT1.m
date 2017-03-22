@@ -15,7 +15,7 @@ function gretna_RUN_DartelNormT1(RC1FileList, RC2FileList, C1FileList, C2FileLis
 %   Beijing Normal University,
 %   Beijing, PR China.
 
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 % Create Template
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_DartelCreateTpm.mat');
 SpmJob=load(JM);

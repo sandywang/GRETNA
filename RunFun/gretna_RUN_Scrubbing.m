@@ -61,7 +61,9 @@ FDInd=find(FDMsk);
 SPFile=fullfile(Path, 'ScrubbingPerctage.txt');
 ScrubPerc=length(find(FDMsk))/TP;
 save(SPFile, 'ScrubPerc', '-ASCII', '-DOUBLE','-TABS');
-
+SMFile=fullfile(Path, 'ScrubbingMask.txt');
+FDMsk_Double=double(FDMsk);
+save(SMFile, 'FDMsk_Double', '-ASCII', '-DOUBLE','-TABS');
 % Cal
 if InterInd==1 || isempty(FDInd) % Remove OR Skip
     InputCell=InputCell(~FDMsk);

@@ -28,7 +28,7 @@ else
 end
 
 
-GRETNAPath=fileparts('gretna.m');
+GRETNAPath=fileparts(which('gretna.m'));
 JM=fullfile(GRETNAPath, 'Jobsman', 'gretna_DartelEPINormalization.mat');
 SpmJob=load(JM);
             

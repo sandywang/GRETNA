@@ -153,6 +153,15 @@ end
 
 set(gca, 'XTick',((1+Numgroup)/2): Numgroup: (Dim2-(Numgroup-(1+Numgroup)/2)), 'XTickLabel', Lname)
 
+% line positions
+xlines = (Numgroup+0.5):Numgroup:(Dim2+0.5-Numgroup);
+hx     = zeros(size(xlines));
+
+for n  = 1:length(xlines)
+    hx(n) = line([xlines(n) xlines(n)], get(gca,'ylim'), 'Linestyle' ,'-.',...
+        'color', [0.83 0.82 0.78], 'tag', 'separator', 'LineWidth', 0.5);
+end
+
 % legend
 if strcmpi(Type,'box')||strcmpi(Type,'boxfill')
     if  sscanf(version,'%f',1)*1000 >= 8400
@@ -170,21 +179,14 @@ else
         legend('boxoff');
     else
         warning('off','MATLAB:legend:IgnoringExtraEntries');
-        legend([cell2mat(H(1:Numgroup)), H1], Gname, 'Orientation','horizontal','Location','northoutside');
+        legend([cell2mat(H(1:Numgroup)), cell2mat(H1)], Gname, 'Orientation','horizontal','Location','northoutside');
         legend('boxoff');
     end
 end
 
-% line positions
-xlines = (Numgroup+0.5):Numgroup:(Dim2+0.5-Numgroup);
-hx     = zeros(size(xlines));
-
-for n  = 1:length(xlines)
-    hx(n) = line([xlines(n) xlines(n)], get(gca,'ylim'), 'Linestyle' ,'-.',...
-        'color', [0.83 0.82 0.78], 'tag', 'separator', 'LineWidth', 0.5);
-end
-
 set(gca, 'FontName', 'arial', 'box', 'off', 'TickDir', 'in', 'Ylim',...
     [min(Data(:))-range(Data(:)), max(Data(:))+range(Data(:))], 'Xlim', [0.38, Dim2+0.62]);
+
+hold off
 
 return

@@ -20,8 +20,13 @@ function gretna_RUN_RegressOut(InputFile, GSMsk, WMMsk, CSFMsk, HMInd, HMFile)
 %   Beijing Normal University,
 %   Beijing, PR China.
 
-OutputFile=cellfun(@(f) gretna_FUN_GetOutputFile(f, 'c'), InputFile,...
-    'UniformOutput', false);
+if ~isempty(GSMsk)
+    OutputFile=cellfun(@(f) gretna_FUN_GetOutputFile(f, 'cWGS'), InputFile,...
+        'UniformOutput', false);
+else
+    OutputFile=cellfun(@(f) gretna_FUN_GetOutputFile(f, 'cNGS'), InputFile,...
+        'UniformOutput', false);    
+end
 
 FstFile=InputFile{1};
 [Path, Name, Ext]=fileparts(FstFile);

@@ -23,8 +23,13 @@ function Process=gretna_GEN_RegressOut(InputFile, GSMsk, WMMsk, CSFMsk, HMInd, H
 %   Beijing, PR China.
 
 Process.command='gretna_RUN_RegressOut(opt.InputFile, opt.GSMsk, opt.WMMsk, opt.CSFMsk, opt.HMInd, opt.HMFile)';
-OutputFile=cellfun(@(f) gretna_FUN_GetOutputFile(f, 'c'), InputFile,...
-    'UniformOutput', false);
+if ~isempty(GSMsk)
+    OutputFile=cellfun(@(f) gretna_FUN_GetOutputFile(f, 'cWGS'), InputFile,...
+        'UniformOutput', false);
+else
+    OutputFile=cellfun(@(f) gretna_FUN_GetOutputFile(f, 'cNGS'), InputFile,...
+        'UniformOutput', false);    
+end
 
 % Options
 Process.opt.InputFile=InputFile;

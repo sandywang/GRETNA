@@ -42,7 +42,7 @@ for i=1:numel(SampleCell)
     end
     ResCell{i}=r;
 end
-NumS12=cellfun(@length, ResCell);
+NumS12=cellfun(@(m) size(m, 1), ResCell);
 NumSum=sum(NumS12);
 NumS1=NumS12(1);
 NumS2=NumS12(2);
@@ -56,10 +56,12 @@ for i=1:NumPerm
     Ind1=RandInd(1:NumS1);
     Ind2=RandInd(NumS1+1:NumSum);
     Net1=corr(Res(Ind1, :));
+    Net1(isnan(Net1))=0;
     Net1=(Net1+Net1')/2;
     Net1(Net1>=1)=1;
     
     Net2=corr(Res(Ind2, :));
+    Net2(isnan(Net2))=0;
     Net2=(Net2+Net2')/2;
     Net2(Net2>=1)=1;
     

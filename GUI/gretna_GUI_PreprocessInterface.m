@@ -1273,6 +1273,9 @@ else
             end
         elseif ModeVal==2 && strcmpi(PreStr{1}, 'DICOM TO NIFTI')
             OptToUp='Off';
+            if ModeVal==numel(PreStr)
+                OptToDown='Off';
+            end
         elseif ModeVal==numel(PreStr)
             OptToDown='Off';
         end
@@ -1852,7 +1855,7 @@ end
 
 D=dir(fullfile(Path, Prefix)); % Unknown
 Ind=cellfun(...
-    @(IsDir, NotDot) IsDir && (~strcmpi(NotDot, '.') && ~strcmpi(NotDot, '..') && ~strcmpi(NotDot, '.DS_Store')),...
+    @(IsDir, IsDot) (~IsDir) && (~strcmpi(IsDot, '.') && ~strcmpi(IsDot, '..') && ~strcmpi(IsDot, '.DS_Store')),...
     {D.isdir}, {D.name});
 D=D(Ind);
 if ~isempty(D)

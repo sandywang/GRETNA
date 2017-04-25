@@ -254,9 +254,9 @@ if ~isempty(cmd)
     if ~isempty(logs)
         if opt.flag_debug
             if ispc
-                instr_job = sprintf('%s -logfile "%s" 2>&1\n',instr_job,logs.txt);
+                instr_job = sprintf('%s -logfile "%s"\n',instr_job,logs.txt);
             else
-                instr_job = sprintf('%s >"%s" 2>&1\n',instr_job,logs.txt);
+                instr_job = sprintf('%s >"%s"\n',instr_job,logs.txt);
             end
         else
             if ispc
@@ -359,7 +359,7 @@ switch opt.mode
 
        if opt.flag_debug
            if strcmp(gb_psom_language,'octave')
-               cmd_script = [cmd_script ' 2>&1']; % In octave, the error stream is lost. Redirect it to standard output
+               cmd_script = [cmd_script '']; % In octave, the error stream is lost. Redirect it to standard output
            end
            msg = sprintf('    The script is executed using the command :\n%s\n\n',cmd_script);
            fprintf('%s',msg);
@@ -385,7 +385,7 @@ switch opt.mode
             instr_batch = ['at -f "' script '" now'];
         end
         if strcmp(gb_psom_language,'octave')
-            instr_batch = [instr_batch ' 2>&1']; % In octave, the error stream is lost. Redirect it to standard output
+            instr_batch = [instr_batch '']; % In octave, the error stream is lost. Redirect it to standard output
         end
         if opt.flag_debug 
             msg = sprintf('    The script is executed using the command :\n%s\n\n',instr_batch);
@@ -420,7 +420,7 @@ switch opt.mode
         end
         if opt.flag_debug
             if strcmp(gb_psom_language,'octave')
-                instr_qsub = [instr_qsub ' 2>&1']; % In octave, the error stream is lost. Redirect it to standard output
+                instr_qsub = [instr_qsub '']; % In octave, the error stream is lost. Redirect it to standard output
             end
             msg = sprintf('    The script is executed using the command :\n%s\n\n',instr_qsub);
             fprintf('%s',msg);

@@ -60,7 +60,7 @@ if ~isempty(Rand)
     Elocrand=cell2mat(Elocrand);
     Egrand=cell2mat(Egrand);
     EGamma=Eloc./mean(Elocrand);
-    ELambda=Eg./mean(Egrand);
+    ELambda=mean(Egrand)./Eg;
     ESigma=EGamma./ELambda;
     save(OutputFile, 'EGamma', 'ELambda', 'ESigma', '-append');
     if AUCInterval>0

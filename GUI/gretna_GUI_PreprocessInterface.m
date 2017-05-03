@@ -1681,7 +1681,7 @@ if Mode==1
     TmpInd=cellfun(@isempty, SubDirS);
     SubDirS=SubDirS(~TmpInd);
     TmpInd=cellfun(@isempty, SubFileS);
-    SubFileS=SubDirS(~TmpInd);
+    SubFileS=SubFileS(~TmpInd);
 
     handles.InputS=[SubDirS; SubFileS];
     guidata(hObject, handles);

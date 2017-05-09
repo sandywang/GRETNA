@@ -38,8 +38,16 @@ elseif SType==3
 else
     error('Error: Invalid Matrix Sign');
 end
-
-A=arrayfun(@(t) logical(gretna_R2b(Mat, TType, t)), Thres,...
+if TType==1
+    TFlag='s';
+elseif TType==2
+    TFlag='r';
+else
+    error('Invalid Threshold Method');
+    return
+end
+    
+A=arrayfun(@(t) logical(gretna_R2b(Mat, TFlag, t)), Thres,...
     'UniformOutput', false);
 if NType==2
     A=cellfun(@(bin) bin.*Mat, A, 'UniformOutput', false);

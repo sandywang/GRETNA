@@ -380,16 +380,16 @@ switch Value
             errordlg('Invalid Base Value');
             return
         end
-        [S, P]=gretna_TTest1(S, TextCell, Base);
+        [Stat, P]=gretna_TTest1(S, TextCell, Base);
     case 2 %Two-Sample
-        [S, P]=gretna_TTest2(S, TextCell);
+        [Stat, P]=gretna_TTest2(S, TextCell);
     case 3 %Paired
-        [S, P]=gretna_TTestPaired(S, TextCell);      
+        [Stat, P]=gretna_TTestPaired(S, TextCell);      
     case 4 %ANCOVA
-        [S, P]=gretna_ANCOVA1(S, TextCell);
+        [Stat, P]=gretna_ANCOVA1(S, TextCell);
         OutputS=fullfile(OutputDir, [Prefix, '_FVector.txt']);
     case 5 %ANCOVA Repeat
-        [S, P]=gretna_ANCOVA1_Repeated(S, TextCell);
+        [Stat, P]=gretna_ANCOVA1_Repeated(S, TextCell);
         OutputS=fullfile(OutputDir, [Prefix, '_FVector.txt']);
     case 6 %Corr
         SeedFile=get(handles.CorrSeedListbox, 'String');
@@ -397,7 +397,7 @@ switch Value
             SeedFile=SeedFile{1};
         end
         SeedSeries={load(SeedFile)};        
-        [S, P]=gretna_Correlation(S, SeedSeries, TextCell);
+        [Stat, P]=gretna_Correlation(S, SeedSeries, TextCell);
         OutputS=fullfile(OutputDir, [Prefix, '_RVector.txt']);
 end
 
@@ -411,7 +411,7 @@ end
 switch Correct
     case 1 %None
         Index=P<PThrd;
-        SThrd=min(abs(S(Index)));
+        SThrd=min(abs(Stat(Index)));
     case 2 %FDR
         [pID, pN]=gretna_FDR(P, PThrd);
         if isempty(pID)
@@ -419,13 +419,13 @@ switch Correct
             return
         end
         Index=P<pID;
-        SThrd=min(abs(S(Index)));
+        SThrd=min(abs(Stat(Index)));
         PThrd=pID;
     case 3 %Bonferroni
         NumOfMetric=size(S{1}, 2);
         PThrd=PThrd/NumOfMetric;
         Index = P < PThrd;
-        SThrd=min(abs(S(Index)));        
+        SThrd=min(abs(Stat(Index)));        
 end
 OutputSThrd=fullfile(OutputDir, [Prefix, '_TThrd.txt']);
 OutputPThrd=fullfile(OutputDir, [Prefix, '_PThrd.txt']);

@@ -54,23 +54,23 @@ if AUCInterval>0
     save(OutputFile, 'aEloc', 'aEg', '-append');
 end
 
-if ~isempty(Rand)
-    [Elocrand, Egrand]=cellfun(@(r) RandEfficiency(r, NType), Rand,...
-        'UniformOutput', false);
-    Elocrand=cell2mat(Elocrand);
-    Egrand=cell2mat(Egrand);
-    EGamma=Eloc./mean(Elocrand);
-    ELambda=mean(Egrand)./Eg;
-    ESigma=EGamma./ELambda;
-    save(OutputFile, 'EGamma', 'ELambda', 'ESigma', '-append');
-    if AUCInterval>0
-        deltas=AUCInterval;
-        aEGamma=(sum(EGamma)-sum(EGamma([1 end]))/2)*deltas;
-        aELambda=(sum(ELambda)-sum(ELambda([1 end]))/2)*deltas;
-        aESigma=(sum(ESigma)-sum(ESigma([1 end]))/2)*deltas;
-        save(OutputFile, 'aEGamma', 'aELambda', 'aESigma', '-append');
-    end
-end
+% if ~isempty(Rand)
+%     [Elocrand, Egrand]=cellfun(@(r) RandEfficiency(r, NType), Rand,...
+%         'UniformOutput', false);
+%     Elocrand=cell2mat(Elocrand);
+%     Egrand=cell2mat(Egrand);
+%     EGamma=Eloc./mean(Elocrand);
+%     ELambda=mean(Egrand)./Eg;
+%     ESigma=EGamma./ELambda;
+%     save(OutputFile, 'EGamma', 'ELambda', 'ESigma', '-append');
+%     if AUCInterval>0
+%         deltas=AUCInterval;
+%         aEGamma=(sum(EGamma)-sum(EGamma([1 end]))/2)*deltas;
+%         aELambda=(sum(ELambda)-sum(ELambda([1 end]))/2)*deltas;
+%         aESigma=(sum(ESigma)-sum(ESigma([1 end]))/2)*deltas;
+%         save(OutputFile, 'aEGamma', 'aELambda', 'aESigma', '-append');
+%     end
+% end
 
 function [Eloc, Eg]=RandEfficiency(A, NType)
 if NType==1

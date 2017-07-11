@@ -372,6 +372,9 @@ Prefix=get(handles.PrefixEntry, 'String');
 OutputS=fullfile(OutputDir, [Prefix, '_TVector.txt']);
 OutputP=fullfile(OutputDir, [Prefix, '_PVector.txt']);
 
+OutputSThrd=fullfile(OutputDir, [Prefix, '_TThrd.txt']);
+OutputPThrd=fullfile(OutputDir, [Prefix, '_PThrd.txt']);
+
 Value=get(handles.StatPopup, 'Value');
 switch Value
     case 1 %One-Sample
@@ -388,6 +391,7 @@ switch Value
     case 4 %ANCOVA
         [Stat, P]=gretna_ANCOVA1(S, TextCell);
         OutputS=fullfile(OutputDir, [Prefix, '_FVector.txt']);
+        OutputSThrd=fullfile(OutputDir, [Prefix, '_FThrd.txt']);
     case 5 %ANCOVA Repeat
         [Stat, P]=gretna_ANCOVA1_Repeated(S, TextCell);
         OutputS=fullfile(OutputDir, [Prefix, '_FVector.txt']);
@@ -399,6 +403,7 @@ switch Value
         SeedSeries={load(SeedFile)};        
         [Stat, P]=gretna_Correlation(S, SeedSeries, TextCell);
         OutputS=fullfile(OutputDir, [Prefix, '_RVector.txt']);
+        OutputSThrd=fullfile(OutputDir, [Prefix, '_RThrd.txt']);
 end
 
 Correct=get(handles.CorrectPopup, 'Value');
@@ -427,13 +432,10 @@ switch Correct
         Index = P < PThrd;
         SThrd=min(abs(Stat(Index)));        
 end
-OutputSThrd=fullfile(OutputDir, [Prefix, '_TThrd.txt']);
-OutputPThrd=fullfile(OutputDir, [Prefix, '_PThrd.txt']);
-
 
 save(OutputSThrd, 'SThrd', '-ASCII', '-DOUBLE', '-TABS');
 save(OutputPThrd, 'PThrd', '-ASCII', '-DOUBLE', '-TABS');
-save(OutputS, 'S', '-ASCII', '-DOUBLE', '-TABS');
+save(OutputS, 'Stat', '-ASCII', '-DOUBLE', '-TABS');
 save(OutputP, 'P', '-ASCII', '-DOUBLE', '-TABS');
 
 % --- Executes on button press in HelpButton.

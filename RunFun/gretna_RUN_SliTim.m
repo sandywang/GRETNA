@@ -45,7 +45,7 @@ switch SInd
     case 5 %seq+z
         SliOrd=1:SliNum;
     case 6 %seq-z
-        SliOrd=SliceNum:-1:1;
+        SliOrd=SliNum:-1:1;
     otherwise
         error('Error: Slice Order Index');
 end

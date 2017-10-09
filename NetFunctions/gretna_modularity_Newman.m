@@ -48,8 +48,11 @@ Bsub=B;         %Bsub is used for the subdivision after the first split
 Nsub=N;
 
 while isSplit(1)
-    [V, D]=eigs(Bsub, 1); % support sparse matrix
-    v1=V;
+    [V D]=eig(Bsub);
+    [d1 i1]=max(real(diag(D)));         %maximal positive (real part of) eigenvalue of Bg
+    v1=V(:,i1);    
+    %[V, D]=eigs(Bsub, 1); % support sparse matrix
+    %v1=V;
     
     S=ones(Nsub,1);
     S(v1<0)=-1;

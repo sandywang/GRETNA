@@ -634,6 +634,11 @@ switch Type
             else
                 NMsk=load(NMskName);
             end
+            TMap=zeros(n1*n2, 1);
+            TMap(MIndex(:))=T;
+            TMap=reshape(TMap, [n1, n2]);
+            TMap=TMap+TMap';            
+            
             PMap=zeros(n1*n2, 1);
             PMap(MIndex(:))=P;
             PMap=reshape(PMap, [n1, n2]);
@@ -641,15 +646,15 @@ switch Type
             M=str2double(get(handles.IterEntry, 'String'));
             
             [Comnet, Comnet_P]=gretna_TTest1_NBS(Group1Matrix,...
-                NMsk, CovCells, Base, PThrd, CPThrd, PMap, M);
+                NMsk, CovCells, Base, PThrd, CPThrd, TMap, PMap, M);
             if isempty(Comnet)
                 msgbox(sprintf('No Comnet Left under Edge P<%f, Comnet P < %f', PThrd, CPThrd));
             else
                 save(fullfile(OutputDir, [Prefix, '_ComnetMat.mat']), 'Comnet', 'Comnet_P');
                 save(fullfile(OutputDir, [Prefix, '_ComnetP.txt']),  'Comnet_P', '-ASCII',  '-DOUBLE', '-TABS');
-                for c=1:numel(Comnet)
-                    comnet=Comnet{c};
-                    save(fullfile(OutputDir, sprintf('%s_Comnet%.2d.txt', Prefix, c)),  'comnet', '-ASCII',  '-DOUBLE', '-TABS');
+                for c=1:size(Comnet, 1)
+                    comnet=Comnet{c, 2};
+                    save(fullfile(OutputDir, sprintf('%s_%s_Comnet_%s.txt', Prefix, Comnet{c, 1}, Comnet{c, 3})),  'comnet', '-ASCII',  '-DOUBLE', '-TABS');
                 end
             end
             fprintf('\n\tNBS: Done.\n');
@@ -758,6 +763,11 @@ switch Type
             else
                 NMsk=load(NMskName);
             end
+            TMap=zeros(n11*n12, 1);
+            TMap(MIndex(:))=T;
+            TMap=reshape(TMap, [n11, n12]);
+            TMap=TMap+TMap';            
+            
             PMap=zeros(n11*n12, 1);
             PMap(MIndex(:))=P;
             PMap=reshape(PMap, [n11, n12]);
@@ -765,15 +775,15 @@ switch Type
             M=str2double(get(handles.IterEntry, 'String'));
             
             [Comnet, Comnet_P]=gretna_TTest2_NBS(GroupMatrix,...
-                NMsk, CovCells, PThrd, CPThrd, PMap, M);
+                NMsk, CovCells, PThrd, CPThrd, TMap, PMap, M);
             if isempty(Comnet)
                 msgbox(sprintf('No Comnet Left under Edge P < %g, Comnet P < %g', PThrd, CPThrd));
             else
                 save(fullfile(OutputDir, [Prefix, '_ComnetMat.mat']), 'Comnet', 'Comnet_P');
                 save(fullfile(OutputDir, [Prefix, '_ComnetP.txt']),  'Comnet_P', '-ASCII',  '-DOUBLE', '-TABS');
-                for c=1:numel(Comnet)
-                    comnet=Comnet{c};
-                    save(fullfile(OutputDir, sprintf('%s_Comnet%.2d', Prefix, c)),  'comnet', '-ASCII',  '-DOUBLE', '-TABS');
+                for c=1:size(Comnet, 1)
+                    comnet=Comnet{c, 2};
+                    save(fullfile(OutputDir, sprintf('%s_%s_Comnet_%s.txt', Prefix, Comnet{c, 1}, Comnet{c, 3})),  'comnet', '-ASCII',  '-DOUBLE', '-TABS');
                 end
             end
             fprintf('\n\tNBS: Done.\n'); 

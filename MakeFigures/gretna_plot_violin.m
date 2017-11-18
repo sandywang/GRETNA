@@ -179,7 +179,7 @@ else
         legend('boxoff');
     else
         warning('off','MATLAB:legend:IgnoringExtraEntries');
-        legend([cell2mat(H(1:Numgroup)), cell2mat(H1)], Gname, 'Orientation','horizontal','Location','northoutside');
+        legend([cell2mat(H(1:Numgroup)), H1], Gname, 'Orientation','horizontal','Location','northoutside');
         legend('boxoff');
     end
 end

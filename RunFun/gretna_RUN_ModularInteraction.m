@@ -34,6 +34,7 @@ end
 save(OutputFile, '-struct', 'S');
 
 function I=ModularInteraction(Matrix, NType, Ci)
+Ci=Ci(:);
 N=size(Matrix, 1);
 ModNum=max(Ci);
 CompIndex=Ci>0;

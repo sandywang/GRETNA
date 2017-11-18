@@ -47,6 +47,7 @@ if DDPcInd==1 % Estimate Participant Coefficient
 end
 
 function [PcOriginal, PcNormalized]=ParticipantCoefficient(Matrix, Ci)
+Ci=Ci(:);
 N=size(Matrix, 1);
 CompIndex=Ci>0;
 TmpMatrix=Matrix(CompIndex, CompIndex);

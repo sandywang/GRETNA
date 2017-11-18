@@ -30,7 +30,7 @@ end
 save(OutputFile, 'CustomPc', 'CustomPc_normalized');
 
 function [PcOriginal, PcNormalized]=ParticipantCoefficient(Matrix, Ci)
-Ci=Ci(:)
+Ci=Ci(:);
 N=size(Matrix, 1);
 CompIndex=Ci>0;
 TmpCi=Ci(CompIndex);

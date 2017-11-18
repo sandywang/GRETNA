@@ -22,7 +22,7 @@ function varargout = gretna_GUI_PreprocessInterface(varargin)
 
 % Edit the above text to modify the response to help gretna_GUI_PreprocessInterface
 
-% Last Modified by GUIDE v2.5 18-Oct-2016 15:02:01
+% Last Modified by GUIDE v2.5 17-Nov-2017 17:01:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1714,9 +1714,11 @@ end
 
 if ~isempty(Text)
     Val=1;
+    set(handles.CopyFilesBtn, 'Enable', 'On');
 else
     Val=[];
     warndlg('Cannot find data, check again!');
+    set(handles.CopyFilesBtn, 'Enable', 'Off');
 end
 set(handles.InputList, 'String', Text, 'Value', Val, 'BackgroundColor', [1, 1, 1]);
 
@@ -2207,3 +2209,31 @@ handles.CurItemKey=CurItemKey;
 guidata(hObject, handles);
 set(handles.PipeOptList, 'Value', Val);
 WarningObj(handles.PipeOptList);
+
+
+% --- Executes on button press in CopyFilesBtn.
+function CopyFilesBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to CopyFilesBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+OutPath=uigetdir('Copy Selected Imaging Files To Target Folder');
+for i=1:numel(handles.InputS)
+    InFiles=handles.InputS{i}.FileList;
+    for j=1:numel(InFiles)
+        [FPath, Name, Ext]=fileparts(InFiles{j});
+        if strcmpi(handles.FunPDir, FPath)
+            OutFile=fullfile(OutPath, [Name, Ext]);
+            fprintf('Copying %s to %s.\n', InFiles{j}, OutFile);
+            copyfile(InFiles{j}, OutFile);
+        else
+            [PPath, SName]=fileparts(FPath);
+            OutSubPath=fullfile(OutPath, SName);
+            OutFile=fullfile(OutSubPath, [Name, Ext]);
+            fprintf('Copying %s to %s.\n', InFiles{j}, OutFile);
+            if exist(OutSubPath, 'dir')~=7
+                mkdir(OutSubPath)
+            end
+            copyfile(InFiles{j}, OutFile);
+        end
+    end
+end

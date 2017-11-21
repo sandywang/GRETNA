@@ -949,8 +949,10 @@ switch CInd
     case 2 %local
         if ismac
             CTyp='background';
+        elseif ispc
+            CTyp='batch';            
         else
-            CTyp='batch';
+            CTyp='background';
         end
     case 3 %sqe
         CTyp='qsub';

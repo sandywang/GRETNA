@@ -14,7 +14,7 @@ if numel(OutputFile)==1 %4D
     end
 else
     for i=1:numel(V_out)
-        V_out{i}.fname=V_in{i}.fname;
+        V_out{i}.fname=OutputFile{i};
         V_out{i}.dt=Dt;
     end
 end

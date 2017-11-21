@@ -32,10 +32,10 @@ else
     InputCell=InputFile;    
 end
 V_in=spm_vol(InputCell);
-V_out=gretna_FUN_GetOutputStruct(V_in, OutputFile);
+V_out=gretna_FUN_GetOutputStruct(V_in, OutputFile, 'float32');
 
 for t=1:TP
-    V_out{t}=spm_create_vol(V_out{t});    
+    V_out{t}=spm_create_vol(V_out{t});  
 end
 
 for k=1:NumSli

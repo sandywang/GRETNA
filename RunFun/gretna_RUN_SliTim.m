@@ -39,9 +39,9 @@ switch SInd
     case 2 %alt+z2
         SliOrd=[2:2:SliNum, 1:2:SliNum];
     case 3 %alt-z
-        SliOrd=[SliNum:-2:1, SliNum:-2:2];
+        SliOrd=[flipdim(1:2:SliNum, 2), flipdim(2:2:SliNum, 2)];
     case 4 %alt-z2
-        SliOrd=[SliNum:-2:2, SliNum:-2:1];
+        SliOrd=[flipdim(2:2:SliNum, 2), flipdim(1:2:SliNum, 2)];
     case 5 %seq+z
         SliOrd=1:SliNum;
     case 6 %seq-z

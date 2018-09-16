@@ -1850,7 +1850,7 @@ if ~isempty(D)
     return
 end
 
-D=dir(fullfile(Path, [Prefix, '*.IMA'])); % DCM
+D=dir(fullfile(Path, [Prefix, '.IMA'])); % DCM
 if ~isempty(D)
     C={D.name}';
     FileList={fullfile(Path, C{1})};
@@ -1946,7 +1946,7 @@ if ~isempty(D)
     return
 end
 
-D=dir(fullfile(Path, [Prefix, '*.ima'])); % DCM
+D=dir(fullfile(Path, [Prefix, '.ima'])); % DCM
 if ~isempty(D)
     C={D.name}';
     S.Num=numel(C);
@@ -1956,7 +1956,7 @@ if ~isempty(D)
     return
 end
 
-D=dir(fullfile(Path, [Prefix, '*.IMA'])); % DCM
+D=dir(fullfile(Path, [Prefix, '.IMA'])); % DCM
 if ~isempty(D)
     C={D.name}';
     S.Num=numel(C);

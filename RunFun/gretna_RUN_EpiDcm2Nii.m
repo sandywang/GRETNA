@@ -9,7 +9,7 @@ function gretna_RUN_EpiDcm2Nii(InputFile, OutputFile)
 %   Written by Sandy Wang (sandywang.rest@gmail.com) 20161013.
 %   Copyright (C) 2013-2016
 %   State Key Laboratory of Cognitive Neuroscience and Learning &
-%   IDG/McGovern Institute of Brain Research, 
+%   IDG/McGovern Institute of Brain Research,
 %   Beijing Normal University,
 %   Beijing, PR China.
 
@@ -28,12 +28,20 @@ OutputOpt=['-o ', OutputPath];
 if ispc
     IniOpt='-b dcm2nii.ini';
     Cmd='dcm2nii.exe';
-elseif ismac;
+elseif ismac
     IniOpt='-b ./dcm2nii.ini';
     Cmd='./dcm2nii_mac';
 else %Linux
     IniOpt='-b ./dcm2nii.ini';
     Cmd='./dcm2nii';
+end
+
+if ismac
+    Str = sprintf('%s','chmod +x ./dcm2nii_mac');
+    ExitCode=system(Str);
+    if ExitCode
+        error('Error when DICOM to NIfTI');
+    end
 end
 
 Str=sprintf('%s %s %s %s', Cmd, IniOpt, OutputOpt, InputFile{1});

@@ -1,4 +1,4 @@
-function varargout = gretna_GUI_PreprocessInterface(varargin)
+    function varargout = gretna_GUI_PreprocessInterface(varargin)
 % GRETNA_GUI_PREPROCESSINTERFACE MATLAB code for gretna_GUI_PreprocessInterface.fig
 %      GRETNA_GUI_PREPROCESSINTERFACE, by itself, creates a new GRETNA_GUI_PREPROCESSINTERFACE or raises the existing
 %      singleton*.
@@ -949,10 +949,8 @@ switch CInd
     case 2 %local
         if ismac
             CTyp='background';
-        elseif ispc
-            CTyp='batch';            
         else
-            CTyp='background';
+            CTyp='batch';
         end
     case 3 %sqe
         CTyp='qsub';
@@ -1849,7 +1847,6 @@ if ~isempty(D)
     FileList={fullfile(Path, C{1})};
     return
 end
-
 D=dir(fullfile(Path, [Prefix, '.IMA'])); % DCM
 if ~isempty(D)
     C={D.name}';
@@ -1946,7 +1943,7 @@ if ~isempty(D)
     return
 end
 
-D=dir(fullfile(Path, [Prefix, '.ima'])); % DCM
+D = dir(fullfile(Path, [Prefix, '.ima']));
 if ~isempty(D)
     C={D.name}';
     S.Num=numel(C);
